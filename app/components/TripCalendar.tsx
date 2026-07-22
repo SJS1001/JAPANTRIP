@@ -190,8 +190,14 @@ export function TripCalendar() {
   const [flipped, setFlipped] = useState<string | null>(null);
   const [draft, setDraft] = useState<TripItem | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationMessage, setLocationMessage] = useState("");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const versionRef = useRef(1);
+  const editRevisionRef = useRef(0);
+  const dirtyRef = useRef(false);
+  const refreshingRef = useRef(false);
+  const locatingRef = useRef(false);
   const saveChain = useRef(Promise.resolve());
   const importRef = useRef<HTMLInputElement>(null);
 
@@ -214,17 +220,27 @@ export function TripCalendar() {
       localStorage.setItem("japanTripCloudCache", JSON.stringify(data.items));
       setPhase("ready");
       setSync("saved");
+      dirtyRef.current = false;
       const pending = localStorage.getItem("japanTripPending");
       if (pending) {
         try {
-          const queued = JSON.parse(pending) as { items?: TripItem[]; action?: string };
+          const queued = JSON.parse(pending) as { items?: TripItem[]; action?: string; changedIds?: string[] };
           if (Array.isArray(queued.items)) {
+            const revision = ++editRevisionRef.current;
+            dirtyRef.current = true;
             setItems(queued.items);
             setSync("saving");
             setSyncMessage("Uploading changes made while this device was offline…");
             setTimeout(() => {
               saveChain.current = saveChain.current.then(() =>
-                sendSave(queued.items as TripItem[], `${queued.action || "Offline changes"} · reconnected`),
+                sendSave(
+                  queued.items as TripItem[],
+                  `${queued.action || "Offline changes"} · reconnected`,
+                  revision,
+                  queued.changedIds?.length
+                    ? queued.changedIds
+                    : (queued.items as TripItem[]).map((item) => item.id),
+                ),
               );
             }, 50);
           }
@@ -260,6 +276,63 @@ export function TripCalendar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (phase !== "ready") return;
+    let cancelled = false;
+    let messageTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const checkForFamilyChanges = async () => {
+      if (
+        cancelled ||
+        !navigator.onLine ||
+        document.hidden ||
+        dirtyRef.current ||
+        refreshingRef.current
+      ) return;
+
+      try {
+        const statusResponse = await fetch("/api/status", { cache: "no-store" });
+        if (!statusResponse.ok) return;
+        const status = (await statusResponse.json()) as { version?: number };
+        if (!status.version || status.version <= versionRef.current) return;
+
+        refreshingRef.current = true;
+        const response = await fetch("/api/trip", { cache: "no-store" });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (cancelled || dirtyRef.current || data.version <= versionRef.current) return;
+
+        setItems(data.items);
+        setVersion(data.version);
+        versionRef.current = data.version;
+        setHistory(data.history ?? []);
+        setUpdatedBy(data.updatedBy ?? "Family member");
+        setUpdatedAt(data.updatedAt ?? "");
+        localStorage.setItem("japanTripCloudCache", JSON.stringify(data.items));
+        setSync("saved");
+        setSyncMessage(`Updated automatically from ${data.updatedBy || "another family member"}.`);
+        if (messageTimer) clearTimeout(messageTimer);
+        messageTimer = setTimeout(() => setSyncMessage(""), 5000);
+      } catch {
+        // The existing calendar remains usable; the next poll or focus retries.
+      } finally {
+        refreshingRef.current = false;
+      }
+    };
+
+    const interval = window.setInterval(() => void checkForFamilyChanges(), 12_000);
+    const checkWhenVisible = () => void checkForFamilyChanges();
+    window.addEventListener("focus", checkWhenVisible);
+    document.addEventListener("visibilitychange", checkWhenVisible);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      if (messageTimer) clearTimeout(messageTimer);
+      window.removeEventListener("focus", checkWhenVisible);
+      document.removeEventListener("visibilitychange", checkWhenVisible);
+    };
+  }, [phase]);
+
   async function signIn(event: FormEvent) {
     event.preventDefault();
     setAccessError("");
@@ -278,11 +351,20 @@ export function TripCalendar() {
     await loadTrip();
   }
 
-  async function sendSave(snapshot: TripItem[], action: string, canRetry = true) {
+  async function sendSave(
+    snapshot: TripItem[],
+    action: string,
+    revision: number,
+    changedIds: string[],
+    canRetry = true,
+  ) {
     if (!navigator.onLine) {
       setSync("offline");
       setSyncMessage("Changes are held on this device until you reconnect.");
-      localStorage.setItem("japanTripPending", JSON.stringify({ items: snapshot, action }));
+      localStorage.setItem(
+        "japanTripPending",
+        JSON.stringify({ items: snapshot, action, changedIds }),
+      );
       return;
     }
     setSync("saving");
@@ -297,10 +379,31 @@ export function TripCalendar() {
       }),
     });
     const data = await response.json();
-    if (response.status === 409 && canRetry) {
+    if (
+      response.status === 409 &&
+      canRetry &&
+      Array.isArray(data.items) &&
+      changedIds.length
+    ) {
+      const changed = new Set(changedIds);
+      const localChanged = new Map(
+        snapshot
+          .filter((item) => changed.has(item.id))
+          .map((item) => [item.id, item]),
+      );
+      const merged = (data.items as TripItem[])
+        .filter((item) => !changed.has(item.id) || localChanged.has(item.id))
+        .map((item) => localChanged.get(item.id) ?? item);
+      const remoteIds = new Set((data.items as TripItem[]).map((item) => item.id));
+      for (const item of localChanged.values()) {
+        if (!remoteIds.has(item.id)) merged.push(item);
+      }
+
       versionRef.current = data.version;
       setVersion(data.version);
-      return sendSave(snapshot, `${action} · reconciled`, false);
+      setItems(merged);
+      localStorage.setItem("japanTripCloudCache", JSON.stringify(merged));
+      return sendSave(merged, `${action} · merged with family changes`, revision, changedIds, false);
     }
     if (!response.ok) {
       setSync("error");
@@ -317,27 +420,103 @@ export function TripCalendar() {
     ].slice(0, 30));
     localStorage.setItem("japanTripCloudCache", JSON.stringify(snapshot));
     localStorage.removeItem("japanTripPending");
+    if (revision === editRevisionRef.current) dirtyRef.current = false;
     setSync("saved");
     setSyncMessage("");
   }
 
   function commit(next: TripItem[], action: string) {
+    const before = new Map(items.map((item) => [item.id, JSON.stringify(item)]));
+    const after = new Map(next.map((item) => [item.id, JSON.stringify(item)]));
+    const changedIds = [...new Set([...before.keys(), ...after.keys()])].filter(
+      (id) => before.get(id) !== after.get(id),
+    );
+    const revision = ++editRevisionRef.current;
+    dirtyRef.current = true;
     setItems(next);
     localStorage.setItem("japanTripCloudCache", JSON.stringify(next));
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      saveChain.current = saveChain.current.then(() => sendSave(next, action));
+      saveTimer.current = null;
+      saveChain.current = saveChain.current.then(() =>
+        sendSave(next, action, revision, changedIds),
+      );
     }, 550);
   }
 
-  function saveDraft(event: FormEvent) {
+  async function locateForMap(item: TripItem, original?: TripItem) {
+    const mappable = ["hotel", "transport", "attraction", "meal"].includes(
+      item.category,
+    );
+    const hasSearchablePlace = Boolean(
+      item.location?.trim() ||
+        (["hotel", "attraction"].includes(item.category) && item.title.trim()),
+    );
+    const placeChanged =
+      !original ||
+      original.title !== item.title ||
+      original.location !== item.location ||
+      original.category !== item.category;
+    const hasCoordinates = Number.isFinite(item.lat) && Number.isFinite(item.lng);
+    if (!mappable || !hasSearchablePlace || (hasCoordinates && !placeChanged)) {
+      return item;
+    }
+
+    const located = { ...item };
+    delete located.lat;
+    delete located.lng;
+    const query = [item.title.trim(), item.location?.trim(), "Japan"]
+      .filter(Boolean)
+      .join(", ");
+
+    locatingRef.current = true;
+    setLocating(true);
+    setLocationMessage("");
+    try {
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const response = await fetch("/api/geocode", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+        if (response.status === 429 && attempt === 0) {
+          const retrySeconds = Number(response.headers.get("retry-after") || 2);
+          await new Promise((resolve) =>
+            window.setTimeout(resolve, retrySeconds * 1000),
+          );
+          continue;
+        }
+
+        const data = await response.json();
+        if (response.ok && Number.isFinite(data.lat) && Number.isFinite(data.lng)) {
+          return { ...located, lat: Number(data.lat), lng: Number(data.lng) };
+        }
+        setLocationMessage(
+          `${item.title} was saved, but its map position needs a more specific location.`,
+        );
+        return located;
+      }
+    } catch {
+      setLocationMessage(
+        `${item.title} was saved, but automatic map placement is temporarily unavailable.`,
+      );
+    } finally {
+      locatingRef.current = false;
+      setLocating(false);
+    }
+    return located;
+  }
+
+  async function saveDraft(event: FormEvent) {
     event.preventDefault();
-    if (!draft?.title.trim()) return;
-    const exists = items.some((item) => item.id === draft.id);
+    if (!draft?.title.trim() || locatingRef.current) return;
+    const original = items.find((item) => item.id === draft.id);
+    const ready = await locateForMap(draft, original);
+    const exists = Boolean(original);
     const next = exists
-      ? items.map((item) => (item.id === draft.id ? draft : item))
-      : [...items, draft];
-    commit(next, `${exists ? "Updated" : "Added"} ${draft.title}`);
+      ? items.map((item) => (item.id === ready.id ? ready : item))
+      : [...items, ready];
+    commit(next, `${exists ? "Updated" : "Added"} ${ready.title}`);
     setDraft(null);
   }
 
@@ -454,6 +633,7 @@ export function TripCalendar() {
       </header>
 
       {syncMessage && <div className={`notice ${sync}`}>{syncMessage}</div>}
+      {locationMessage && <div className="notice saved">{locationMessage}</div>}
 
       <nav className="tabs" aria-label="Calendar sections">
         {(["calendar", "tickets", "route", "history"] as const).map((tab) => (
@@ -520,7 +700,7 @@ export function TripCalendar() {
 
       <footer><span>Shared family version {version}</span><button onClick={async () => { await fetch("/api/logout", { method: "POST" }); setPhase("locked"); }}>Lock calendar</button></footer>
 
-      {draft && <Editor item={draft} setItem={setDraft} onSave={saveDraft} onDelete={removeDraft} onClose={() => setDraft(null)} onReset={() => { if (confirm("Restore the verified complete itinerary for everyone?")) { setDraft(null); void resetDefaults(); } }} />}
+      {draft && <Editor item={draft} setItem={setDraft} onSave={saveDraft} onDelete={removeDraft} onClose={() => setDraft(null)} onReset={() => { if (confirm("Restore the verified complete itinerary for everyone?")) { setDraft(null); void resetDefaults(); } }} busy={locating} />}
     </main>
   );
 }
@@ -562,7 +742,7 @@ function HistoryPanel({ history }: { history: HistoryItem[] }) {
   return <section className="history-panel"><div><div className="kicker">Shared memory</div><h2>Recent family changes</h2><p>The current itinerary is saved in the cloud. This log helps everyone see what changed and who changed it.</p></div><div className="history-list">{!history.length && <p>No shared edits yet.</p>}{history.map((entry) => <article key={entry.id}><span>v{entry.version}</span><div><strong>{entry.action}</strong><small>{entry.changedBy} · {new Date(entry.changedAt).toLocaleString()}</small></div></article>)}</div></section>;
 }
 
-function Editor({ item, setItem, onSave, onDelete, onClose, onReset }: { item: TripItem; setItem: (item: TripItem) => void; onSave: (event: FormEvent) => void; onDelete: () => void; onClose: () => void; onReset: () => void }) {
+function Editor({ item, setItem, onSave, onDelete, onClose, onReset, busy = false }: { item: TripItem; setItem: (item: TripItem) => void; onSave: (event: FormEvent) => void; onDelete: () => void; onClose: () => void; onReset: () => void; busy?: boolean }) {
   const update = (key: keyof TripItem, value: string) => setItem({ ...item, [key]: value });
-  return <div className="modal" role="dialog" aria-modal="true" aria-labelledby="editor-title"><form className="editor" onSubmit={onSave}><header><h2 id="editor-title">Edit itinerary item</h2><button type="button" onClick={onClose} aria-label="Close">×</button></header><div className="form-grid"><label>Date<input type="date" min="2026-08-06" max="2026-08-22" value={item.date} onChange={(event) => update("date", event.target.value)} required /></label><label>Time<input value={item.time || ""} onChange={(event) => update("time", event.target.value)} placeholder="09:00–10:30" /></label><label>Category<select value={item.category} onChange={(event) => update("category", event.target.value)}>{categories.map((category) => <option key={category}>{category}</option>)}</select></label><label>Ticket status<select value={item.ticketStatus || "not-needed"} onChange={(event) => update("ticketStatus", event.target.value)}><option value="to-buy">To buy</option><option value="booked">Booked</option><option value="not-needed">Not needed / conditional</option></select></label><label className="wide">Title<input value={item.title} onChange={(event) => update("title", event.target.value)} required /></label><label className="wide">Location<input value={item.location || ""} onChange={(event) => update("location", event.target.value)} /></label><label>Confirmation number<input value={item.confirmation || ""} onChange={(event) => update("confirmation", event.target.value)} /></label><label>Cost<input value={item.cost || ""} onChange={(event) => update("cost", event.target.value)} /></label><label>Quantity / travelers<input value={item.quantity || ""} onChange={(event) => update("quantity", event.target.value)} /></label><label>Fare details<input value={item.fareDetails || ""} onChange={(event) => update("fareDetails", event.target.value)} /></label><label className="wide">Official link<input type="url" value={item.link || ""} onChange={(event) => update("link", event.target.value)} /></label><label className="wide">Notes<textarea value={item.notes || ""} onChange={(event) => update("notes", event.target.value)} /></label></div><footer><button type="button" className="danger" onClick={onDelete}>Delete</button><button type="button" className="quiet" onClick={onReset}>Restore defaults</button><span /><button type="button" onClick={onClose}>Cancel</button><button className="primary" type="submit">Save for family</button></footer></form></div>;
+  return <div className="modal" role="dialog" aria-modal="true" aria-labelledby="editor-title"><form className="editor" onSubmit={onSave}><header><h2 id="editor-title">Edit itinerary item</h2><button type="button" onClick={onClose} aria-label="Close" disabled={busy}>×</button></header><div className="form-grid"><label>Date<input type="date" min="2026-08-06" max="2026-08-22" value={item.date} onChange={(event) => update("date", event.target.value)} required /></label><label>Time<input value={item.time || ""} onChange={(event) => update("time", event.target.value)} placeholder="09:00–10:30" /></label><label>Category<select value={item.category} onChange={(event) => update("category", event.target.value)}>{categories.map((category) => <option key={category}>{category}</option>)}</select></label><label>Ticket status<select value={item.ticketStatus || "not-needed"} onChange={(event) => update("ticketStatus", event.target.value)}><option value="to-buy">To buy</option><option value="booked">Booked</option><option value="not-needed">Not needed / conditional</option></select></label><label className="wide">Title<input value={item.title} onChange={(event) => update("title", event.target.value)} required /></label><label className="wide">Location<input value={item.location || ""} onChange={(event) => update("location", event.target.value)} /></label><label>Confirmation number<input value={item.confirmation || ""} onChange={(event) => update("confirmation", event.target.value)} /></label><label>Cost<input value={item.cost || ""} onChange={(event) => update("cost", event.target.value)} /></label><label>Quantity / travelers<input value={item.quantity || ""} onChange={(event) => update("quantity", event.target.value)} /></label><label>Fare details<input value={item.fareDetails || ""} onChange={(event) => update("fareDetails", event.target.value)} /></label><label className="wide">Official link<input type="url" value={item.link || ""} onChange={(event) => update("link", event.target.value)} /></label><label className="wide">Notes<textarea value={item.notes || ""} onChange={(event) => update("notes", event.target.value)} /></label></div><footer><button type="button" className="danger" onClick={onDelete} disabled={busy}>Delete</button><button type="button" className="quiet" onClick={onReset} disabled={busy}>Restore defaults</button><span /><button type="button" onClick={onClose} disabled={busy}>Cancel</button><button className="primary" type="submit" disabled={busy}>{busy ? "Finding map location…" : "Save for family"}</button></footer></form></div>;
 }

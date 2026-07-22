@@ -30,7 +30,9 @@ function database() {
   return binding;
 }
 
-export async function ensureTripSchema() {
+let schemaReady: Promise<void> | null = null;
+
+async function initializeTripSchema() {
   const db = database();
   await db.batch([
     db.prepare(`CREATE TABLE IF NOT EXISTS trip_state (
@@ -54,7 +56,118 @@ export async function ensureTripSchema() {
       id TEXT PRIMARY KEY NOT NULL,
       applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS geocode_cache (
+      query TEXT PRIMARY KEY NOT NULL,
+      lat REAL NOT NULL,
+      lng REAL NOT NULL,
+      display_name TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS geocode_rate_limit (
+      id TEXT PRIMARY KEY NOT NULL,
+      last_request_at INTEGER NOT NULL DEFAULT 0
+    )`),
   ]);
+}
+
+export async function ensureTripSchema() {
+  schemaReady ??= initializeTripSchema();
+  try {
+    await schemaReady;
+  } catch (error) {
+    schemaReady = null;
+    throw error;
+  }
+}
+
+type GeocodeRow = {
+  lat: number;
+  lng: number;
+  display_name: string;
+};
+
+type NominatimResult = {
+  lat?: string;
+  lon?: string;
+  display_name?: string;
+};
+
+export async function geocodePlace(rawQuery: string) {
+  await ensureTripSchema();
+  const query = rawQuery.trim().replace(/\s+/g, " ").slice(0, 240);
+  if (query.length < 2) return { found: false as const };
+
+  const db = database();
+  const cached = await db
+    .prepare(
+      "SELECT lat, lng, display_name FROM geocode_cache WHERE query = ?",
+    )
+    .bind(query.toLocaleLowerCase("en"))
+    .first<GeocodeRow>();
+  if (cached) {
+    return {
+      found: true as const,
+      cached: true,
+      lat: Number(cached.lat),
+      lng: Number(cached.lng),
+      displayName: cached.display_name,
+    };
+  }
+
+  await db
+    .prepare(
+      "INSERT OR IGNORE INTO geocode_rate_limit (id, last_request_at) VALUES (?, 0)",
+    )
+    .bind("nominatim")
+    .run();
+  const claim = await db
+    .prepare(
+      `UPDATE geocode_rate_limit
+       SET last_request_at = CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)
+       WHERE id = ?
+         AND last_request_at <= CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) - 1100`,
+    )
+    .bind("nominatim")
+    .run();
+  if (!claim.meta?.changes) return { limited: true as const };
+
+  const runtime = env as unknown as { GEOCODER_BASE_URL?: string };
+  const endpoint = new URL(
+    "/search",
+    runtime.GEOCODER_BASE_URL || "https://nominatim.openstreetmap.org",
+  );
+  endpoint.searchParams.set("q", query);
+  endpoint.searchParams.set("format", "jsonv2");
+  endpoint.searchParams.set("limit", "1");
+  endpoint.searchParams.set("countrycodes", "jp");
+  endpoint.searchParams.set("accept-language", "en");
+
+  const response = await fetch(endpoint, {
+    headers: {
+      accept: "application/json",
+      referer: "https://smith-japan-family-trip-2026.djstif.chatgpt.site/",
+      "user-agent":
+        "JapanFamilyTripCalendar/1.0 (https://smith-japan-family-trip-2026.djstif.chatgpt.site/)",
+    },
+  });
+  if (!response.ok) throw new Error("The map location service is temporarily unavailable.");
+
+  const results = (await response.json()) as NominatimResult[];
+  const first = results[0];
+  const lat = Number(first?.lat);
+  const lng = Number(first?.lon);
+  if (!first || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return { found: false as const };
+  }
+
+  const displayName = first.display_name?.slice(0, 500) || query;
+  await db
+    .prepare(
+      "INSERT OR REPLACE INTO geocode_cache (query, lat, lng, display_name) VALUES (?, ?, ?, ?)",
+    )
+    .bind(query.toLocaleLowerCase("en"), lat, lng, displayName)
+    .run();
+  return { found: true as const, cached: false, lat, lng, displayName };
 }
 
 type StateRow = {

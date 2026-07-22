@@ -18,6 +18,7 @@ test("ships the protected shared family calendar", async () => {
   const mergeAudit = JSON.parse(audit);
   const seed = JSON.parse(seedText);
   const attractions = seed.filter((item) => item.category === "attraction");
+  const geocodeApi = await readFile(new URL("../app/api/geocode/route.ts", import.meta.url), "utf8");
 
   assert.match(page, /TripCalendar/);
   assert.match(calendar, /Private family calendar/);
@@ -42,7 +43,17 @@ test("ships the protected shared family calendar", async () => {
   assert.match(map, /scrollWheelZoom: true/);
   assert.match(map, /map-zoom-controls/);
   assert.match(map, /Fit route/);
+  assert.match(calendar, /fetch\("\/api\/geocode"/);
+  assert.match(calendar, /fetch\("\/api\/status"/);
+  assert.match(calendar, /12_000/);
+  assert.match(calendar, /Updated automatically from/);
   assert.match(store, /post-1am-open-map-restore-2026-07-22-v3-images/);
+  assert.match(store, /CREATE TABLE IF NOT EXISTS geocode_cache/);
+  assert.match(store, /countrycodes/);
+  assert.match(store, /JapanFamilyTripCalendar\/1\.0/);
+  assert.match(store, /1100/);
+  assert.match(geocodeApi, /isAuthorized/);
+  assert.match(geocodeApi, /geocodePlace/);
   assert.match(tripApi, /private, no-store/);
   assert.match(statusApi, /no-store, max-age=0/);
   assert.equal(JSON.parse(baseline).length, 135);
