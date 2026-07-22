@@ -1,0 +1,120 @@
+{
+  "generatedAt": "2026-07-22T20:29:09.259Z",
+  "fullBackup": {
+    "exportedAt": "2026-07-22T18:30:26.132Z",
+    "version": 20,
+    "items": 169
+  },
+  "laterBackup": {
+    "exportedAt": "2026-07-22T19:29:11.557Z",
+    "version": 3,
+    "items": 135
+  },
+  "supplementalBackups": [
+    {
+      "exportedAt": "2026-07-22T17:35:15.594Z",
+      "version": 18,
+      "items": 167
+    }
+  ],
+  "unionIds": 240,
+  "finalItems": 210,
+  "mappedItems": 177,
+  "bookedItems": 9,
+  "aliases": {
+    "tok-kappa": [
+      "a1c"
+    ],
+    "a2b": [
+      "tok-ueno-park",
+      "tok-ameyoko"
+    ],
+    "a2c": [
+      "a55",
+      "a61"
+    ],
+    "a7b": [
+      "tok-hachiko",
+      "tok-megadonki"
+    ],
+    "tok-borderless": [
+      "a09b"
+    ],
+    "tok-tower": [
+      "a09c"
+    ],
+    "tok-roppongi": [
+      "a09d"
+    ],
+    "lug1": [
+      "hk-luggage"
+    ],
+    "hk-bus1": [
+      "t10b"
+    ],
+    "hk-bus2": [
+      "t10c"
+    ],
+    "hk-metro": [
+      "t10g"
+    ],
+    "hk-dinner": [
+      "m10d"
+    ],
+    "hk-taxi": [
+      "t10a"
+    ],
+    "hk-lunch": [
+      "m10b"
+    ],
+    "hk-mountain": [
+      "t10d"
+    ],
+    "hk-sounzan": [
+      "a14x"
+    ],
+    "hk-rope1": [
+      "t10e"
+    ],
+    "hk-return": [
+      "t10f"
+    ],
+    "hk-freepass": [
+      "pass-hakone"
+    ],
+    "hk-buffer": [
+      "m10c"
+    ],
+    "a53": [
+      "tok-imperial"
+    ],
+    "a54": [
+      "tok-west-sunshine"
+    ],
+    "tkhakone": [
+      "pass-hakone"
+    ],
+    "tkpass": [
+      "pass-kansai"
+    ],
+    "tknijo": [
+      "tk-nijo"
+    ],
+    "tk-borderless": [
+      "tk3"
+    ],
+    "tok-shibuya-bon": [
+      "a8b"
+    ],
+    "a62": [
+      "a60"
+    ],
+    "tok-west-mega-check": [
+      "a60"
+    ]
+  },
+  "explicitlyExcluded": {
+    "a11": "Removed at the traveler’s request: Museum of Emerging Science and Innovation."
+  },
+  "unresolved": []
+}

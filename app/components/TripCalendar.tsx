@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import seedItemsJson from "@/data/seed.json";
+import { OpenTripMap, type MapPoint } from "./OpenTripMap";
 
 type Category = "hotel" | "transport" | "attraction" | "meal" | "ticket" | "note";
 type TicketStatus = "to-buy" | "booked" | "not-needed";
@@ -21,6 +21,9 @@ type TripItem = {
   link?: string;
   lat?: number;
   lng?: number;
+  quantity?: string;
+  fareDetails?: string;
+  imageUrl?: string;
 };
 
 type HistoryItem = {
@@ -31,7 +34,6 @@ type HistoryItem = {
   changedAt: string;
 };
 
-const seedItems = seedItemsJson as TripItem[];
 const categories: Category[] = ["hotel", "transport", "attraction", "meal", "ticket", "note"];
 const days = Array.from({ length: 17 }, (_, index) => {
   const date = new Date("2026-08-06T12:00:00Z");
@@ -40,11 +42,11 @@ const days = Array.from({ length: 17 }, (_, index) => {
 });
 
 const hotelSchedule = [
-  ["2026-08-06", "Tokyo Bay Shiomi Prince Hotel"],
-  ["2026-08-10", "APA Hotel Osaka Namba"],
-  ["2026-08-14", "Hilton Hiroshima"],
-  ["2026-08-16", "KOKO Kyoto Nijo Castle"],
-  ["2026-08-19", "Cava House Shinjuku"],
+  ["2026-08-06", "Tokyo Bay Shiomi Prince Hotel", "h1"],
+  ["2026-08-10", "APA Hotel Osaka Namba", "h2"],
+  ["2026-08-14", "Hilton Hiroshima", "h3"],
+  ["2026-08-16", "KOKO Kyoto Nijo Castle", "h4"],
+  ["2026-08-19", "Cava House Shinjuku", "h5"],
 ] as const;
 
 const descriptions: Record<string, string> = {
@@ -75,6 +77,23 @@ function dayHotel(date: string) {
   return hotel;
 }
 
+function dayStartHotel(date: string) {
+  let index = 0;
+  hotelSchedule.forEach(([start], candidate) => {
+    if (date >= start) index = candidate;
+  });
+  if (index > 0 && date === hotelSchedule[index][0]) index -= 1;
+  return hotelSchedule[index];
+}
+
+function dayEndHotel(date: string) {
+  let selected: (typeof hotelSchedule)[number] = hotelSchedule[0];
+  hotelSchedule.forEach((hotel) => {
+    if (date >= hotel[0]) selected = hotel;
+  });
+  return selected;
+}
+
 function dateLabel(date: string) {
   return new Intl.DateTimeFormat("en-CA", {
     weekday: "short",
@@ -88,25 +107,48 @@ function sortItems(list: TripItem[]) {
   return [...list].sort((a, b) => String(a.time ?? "").localeCompare(String(b.time ?? "")));
 }
 
-function directionsUrl(origin: string, destination: string, mode = "transit") {
-  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=${mode}`;
+function hasCoordinates(item: TripItem): item is TripItem & { lat: number; lng: number } {
+  return Number.isFinite(item.lat) && Number.isFinite(item.lng);
 }
 
-function dayMapUrl(date: string, items: TripItem[]) {
-  const stops = sortItems(
-    items.filter(
-      (item) => item.date === date && ["attraction", "meal"].includes(item.category) && item.location,
-    ),
-  );
-  if (!stops.length) return "https://www.google.com/maps";
-  const origin = dayHotel(date);
-  const destination = `${stops.at(-1)?.title} ${stops.at(-1)?.location}`;
-  const waypoints = stops
-    .slice(0, -1)
-    .slice(0, 8)
-    .map((item) => encodeURIComponent(`${item.title} ${item.location}`))
-    .join("%7C");
-  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}${waypoints ? `&waypoints=${waypoints}` : ""}&travelmode=transit`;
+function hotelPoint(items: TripItem[], hotel: (typeof hotelSchedule)[number], label: string): MapPoint | null {
+  const item = items.find((candidate) => candidate.id === hotel[2]) || items.find((candidate) => candidate.category === "hotel" && candidate.title.includes(hotel[1]));
+  if (!item || !hasCoordinates(item)) return null;
+  return { id: `${item.id}-${label}`, label, title: item.title, subtitle: label === "H" ? "Start hotel" : "Destination hotel", category: "hotel", lat: item.lat, lng: item.lng };
+}
+
+function dayMapPoints(date: string, items: TripItem[]) {
+  const startHotel = dayStartHotel(date);
+  const endHotel = dayEndHotel(date);
+  const start = hotelPoint(items, startHotel, "H");
+  const mapped = sortItems(items.filter((item) => item.date === date && hasCoordinates(item) && !["hotel", "ticket", "note"].includes(item.category)));
+  const points: MapPoint[] = [];
+  if (start) points.push(start);
+  mapped.forEach((item, index) => points.push({ id: item.id, label: String(index + 1), title: item.title, subtitle: `${item.time || "Flexible"} · ${item.category}`, category: item.category, lat: item.lat, lng: item.lng }));
+  const end = hotelPoint(items, endHotel, startHotel[2] === endHotel[2] ? "↩" : "H");
+  if (end) points.push({ ...end, id: `${end.id}-end`, title: startHotel[2] === endHotel[2] ? `Return to ${end.title}` : end.title, subtitle: startHotel[2] === endHotel[2] ? "Return to hotel" : "Destination hotel", showMarker: startHotel[2] !== endHotel[2] });
+  return points;
+}
+
+function masterMapPoints(items: TripItem[]) {
+  return sortItems(items.filter((item) => hasCoordinates(item) && ["hotel", "attraction"].includes(item.category))).sort((a, b) => a.date.localeCompare(b.date) || String(a.time ?? "").localeCompare(String(b.time ?? ""))).map((item, index) => ({ id: item.id, label: item.category === "hotel" ? "H" : String(index + 1), title: item.title, subtitle: `${dateLabel(item.date)} · ${item.time || item.category}`, category: item.category, lat: item.lat, lng: item.lng }));
+}
+
+function haversine(a: MapPoint, b: MapPoint) {
+  const radians = (value: number) => (value * Math.PI) / 180;
+  const earth = 6371;
+  const latitude = radians(b.lat - a.lat);
+  const longitude = radians(b.lng - a.lng);
+  const value = Math.sin(latitude / 2) ** 2 + Math.cos(radians(a.lat)) * Math.cos(radians(b.lat)) * Math.sin(longitude / 2) ** 2;
+  return earth * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+}
+
+function distanceLabel(distance: number) {
+  return distance < 1 ? `${Math.round(distance * 1000)} m` : `${distance.toFixed(distance < 10 ? 1 : 0)} km`;
+}
+
+function directionsUrl(origin: string, destination: string, mode = "transit") {
+  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=${mode}`;
 }
 
 function newItem(): TripItem {
@@ -122,6 +164,8 @@ function newItem(): TripItem {
     confirmation: "",
     cost: "",
     link: "",
+    quantity: "",
+    fareDetails: "",
   };
 }
 
@@ -138,6 +182,8 @@ export function TripCalendar() {
   const [sync, setSync] = useState<"saved" | "saving" | "offline" | "error">("saved");
   const [syncMessage, setSyncMessage] = useState("");
   const [activeTab, setActiveTab] = useState<"calendar" | "tickets" | "route" | "history">("calendar");
+  const [mapDate, setMapDate] = useState(days[0]);
+  const [mapMode, setMapMode] = useState<"day" | "master">("day");
   const [visible, setVisible] = useState<Set<Category>>(new Set(categories));
   const [flipped, setFlipped] = useState<string | null>(null);
   const [draft, setDraft] = useState<TripItem | null>(null);
@@ -344,6 +390,25 @@ export function TripCalendar() {
     setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   }
 
+  async function resetDefaults() {
+    const response = await fetch("/api/trip", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ baseVersion: versionRef.current, changedBy: name }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      setSync("error");
+      setSyncMessage(data.error || "The verified itinerary could not be restored.");
+      if (response.status === 409) await loadTrip();
+      return;
+    }
+    versionRef.current = data.version;
+    setVersion(data.version);
+    localStorage.removeItem("japanTripPending");
+    await loadTrip();
+  }
+
   const ticketItems = useMemo(
     () => sortItems(items.filter((item) => item.category === "ticket" || item.ticketStatus === "to-buy")).sort((a, b) => a.date.localeCompare(b.date) || String(a.time).localeCompare(String(b.time))),
     [items],
@@ -411,7 +476,7 @@ export function TripCalendar() {
             const dayItems = sortItems(items.filter((item) => item.date === date && visible.has(item.category)));
             return (
               <article className="day" key={date} onDragOver={(event) => event.preventDefault()} onDrop={() => dropOnDay(date)}>
-                <header className="day-head"><div><small>{dateLabel(date).split(",")[0]}</small><h2>{dateLabel(date).replace(/^[^,]+,\s*/, "")}</h2><span>{dayHotel(date)}</span></div><a href={dayMapUrl(date, items)} target="_blank" rel="noreferrer">Day route ↗</a></header>
+                <header className="day-head"><div><small>{dateLabel(date).split(",")[0]}</small><h2>{dateLabel(date).replace(/^[^,]+,\s*/, "")}</h2><span>{dayHotel(date)}</span></div><button className="day-map-button" onClick={() => { setMapDate(date); setMapMode("day"); setActiveTab("route"); }}>Open map ↗</button></header>
                 <div className="day-items">
                   {!dayItems.length && <div className="empty">No visible items</div>}
                   {dayItems.map((item) => {
@@ -424,7 +489,7 @@ export function TripCalendar() {
                           <h3>{item.title}</h3><button className="edit" aria-label={`Edit ${item.title}`} onClick={() => setDraft({ ...item })}>•••</button>
                           <div className="location">{item.location}</div>
                           {item.notes && <p>{item.notes}</p>}
-                          <div className={`status ${item.ticketStatus || "not-needed"}`}><i />{item.ticketStatus === "booked" ? "Booked" : item.ticketStatus === "to-buy" ? "To buy / confirm" : "No advance ticket / conditional"}{item.cost ? ` · ${item.cost}` : ""}</div>
+                          <div className={`status ${item.ticketStatus || "not-needed"}`}><i />{item.ticketStatus === "booked" ? "Booked" : item.ticketStatus === "to-buy" ? "To buy / confirm" : "No advance ticket / conditional"}{item.quantity ? ` · ${item.quantity}` : ""}{item.cost ? ` · ${item.cost}` : ""}</div>
                         </> : <>
                           <div className="back-label">What you are seeing</div><h3>{item.title}</h3>
                           <p>{descriptions[item.title] || (item.notes && !item.notes.startsWith("Click for") ? item.notes : `A planned stop in ${item.location || "Japan"}. Use the official link for the latest admission and visitor information.`)}</p>
@@ -442,22 +507,47 @@ export function TripCalendar() {
       )}
 
       {activeTab === "tickets" && <TicketsPanel items={ticketItems} onEdit={(item) => setDraft({ ...item })} />}
-      {activeTab === "route" && <RoutePanel />}
+      {activeTab === "route" && <RoutePanel items={items} selectedDate={mapDate} onDateChange={setMapDate} mode={mapMode} onModeChange={setMapMode} />}
       {activeTab === "history" && <HistoryPanel history={history} />}
 
       <footer><span>Shared family version {version}</span><button onClick={async () => { await fetch("/api/logout", { method: "POST" }); setPhase("locked"); }}>Lock calendar</button></footer>
 
-      {draft && <Editor item={draft} setItem={setDraft} onSave={saveDraft} onDelete={removeDraft} onClose={() => setDraft(null)} onReset={() => { if (confirm("Restore the original itinerary for everyone?")) { commit(seedItems.map((item) => ({ ...item })), "Restored the original itinerary"); setDraft(null); } }} />}
+      {draft && <Editor item={draft} setItem={setDraft} onSave={saveDraft} onDelete={removeDraft} onClose={() => setDraft(null)} onReset={() => { if (confirm("Restore the verified complete itinerary for everyone?")) { setDraft(null); void resetDefaults(); } }} />}
     </main>
   );
 }
 
 function TicketsPanel({ items, onEdit }: { items: TripItem[]; onEdit: (item: TripItem) => void }) {
-  return <section><div className="pass-grid"><article className="pass-card"><span>Recommended</span><h2>Hakone Freepass</h2><strong>¥24,000 family</strong><p>Four Odawara-origin passes for the buses, Tozan train, cable car and ropeway.</p></article><article className="pass-card"><span>Recommended</span><h2>Kansai–Hiroshima Area Pass</h2><strong>¥68,000 family</strong><p>Four five-day adult passes, activated Aug 14, covering the eligible regional JR journeys.</p></article><article className="pass-card"><span>Use throughout</span><h2>Four IC cards</h2><strong>Pay as used</strong><p>For ordinary city trains, subways and buses. Reserved intercity trains remain separate.</p></article></div><div className="ticket-list"><h2>Purchase and confirmation list</h2>{items.map((item) => <div className="ticket-row" key={item.id}><small>{dateLabel(item.date)}<br />{item.time}</small><div><strong>{item.title}</strong><span>{item.cost || item.location} · {item.ticketStatus === "booked" ? "Booked" : "To buy"}</span></div><button onClick={() => onEdit(item)}>Edit</button></div>)}</div></section>;
+  return <section><div className="pass-grid"><article className="pass-card"><span>Recommended</span><h2>Hakone Freepass</h2><strong>¥24,000 family</strong><p>Four Odawara-origin passes for the buses, Tozan train, cable car and ropeway.</p></article><article className="pass-card"><span>Recommended</span><h2>Kansai–Hiroshima Area Pass</h2><strong>¥68,000 family</strong><p>Four five-day adult passes, activated Aug 14, covering the eligible regional JR journeys.</p></article><article className="pass-card"><span>Use throughout</span><h2>Four IC cards</h2><strong>Pay as used</strong><p>For ordinary city trains, subways and buses. Reserved intercity trains remain separate.</p></article></div><div className="ticket-list"><h2>Purchase and confirmation list</h2>{items.map((item) => <div className="ticket-row" key={item.id}><small>{dateLabel(item.date)}<br />{item.time}</small><div><strong>{item.title}</strong><span>{[item.quantity, item.cost || item.location, item.ticketStatus === "booked" ? "Booked" : "To buy"].filter(Boolean).join(" · ")}</span>{item.fareDetails && <span>{item.fareDetails}</span>}</div><button onClick={() => onEdit(item)}>Edit</button></div>)}</div></section>;
 }
 
-function RoutePanel() {
-  return <section className="route-panel"><div className="kicker">Locked accommodation route</div><h2>Tokyo → Osaka → Hiroshima → Kyoto → Tokyo</h2><div className="route-chain">{hotelSchedule.map(([date, hotel], index) => <span key={date}>{index > 0 && <b>→</b>}<i>{hotel}<small>{dateLabel(date)}</small></i></span>)}</div><p>Hotel dates remain fixed. Local sightseeing cards can move between days, while intercity train reservations and passes stay visible in the ticket list.</p></section>;
+function RoutePanel({ items, selectedDate, onDateChange, mode, onModeChange }: { items: TripItem[]; selectedDate: string; onDateChange: (date: string) => void; mode: "day" | "master"; onModeChange: (mode: "day" | "master") => void }) {
+  const points = useMemo(() => mode === "master" ? masterMapPoints(items) : dayMapPoints(selectedDate, items), [items, mode, selectedDate]);
+  const relevantItems = mode === "master"
+    ? items.filter((item) => ["hotel", "attraction"].includes(item.category))
+    : items.filter((item) => item.date === selectedDate && ["hotel", "transport", "attraction", "meal"].includes(item.category));
+  const withoutCoordinates = relevantItems.filter((item) => !hasCoordinates(item)).length;
+
+  return <section className="map-panel">
+    <header className="map-panel-head">
+      <div><div className="kicker">OpenStreetMap route planner</div><h2>{mode === "master" ? "Complete Japan route" : dateLabel(selectedDate)}</h2><p>{mode === "master" ? "Hotels and attraction stops update automatically when the family calendar changes." : `Starts from ${dayStartHotel(selectedDate)[1]} and follows the mapped agenda in time order.`}</p></div>
+      <div className="map-controls"><button className={mode === "master" ? "active" : ""} onClick={() => onModeChange("master")}>Master map</button><button className={mode === "day" ? "active" : ""} onClick={() => onModeChange("day")}>Day map</button>{mode === "day" && <select aria-label="Map date" value={selectedDate} onChange={(event) => onDateChange(event.target.value)}>{days.map((date) => <option key={date} value={date}>{dateLabel(date)}</option>)}</select>}</div>
+    </header>
+    <div className="map-layout">
+      <div className="map-canvas-wrap"><OpenTripMap points={points} master={mode === "master"} /><div className="map-note">Planning line only—use the leg links for live walking or public-transit directions. {withoutCoordinates ? `${withoutCoordinates} agenda ${withoutCoordinates === 1 ? "item has" : "items have"} no coordinates yet.` : "Every relevant stop is mapped."}</div></div>
+      <div className="map-itinerary">
+        <h3>{mode === "master" ? `${points.length} mapped trip stops` : `${points.length} route points`}</h3>
+        <div className="map-stop-list">{points.map((point, index) => {
+          const previous = points[index - 1];
+          const distance = previous ? haversine(previous, point) : 0;
+          const osm = `https://www.openstreetmap.org/?mlat=${point.lat}&mlon=${point.lng}#map=17/${point.lat}/${point.lng}`;
+          const transit = previous ? directionsUrl(`${previous.lat},${previous.lng}`, `${point.lat},${point.lng}`) : "";
+          return <article className="map-stop" key={`${point.id}-${index}`}><span className={`map-stop-number ${point.category}`}>{point.label}</span><div><strong>{point.title}</strong><small>{point.subtitle}{previous ? ` · ${distanceLabel(distance)} straight-line` : ""}</small><nav><a href={osm} target="_blank" rel="noreferrer">OpenStreetMap ↗</a>{transit && <a href={transit} target="_blank" rel="noreferrer">Transit directions ↗</a>}</nav></div></article>;
+        })}</div>
+      </div>
+    </div>
+    {mode === "master" && <div className="route-chain">{hotelSchedule.map(([date, hotel], index) => <span key={date}>{index > 0 && <b>→</b>}<i>{hotel}<small>{dateLabel(date)}</small></i></span>)}</div>}
+  </section>;
 }
 
 function HistoryPanel({ history }: { history: HistoryItem[] }) {
@@ -466,5 +556,5 @@ function HistoryPanel({ history }: { history: HistoryItem[] }) {
 
 function Editor({ item, setItem, onSave, onDelete, onClose, onReset }: { item: TripItem; setItem: (item: TripItem) => void; onSave: (event: FormEvent) => void; onDelete: () => void; onClose: () => void; onReset: () => void }) {
   const update = (key: keyof TripItem, value: string) => setItem({ ...item, [key]: value });
-  return <div className="modal" role="dialog" aria-modal="true" aria-labelledby="editor-title"><form className="editor" onSubmit={onSave}><header><h2 id="editor-title">Edit itinerary item</h2><button type="button" onClick={onClose} aria-label="Close">×</button></header><div className="form-grid"><label>Date<input type="date" min="2026-08-06" max="2026-08-22" value={item.date} onChange={(event) => update("date", event.target.value)} required /></label><label>Time<input value={item.time || ""} onChange={(event) => update("time", event.target.value)} placeholder="09:00–10:30" /></label><label>Category<select value={item.category} onChange={(event) => update("category", event.target.value)}>{categories.map((category) => <option key={category}>{category}</option>)}</select></label><label>Ticket status<select value={item.ticketStatus || "not-needed"} onChange={(event) => update("ticketStatus", event.target.value)}><option value="to-buy">To buy</option><option value="booked">Booked</option><option value="not-needed">Not needed / conditional</option></select></label><label className="wide">Title<input value={item.title} onChange={(event) => update("title", event.target.value)} required /></label><label className="wide">Location<input value={item.location || ""} onChange={(event) => update("location", event.target.value)} /></label><label>Confirmation number<input value={item.confirmation || ""} onChange={(event) => update("confirmation", event.target.value)} /></label><label>Cost<input value={item.cost || ""} onChange={(event) => update("cost", event.target.value)} /></label><label className="wide">Official link<input type="url" value={item.link || ""} onChange={(event) => update("link", event.target.value)} /></label><label className="wide">Notes<textarea value={item.notes || ""} onChange={(event) => update("notes", event.target.value)} /></label></div><footer><button type="button" className="danger" onClick={onDelete}>Delete</button><button type="button" className="quiet" onClick={onReset}>Restore defaults</button><span /><button type="button" onClick={onClose}>Cancel</button><button className="primary" type="submit">Save for family</button></footer></form></div>;
+  return <div className="modal" role="dialog" aria-modal="true" aria-labelledby="editor-title"><form className="editor" onSubmit={onSave}><header><h2 id="editor-title">Edit itinerary item</h2><button type="button" onClick={onClose} aria-label="Close">×</button></header><div className="form-grid"><label>Date<input type="date" min="2026-08-06" max="2026-08-22" value={item.date} onChange={(event) => update("date", event.target.value)} required /></label><label>Time<input value={item.time || ""} onChange={(event) => update("time", event.target.value)} placeholder="09:00–10:30" /></label><label>Category<select value={item.category} onChange={(event) => update("category", event.target.value)}>{categories.map((category) => <option key={category}>{category}</option>)}</select></label><label>Ticket status<select value={item.ticketStatus || "not-needed"} onChange={(event) => update("ticketStatus", event.target.value)}><option value="to-buy">To buy</option><option value="booked">Booked</option><option value="not-needed">Not needed / conditional</option></select></label><label className="wide">Title<input value={item.title} onChange={(event) => update("title", event.target.value)} required /></label><label className="wide">Location<input value={item.location || ""} onChange={(event) => update("location", event.target.value)} /></label><label>Confirmation number<input value={item.confirmation || ""} onChange={(event) => update("confirmation", event.target.value)} /></label><label>Cost<input value={item.cost || ""} onChange={(event) => update("cost", event.target.value)} /></label><label>Quantity / travelers<input value={item.quantity || ""} onChange={(event) => update("quantity", event.target.value)} /></label><label>Fare details<input value={item.fareDetails || ""} onChange={(event) => update("fareDetails", event.target.value)} /></label><label className="wide">Official link<input type="url" value={item.link || ""} onChange={(event) => update("link", event.target.value)} /></label><label className="wide">Notes<textarea value={item.notes || ""} onChange={(event) => update("notes", event.target.value)} /></label></div><footer><button type="button" className="danger" onClick={onDelete}>Delete</button><button type="button" className="quiet" onClick={onReset}>Restore defaults</button><span /><button type="button" onClick={onClose}>Cancel</button><button className="primary" type="submit">Save for family</button></footer></form></div>;
 }

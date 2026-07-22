@@ -1,5 +1,10 @@
 import { env } from "cloudflare:workers";
+import cloudBaseline from "../data/cloud-baseline.json";
+import mergeAudit from "../data/merge-audit.json";
 import seedItems from "../data/seed.json";
+
+type TripRecord = Record<string, unknown> & { id: string };
+const AUDITED_RESTORE_ID = "post-1am-open-map-restore-2026-07-22-v1";
 
 type D1Result<T = unknown> = {
   results?: T[];
@@ -45,6 +50,10 @@ export async function ensureTripSchema() {
     db.prepare(
       "CREATE INDEX IF NOT EXISTS trip_history_version_idx ON trip_history(version)",
     ),
+    db.prepare(`CREATE TABLE IF NOT EXISTS trip_migrations (
+      id TEXT PRIMARY KEY NOT NULL,
+      applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`),
   ]);
 }
 
@@ -54,6 +63,117 @@ type StateRow = {
   updated_by: string;
   updated_at: string;
 };
+
+function sameValue(left: unknown, right: unknown) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function mergeAuditedItems(currentItems: TripRecord[]) {
+  const baseline = new Map(
+    (cloudBaseline as TripRecord[]).map((item) => [item.id, item]),
+  );
+  const current = new Map(currentItems.map((item) => [item.id, item]));
+  const aliases = mergeAudit.aliases as Record<string, string[]>;
+  const excluded = new Set([
+    ...Object.keys(aliases),
+    ...Object.keys(mergeAudit.explicitlyExcluded),
+  ]);
+
+  const result = (seedItems as TripRecord[]).map((canonical) => {
+    const live = current.get(canonical.id);
+    if (!live) return canonical;
+    const original = baseline.get(canonical.id);
+    if (!original) return { ...canonical, ...live, id: canonical.id };
+
+    const preserved = { ...canonical };
+    for (const [key, value] of Object.entries(live)) {
+      if (!sameValue(value, original[key])) preserved[key] = value;
+    }
+    return preserved;
+  });
+
+  // A missing item that existed in the exact cloud baseline represents a
+  // deliberate family deletion. Canonical items added by the recovered full
+  // agenda are unaffected.
+  const liveIds = new Set(current.keys());
+  const deletedBaselineIds = new Set(
+    [...baseline.keys()].filter((id) => !liveIds.has(id)),
+  );
+  const withoutDeleted = result.filter(
+    (item) => !deletedBaselineIds.has(item.id),
+  );
+
+  // Preserve genuine family-created records that appeared after the deployed
+  // baseline. Old duplicate IDs and the explicitly removed museum stay out.
+  for (const item of currentItems) {
+    if (
+      !baseline.has(item.id) &&
+      !withoutDeleted.some((candidate) => candidate.id === item.id) &&
+      !excluded.has(item.id)
+    ) {
+      withoutDeleted.push(item);
+    }
+  }
+
+  return withoutDeleted.sort((left, right) =>
+    String(left.date ?? "").localeCompare(String(right.date ?? "")) ||
+    String(left.time ?? "").localeCompare(String(right.time ?? "")) ||
+    left.id.localeCompare(right.id),
+  );
+}
+
+async function restoreAuditedBackups(row: StateRow) {
+  const db = database();
+  const applied = await db
+    .prepare("SELECT id FROM trip_migrations WHERE id = ?")
+    .bind(AUDITED_RESTORE_ID)
+    .first<{ id: string }>();
+  if (applied) return row;
+
+  const currentItems = JSON.parse(row.payload) as TripRecord[];
+  const mergedItems = mergeAuditedItems(currentItems);
+  const nextVersion = row.version + 1;
+  const update = await db
+    .prepare(
+      "UPDATE trip_state SET payload = ?, version = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND version = ?",
+    )
+    .bind(
+      JSON.stringify(mergedItems),
+      nextVersion,
+      "Trip recovery audit",
+      "family-trip",
+      row.version,
+    )
+    .run();
+
+  if (update.meta?.changes) {
+    await db.batch([
+      db
+        .prepare(
+          "INSERT OR IGNORE INTO trip_migrations (id) VALUES (?)",
+        )
+        .bind(AUDITED_RESTORE_ID),
+      db
+        .prepare(
+          "INSERT INTO trip_history (version, action, changed_by) VALUES (?, ?, ?)",
+        )
+        .bind(
+          nextVersion,
+          `Restored and reconciled all post-1 AM backups (${mergedItems.length} items)`,
+          "Trip recovery audit",
+        ),
+    ]);
+  }
+
+  return (
+    (await db
+      .prepare(
+        "SELECT payload, version, updated_by, updated_at FROM trip_state WHERE id = ?",
+      )
+      .bind("family-trip")
+      .first<StateRow>()) ?? row
+  );
+}
 
 export async function readTrip() {
   await ensureTripSchema();
@@ -82,6 +202,7 @@ export async function readTrip() {
   }
 
   if (!row) throw new Error("The trip could not be initialized.");
+  row = await restoreAuditedBackups(row);
   return {
     items: JSON.parse(row.payload),
     version: row.version,
@@ -133,4 +254,13 @@ export async function writeTrip(input: {
     .run();
 
   return { conflict: false as const, version: nextVersion };
+}
+
+export async function restoreVerifiedTrip(input: { baseVersion: number; changedBy: string }) {
+  return writeTrip({
+    items: seedItems,
+    baseVersion: input.baseVersion,
+    changedBy: input.changedBy,
+    action: "Restored the verified complete itinerary",
+  });
 }

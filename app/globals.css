@@ -1,3 +1,4 @@
+@import "leaflet/dist/leaflet.css";
 @import "tailwindcss";
 
 :root {
@@ -254,7 +255,8 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .day-head small { color: var(--vermillion); font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .day-head h2 { margin: 3px 0 5px; font-family: var(--font-serif), serif; font-size: 25px; font-weight: 600; }
 .day-head span { display: block; max-width: 230px; color: var(--muted); font-size: 11px; line-height: 1.35; }
-.day-head a { flex: 0 0 auto; color: var(--indigo); font-size: 11px; font-weight: 700; text-decoration: none; }
+.day-head a, .day-map-button { flex: 0 0 auto; color: var(--indigo); font-size: 11px; font-weight: 700; text-decoration: none; }
+.day-map-button { min-height: 36px; padding: 5px 0 5px 10px; border: 0; background: transparent; cursor: pointer; }
 .day-items { display: grid; gap: 10px; padding: 10px; }
 .empty { padding: 30px 12px; color: var(--muted); text-align: center; font-size: 12px; }
 
@@ -318,6 +320,41 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .route-chain i { min-width: 180px; padding: 18px; border: 1px solid var(--line); background: #fffefa; font-style: normal; font-weight: 700; }
 .route-chain small { display: block; margin-top: 7px; color: var(--muted); font-weight: 400; }
 
+.map-panel { margin-top: 14px; padding: clamp(18px, 3vw, 38px); border: 1px solid var(--line); background: var(--card); }
+.map-panel-head { display: flex; justify-content: space-between; gap: 28px; align-items: end; margin-bottom: 22px; }
+.map-panel-head h2 { margin: 7px 0 8px; font-family: var(--font-serif), serif; font-size: clamp(28px, 4vw, 47px); font-weight: 500; }
+.map-panel-head p { max-width: 690px; margin: 0; color: var(--muted); line-height: 1.55; }
+.map-controls { display: flex; align-items: stretch; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.map-controls button { min-height: 40px; padding: 8px 12px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; }
+.map-controls button.active { border-color: var(--ink); background: var(--ink); color: white; }
+.map-controls select { width: auto; min-width: 165px; min-height: 40px; background: #fffefa; font-size: 12px; }
+.map-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
+.map-canvas-wrap { min-width: 0; border: 1px solid var(--line); background: #eee9de; }
+.open-trip-map { width: 100%; min-height: min(66vh, 640px); background: #e9e4d8; }
+.map-note { padding: 10px 13px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.5; }
+.map-itinerary { max-height: min(66vh, 640px); overflow: auto; border: 1px solid var(--line); background: #fffefa; }
+.map-itinerary > h3 { position: sticky; top: 0; z-index: 2; margin: 0; padding: 14px 15px; border-bottom: 1px solid var(--line); background: #fffefa; font-family: var(--font-serif), serif; font-size: 17px; }
+.map-stop { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; padding: 12px 13px; border-bottom: 1px solid var(--line); }
+.map-stop-number { display: grid; place-items: center; width: 30px; height: 30px; border: 2px solid white; border-radius: 50%; background: var(--vermillion); color: white; box-shadow: 0 0 0 1px var(--vermillion), 0 3px 8px rgb(0 0 0 / 18%); font-size: 10px; font-weight: 900; }
+.map-stop-number.hotel { background: var(--indigo); box-shadow: 0 0 0 1px var(--indigo), 0 3px 8px rgb(0 0 0 / 18%); }
+.map-stop-number.transport { background: #667684; box-shadow: 0 0 0 1px #667684, 0 3px 8px rgb(0 0 0 / 18%); }
+.map-stop-number.meal { background: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 3px 8px rgb(0 0 0 / 18%); }
+.map-stop > div { min-width: 0; display: grid; gap: 4px; }
+.map-stop strong { font-size: 12px; line-height: 1.35; }
+.map-stop small { color: var(--muted); font-size: 10px; line-height: 1.4; }
+.map-stop nav { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 3px; }
+.map-stop a { color: var(--indigo); font-size: 10px; font-weight: 750; text-decoration: none; }
+.map-panel .route-chain { margin-top: 25px; padding-bottom: 0; }
+
+.trip-marker-shell { border: 0 !important; background: transparent !important; }
+.trip-marker { display: grid; place-items: center; width: 34px; height: 34px; border: 3px solid #fff; border-radius: 50%; background: var(--vermillion); color: #fff; box-shadow: 0 0 0 2px var(--vermillion), 0 5px 15px rgb(0 0 0 / 32%); font-family: var(--font-sans), sans-serif; font-size: 10px; font-weight: 900; }
+.trip-marker-hotel { width: 38px; height: 38px; margin: -2px; background: var(--indigo); box-shadow: 0 0 0 2px var(--indigo), 0 5px 15px rgb(0 0 0 / 32%); }
+.trip-marker-transport { background: #667684; box-shadow: 0 0 0 2px #667684, 0 5px 15px rgb(0 0 0 / 32%); }
+.trip-marker-meal { background: var(--gold); box-shadow: 0 0 0 2px var(--gold), 0 5px 15px rgb(0 0 0 / 32%); }
+.leaflet-tooltip { border: 1px solid var(--line); border-radius: 0; color: var(--ink); box-shadow: 0 8px 24px rgb(0 0 0 / 16%); font-family: var(--font-sans), sans-serif; font-size: 11px; }
+.leaflet-tooltip div { margin-top: 3px; color: var(--muted); }
+.leaflet-control-attribution { font-size: 9px; }
+
 .history-panel { display: grid; grid-template-columns: minmax(230px, .7fr) 1.3fr; gap: clamp(30px, 6vw, 80px); margin-top: 14px; }
 .history-panel > div > p { color: var(--muted); line-height: 1.65; }
 .history-list article { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 13px; padding: 14px 0; border-top: 1px solid var(--line); }
@@ -355,6 +392,8 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
   .hero { grid-template-columns: 1fr; }
   .hero-side { grid-template-columns: minmax(200px, 340px) minmax(200px, 1fr); align-items: end; }
   .hero-side small { grid-column: 1 / -1; }
+  .map-layout { grid-template-columns: 1fr; }
+  .map-itinerary { max-height: 420px; }
 }
 
 @media (max-width: 760px) {
@@ -377,6 +416,11 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
   .ticket-row { grid-template-columns: 82px minmax(0, 1fr); gap: 11px; }
   .ticket-row button { grid-column: 2; justify-self: start; }
   .history-panel { grid-template-columns: 1fr; gap: 20px; }
+  .map-panel { margin-left: -1px; margin-right: -1px; padding: 16px 12px; }
+  .map-panel-head { align-items: stretch; flex-direction: column; gap: 16px; }
+  .map-controls { justify-content: flex-start; }
+  .map-controls select { flex: 1 1 100%; }
+  .open-trip-map { min-height: 54vh; }
   .form-grid { grid-template-columns: 1fr; padding: 18px; }
   .form-grid .wide { grid-column: auto; }
   .editor > header, .editor > footer { padding-left: 18px; padding-right: 18px; }
@@ -386,7 +430,7 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 }
 
 @media (max-width: 430px) {
-  .day-head a { max-width: 58px; text-align: right; }
+  .day-head a, .day-map-button { max-width: 70px; text-align: right; }
   .access-screen { padding: 14px; }
   .access-box { padding: 30px 22px; }
   .toolbar > .button { font-size: 11px; }

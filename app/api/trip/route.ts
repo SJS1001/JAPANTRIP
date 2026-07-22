@@ -1,5 +1,5 @@
 import { isAuthorized } from "@/lib/access";
-import { readTrip, recentHistory, writeTrip } from "@/db/trip-store";
+import { readTrip, recentHistory, restoreVerifiedTrip, writeTrip } from "@/db/trip-store";
 
 function unauthorized() {
   return Response.json({ error: "Family access is required." }, { status: 401 });
@@ -53,6 +53,30 @@ export async function PUT(request: Request) {
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "The trip could not be saved." },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  if (!(await isAuthorized(request))) return unauthorized();
+  try {
+    const payload = (await request.json()) as { baseVersion?: number; changedBy?: string };
+    if (!Number.isInteger(payload.baseVersion) || Number(payload.baseVersion) < 1) {
+      return Response.json({ error: "The calendar version is missing." }, { status: 400 });
+    }
+    const result = await restoreVerifiedTrip({
+      baseVersion: Number(payload.baseVersion),
+      changedBy: payload.changedBy?.trim().slice(0, 60) || "Family member",
+    });
+    if (result.conflict) {
+      const latest = await readTrip();
+      return Response.json({ error: "Another family member saved a newer version.", ...latest }, { status: 409 });
+    }
+    return Response.json({ ok: true, version: result.version });
+  } catch (error) {
+    return Response.json(
+      { error: error instanceof Error ? error.message : "The verified itinerary could not be restored." },
       { status: 500 },
     );
   }
