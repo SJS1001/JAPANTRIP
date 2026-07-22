@@ -3,11 +3,13 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("ships the protected shared family calendar", async () => {
-  const [page, calendar, map, store, hosting, audit, baseline] = await Promise.all([
+  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TripCalendar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/OpenTripMap.tsx", import.meta.url), "utf8"),
     readFile(new URL("../db/trip-store.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/trip/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/status/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
     readFile(new URL("../data/merge-audit.json", import.meta.url), "utf8"),
     readFile(new URL("../data/cloud-baseline.json", import.meta.url), "utf8"),
@@ -23,6 +25,8 @@ test("ships the protected shared family calendar", async () => {
   assert.doesNotMatch(calendar, /@\/data\/seed/);
   assert.match(map, /tile\.openstreetmap\.org/);
   assert.match(store, /post-1am-open-map-restore-2026-07-22-v2/);
+  assert.match(tripApi, /private, no-store/);
+  assert.match(statusApi, /no-store, max-age=0/);
   assert.equal(JSON.parse(baseline).length, 135);
   assert.equal(mergeAudit.finalItems, 210);
   assert.equal(mergeAudit.mappedItems, 177);

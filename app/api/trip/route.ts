@@ -9,7 +9,10 @@ export async function GET(request: Request) {
   if (!(await isAuthorized(request))) return unauthorized();
   try {
     const [trip, history] = await Promise.all([readTrip(), recentHistory()]);
-    return Response.json({ ...trip, history });
+    return Response.json(
+      { ...trip, history },
+      { headers: { "cache-control": "private, no-store, max-age=0" } },
+    );
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "The trip could not be loaded." },
