@@ -4,7 +4,7 @@ import mergeAudit from "../data/merge-audit.json";
 import seedItems from "../data/seed.json";
 
 type TripRecord = Record<string, unknown> & { id: string };
-const AUDITED_RESTORE_ID = "post-1am-open-map-restore-2026-07-22-v1";
+const AUDITED_RESTORE_ID = "post-1am-open-map-restore-2026-07-22-v2";
 
 type D1Result<T = unknown> = {
   results?: T[];
@@ -92,30 +92,19 @@ function mergeAuditedItems(currentItems: TripRecord[]) {
     return preserved;
   });
 
-  // A missing item that existed in the exact cloud baseline represents a
-  // deliberate family deletion. Canonical items added by the recovered full
-  // agenda are unaffected.
-  const liveIds = new Set(current.keys());
-  const deletedBaselineIds = new Set(
-    [...baseline.keys()].filter((id) => !liveIds.has(id)),
-  );
-  const withoutDeleted = result.filter(
-    (item) => !deletedBaselineIds.has(item.id),
-  );
-
   // Preserve genuine family-created records that appeared after the deployed
   // baseline. Old duplicate IDs and the explicitly removed museum stay out.
   for (const item of currentItems) {
     if (
       !baseline.has(item.id) &&
-      !withoutDeleted.some((candidate) => candidate.id === item.id) &&
+      !result.some((candidate) => candidate.id === item.id) &&
       !excluded.has(item.id)
     ) {
-      withoutDeleted.push(item);
+      result.push(item);
     }
   }
 
-  return withoutDeleted.sort((left, right) =>
+  return result.sort((left, right) =>
     String(left.date ?? "").localeCompare(String(right.date ?? "")) ||
     String(left.time ?? "").localeCompare(String(right.time ?? "")) ||
     left.id.localeCompare(right.id),

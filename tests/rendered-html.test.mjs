@@ -22,7 +22,7 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /OpenTripMap/);
   assert.doesNotMatch(calendar, /@\/data\/seed/);
   assert.match(map, /tile\.openstreetmap\.org/);
-  assert.match(store, /post-1am-open-map-restore-2026-07-22-v1/);
+  assert.match(store, /post-1am-open-map-restore-2026-07-22-v2/);
   assert.equal(JSON.parse(baseline).length, 135);
   assert.equal(mergeAudit.finalItems, 210);
   assert.equal(mergeAudit.mappedItems, 177);
