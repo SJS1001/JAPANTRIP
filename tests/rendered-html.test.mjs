@@ -29,6 +29,14 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /imageCredit/);
   assert.match(calendar, /<img src=\{item\.imageUrl\}/);
   assert.doesNotMatch(calendar, /from "next\/image"/);
+
+  const cacheRegistration = await readFile(new URL("../app/components/PhotoCacheRegistration.tsx", import.meta.url), "utf8");
+  const photoWorker = await readFile(new URL("../public/attraction-photo-cache.js", import.meta.url), "utf8");
+  assert.match(cacheRegistration, /serviceWorker\.register\("\/attraction-photo-cache\.js"/);
+  assert.match(photoWorker, /japan-trip-attraction-photos/);
+  assert.match(photoWorker, /cache\.match\(request, \{ ignoreSearch: true \}\)/);
+  assert.match(photoWorker, /cache\.put\(request, response\.clone\(\)\)/);
+
   assert.doesNotMatch(calendar, /@\/data\/seed/);
   assert.match(map, /tile\.openstreetmap\.org/);
   assert.match(map, /scrollWheelZoom: true/);
