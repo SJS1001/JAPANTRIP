@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { OpenTripMap, type MapPoint } from "./OpenTripMap";
 
 type Category = "hotel" | "transport" | "attraction" | "meal" | "ticket" | "note";
@@ -488,7 +487,9 @@ export function TripCalendar() {
                     return (
                       <div className={`item-card ${isFlipped ? "flipped" : ""}`} data-category={item.category} key={item.id} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (item.category === "attraction") setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
                         {item.category === "attraction" && item.imageUrl && <figure className="card-photo">
-                          <Image src={item.imageUrl} alt={`${item.title} in Japan`} width={800} height={450} sizes="(max-width: 760px) 100vw, (max-width: 1100px) 50vw, 33vw" />
+                          {/* Local trip photos must bypass the unavailable hosted image optimizer. */}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={item.imageUrl} alt={`${item.title} in Japan`} loading="lazy" decoding="async" />
                           {isFlipped && item.imageSource && <figcaption><a href={item.imageSource} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>{item.imageCredit || "Photo source"} ↗</a></figcaption>}
                         </figure>}
                         {!isFlipped ? <>
