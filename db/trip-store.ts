@@ -4,7 +4,7 @@ import mergeAudit from "../data/merge-audit.json";
 import seedItems from "../data/seed.json";
 
 type TripRecord = Record<string, unknown> & { id: string };
-const AUDITED_RESTORE_ID = "post-1am-open-map-restore-2026-07-22-v2";
+const AUDITED_RESTORE_ID = "post-1am-open-map-restore-2026-07-22-v3-images";
 
 type D1Result<T = unknown> = {
   results?: T[];

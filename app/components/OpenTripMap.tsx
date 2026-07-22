@@ -15,6 +15,8 @@ export type MapPoint = {
 
 export function OpenTripMap({ points, master = false }: { points: MapPoint[]; master?: boolean }) {
   const mapNode = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<import("leaflet").Map | null>(null);
+  const routeBounds = useRef<import("leaflet").LatLngBounds | null>(null);
   const pointsKey = useMemo(
     () => points.map((point) => `${point.id}:${point.lat}:${point.lng}:${point.label}:${point.showMarker !== false}`).join("|"),
     [points],
@@ -28,10 +30,13 @@ export function OpenTripMap({ points, master = false }: { points: MapPoint[]; ma
     void import("leaflet").then((L) => {
       if (cancelled || !mapNode.current) return;
       map = L.map(mapNode.current, {
-        zoomControl: true,
-        scrollWheelZoom: false,
+        zoomControl: false,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        touchZoom: true,
         attributionControl: true,
       });
+      mapInstance.current = map;
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -72,6 +77,7 @@ export function OpenTripMap({ points, master = false }: { points: MapPoint[]; ma
       markerGroup.addTo(map);
 
       const bounds = L.latLngBounds(coordinates);
+      routeBounds.current = bounds.isValid() ? bounds : null;
       if (bounds.isValid()) {
         map.fitBounds(bounds.pad(master ? 0.08 : 0.16), {
           padding: [28, 28],
@@ -86,8 +92,27 @@ export function OpenTripMap({ points, master = false }: { points: MapPoint[]; ma
     return () => {
       cancelled = true;
       map?.remove();
+      mapInstance.current = null;
+      routeBounds.current = null;
     };
   }, [master, points, pointsKey]);
 
-  return <div className="open-trip-map" ref={mapNode} aria-label={master ? "Map of the full Japan trip" : "Map of the selected day"} />;
+  const fitRoute = () => {
+    const map = mapInstance.current;
+    const bounds = routeBounds.current;
+    if (!map || !bounds) return;
+    map.fitBounds(bounds.pad(master ? 0.08 : 0.16), {
+      padding: [28, 28],
+      maxZoom: master ? 7 : 15,
+    });
+  };
+
+  return <div className="open-trip-map-shell">
+    <div className="open-trip-map" ref={mapNode} aria-label={master ? "Map of the full Japan trip" : "Map of the selected day"} />
+    <div className="map-zoom-controls" aria-label="Map zoom controls">
+      <button type="button" aria-label="Zoom in" title="Zoom in" onClick={() => mapInstance.current?.zoomIn()}>＋</button>
+      <button type="button" aria-label="Zoom out" title="Zoom out" onClick={() => mapInstance.current?.zoomOut()}>−</button>
+      <button type="button" className="fit-route" onClick={fitRoute}>Fit route</button>
+    </div>
+  </div>;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { OpenTripMap, type MapPoint } from "./OpenTripMap";
 
 type Category = "hotel" | "transport" | "attraction" | "meal" | "ticket" | "note";
@@ -24,6 +25,8 @@ type TripItem = {
   quantity?: string;
   fareDetails?: string;
   imageUrl?: string;
+  imageSource?: string;
+  imageCredit?: string;
 };
 
 type HistoryItem = {
@@ -484,6 +487,10 @@ export function TripCalendar() {
                     const next = nextFrom(item);
                     return (
                       <div className={`item-card ${isFlipped ? "flipped" : ""}`} data-category={item.category} key={item.id} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (item.category === "attraction") setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
+                        {item.category === "attraction" && item.imageUrl && <figure className="card-photo">
+                          <Image src={item.imageUrl} alt={`${item.title} in Japan`} width={800} height={450} sizes="(max-width: 760px) 100vw, (max-width: 1100px) 50vw, 33vw" />
+                          {isFlipped && item.imageSource && <figcaption><a href={item.imageSource} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>{item.imageCredit || "Photo source"} ↗</a></figcaption>}
+                        </figure>}
                         {!isFlipped ? <>
                           <div className="card-top"><span>{item.category}</span><time>{item.time}</time></div>
                           <h3>{item.title}</h3><button className="edit" aria-label={`Edit ${item.title}`} onClick={() => setDraft({ ...item })}>•••</button>
@@ -534,7 +541,7 @@ function RoutePanel({ items, selectedDate, onDateChange, mode, onModeChange }: {
       <div className="map-controls"><button className={mode === "master" ? "active" : ""} onClick={() => onModeChange("master")}>Master map</button><button className={mode === "day" ? "active" : ""} onClick={() => onModeChange("day")}>Day map</button>{mode === "day" && <select aria-label="Map date" value={selectedDate} onChange={(event) => onDateChange(event.target.value)}>{days.map((date) => <option key={date} value={date}>{dateLabel(date)}</option>)}</select>}</div>
     </header>
     <div className="map-layout">
-      <div className="map-canvas-wrap"><OpenTripMap points={points} master={mode === "master"} /><div className="map-note">Planning line only—use the leg links for live walking or public-transit directions. {withoutCoordinates ? `${withoutCoordinates} agenda ${withoutCoordinates === 1 ? "item has" : "items have"} no coordinates yet.` : "Every relevant stop is mapped."}</div></div>
+      <div className="map-canvas-wrap"><OpenTripMap points={points} master={mode === "master"} /><div className="map-note">Pinch, scroll or use ＋/− to zoom; “Fit route” resets the view. Planning line only—use the leg links for live walking or public-transit directions. {withoutCoordinates ? `${withoutCoordinates} agenda ${withoutCoordinates === 1 ? "item has" : "items have"} no coordinates yet.` : "Every relevant stop is mapped."}</div></div>
       <div className="map-itinerary">
         <h3>{mode === "master" ? `${points.length} mapped trip stops` : `${points.length} route points`}</h3>
         <div className="map-stop-list">{points.map((point, index) => {
