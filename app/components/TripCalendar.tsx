@@ -27,6 +27,7 @@ type TripItem = {
   imageUrl?: string;
   imageSource?: string;
   imageCredit?: string;
+  order?: number;
 };
 
 type HistoryItem = {
@@ -120,7 +121,14 @@ function dateLabel(date: string) {
 }
 
 function sortItems(list: TripItem[]) {
-  return [...list].sort((a, b) => String(a.time ?? "").localeCompare(String(b.time ?? "")));
+  return [...list].sort((a, b) => {
+    if (Number.isFinite(a.order) || Number.isFinite(b.order)) {
+      const orderA = Number.isFinite(a.order) ? Number(a.order) : Number.MAX_SAFE_INTEGER;
+      const orderB = Number.isFinite(b.order) ? Number(b.order) : Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) return orderA - orderB;
+    }
+    return String(a.time ?? "").localeCompare(String(b.time ?? ""));
+  });
 }
 
 function hasCoordinates(item: TripItem): item is TripItem & { lat: number; lng: number } {
@@ -204,7 +212,7 @@ export function TripCalendar() {
   const [flipped, setFlipped] = useState<string | null>(null);
   const [draft, setDraft] = useState<TripItem | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
-  const [pendingMove, setPendingMove] = useState<{ itemId: string; date: string } | null>(null);
+  const [pendingMove, setPendingMove] = useState<{ itemId: string; date: string; time: string; beforeItemId?: string } | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationMessage, setLocationMessage] = useState("");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -544,24 +552,39 @@ export function TripCalendar() {
   function dropOnDay(date: string) {
     if (!dragging) return;
     const moved = items.find((item) => item.id === dragging);
-    if (!moved || moved.date === date) return setDragging(null);
-    setPendingMove({ itemId: dragging, date });
+    if (!moved) return setDragging(null);
+    setPendingMove({ itemId: dragging, date, time: moved.time || "" });
+    setDragging(null);
+  }
+
+  function dropOnItem(target: TripItem, before: boolean) {
+    if (!dragging || dragging === target.id) return setDragging(null);
+    const moved = items.find((item) => item.id === dragging);
+    if (!moved) return setDragging(null);
+    const ordered = sortItems(items.filter((item) => item.date === target.date && item.id !== moved.id));
+    const targetIndex = ordered.findIndex((item) => item.id === target.id);
+    const beforeItemId = before ? target.id : ordered[targetIndex + 1]?.id;
+    setPendingMove({ itemId: moved.id, date: target.date, time: target.time || moved.time || "", beforeItemId });
     setDragging(null);
   }
 
   function confirmMove() {
     if (!pendingMove) return;
     const moved = items.find((item) => item.id === pendingMove.itemId);
-    if (!moved || moved.date === pendingMove.date) {
+    if (!moved) {
       setPendingMove(null);
       return;
     }
-    commit(
-      items.map((item) =>
-        item.id === pendingMove.itemId ? { ...item, date: pendingMove.date } : item,
-      ),
-      `Moved ${moved.title} from ${dateLabel(moved.date)} to ${dateLabel(pendingMove.date)}`,
-    );
+    const updated = items.map((item) => item.id === moved.id ? { ...item, date: pendingMove.date, time: pendingMove.time } : item);
+    const targetDay = sortItems(updated.filter((item) => item.date === pendingMove.date && item.id !== moved.id));
+    const insertionIndex = pendingMove.beforeItemId ? Math.max(0, targetDay.findIndex((item) => item.id === pendingMove.beforeItemId)) : targetDay.length;
+    targetDay.splice(insertionIndex, 0, updated.find((item) => item.id === moved.id)!);
+    const normalized = new Map(targetDay.map((item, index) => [item.id, (index + 1) * 10]));
+    const next = updated.map((item) => normalized.has(item.id) ? { ...item, order: normalized.get(item.id) } : item);
+    const change = moved.date === pendingMove.date
+      ? `Reordered ${moved.title} on ${dateLabel(moved.date)} at ${pendingMove.time || "a flexible time"}`
+      : `Moved ${moved.title} from ${dateLabel(moved.date)} to ${dateLabel(pendingMove.date)} at ${pendingMove.time || "a flexible time"}`;
+    commit(next, change);
     setPendingMove(null);
   }
 
@@ -694,7 +717,7 @@ export function TripCalendar() {
                     const next = nextFrom(item);
                     const photo = itemImage(item);
                     return (
-                      <div className={`item-card ${isFlipped ? "flipped" : ""}`} data-category={item.category} key={item.id} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (item.category === "attraction") setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
+                      <div className={`item-card ${isFlipped ? "flipped" : ""} ${dragging === item.id ? "dragging" : ""}`} data-category={item.category} key={item.id} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); const rect = event.currentTarget.getBoundingClientRect(); event.currentTarget.dataset.dropEdge = event.clientY < rect.top + rect.height / 2 ? "before" : "after"; }} onDragLeave={(event) => { delete event.currentTarget.dataset.dropEdge; }} onDrop={(event) => { event.preventDefault(); event.stopPropagation(); const before = event.currentTarget.dataset.dropEdge !== "after"; delete event.currentTarget.dataset.dropEdge; dropOnItem(item, before); }} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (item.category === "attraction") setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
                         {["attraction", "hotel"].includes(item.category) && photo && <figure className="card-photo">
                           {/* Local trip photos must bypass the unavailable hosted image optimizer. */}
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -703,7 +726,7 @@ export function TripCalendar() {
                         </figure>}
                         {!isFlipped ? <>
                           <div className="card-top"><span>{item.category}</span><time>{item.time}</time></div>
-                          <h3>{item.title}</h3><div className="card-actions"><button className="move-item" aria-label={`Move ${item.title}`} onClick={() => setPendingMove({ itemId: item.id, date: item.date })}>Move</button><button className="edit" aria-label={`Edit ${item.title}`} onClick={() => setDraft({ ...item })}>•••</button></div>
+                          <h3>{item.title}</h3><div className="card-actions"><button className="move-item" aria-label={`Move or reschedule ${item.title}`} onClick={() => setPendingMove({ itemId: item.id, date: item.date, time: item.time || "" })}>Move</button><button className="edit" aria-label={`Edit ${item.title}`} onClick={() => setDraft({ ...item })}>•••</button></div>
                           <div className="location">{item.location}</div>
                           {item.notes && <p>{item.notes}</p>}
                           <div className={`status ${item.ticketStatus || "not-needed"}`}><i />{item.ticketStatus === "booked" ? "Booked" : item.ticketStatus === "to-buy" ? "To buy / confirm" : "No advance ticket / conditional"}{item.quantity ? ` · ${item.quantity}` : ""}{item.cost ? ` · ${item.cost}` : ""}</div>
@@ -733,21 +756,22 @@ export function TripCalendar() {
       {pendingMove && (() => {
         const moved = items.find((item) => item.id === pendingMove.itemId);
         if (!moved) return null;
-        return <MoveDialog item={moved} date={pendingMove.date} onDateChange={(date) => setPendingMove({ ...pendingMove, date })} onConfirm={confirmMove} onCancel={() => setPendingMove(null)} />;
+        return <MoveDialog item={moved} date={pendingMove.date} time={pendingMove.time} reordered={Boolean(pendingMove.beforeItemId) || moved.date === pendingMove.date} onDateChange={(date) => setPendingMove({ ...pendingMove, date, beforeItemId: date === pendingMove.date ? pendingMove.beforeItemId : undefined })} onTimeChange={(time) => setPendingMove({ ...pendingMove, time })} onConfirm={confirmMove} onCancel={() => setPendingMove(null)} />;
       })()}
     </main>
   );
 }
 
-function MoveDialog({ item, date, onDateChange, onConfirm, onCancel }: { item: TripItem; date: string; onDateChange: (date: string) => void; onConfirm: () => void; onCancel: () => void }) {
-  const unchanged = item.date === date;
+function MoveDialog({ item, date, time, reordered, onDateChange, onTimeChange, onConfirm, onCancel }: { item: TripItem; date: string; time: string; reordered: boolean; onDateChange: (date: string) => void; onTimeChange: (time: string) => void; onConfirm: () => void; onCancel: () => void }) {
+  const unchanged = item.date === date && (item.time || "") === time && !reordered;
   return <div className="modal" role="dialog" aria-modal="true" aria-labelledby="move-title">
     <section className="move-dialog">
       <div className="kicker">Confirm calendar change</div>
       <h2 id="move-title">Move {item.title}?</h2>
-      <p>This will update the shared family calendar and automatically rebuild that day’s route map.</p>
-      <div className="move-summary"><span><small>From</small><strong>{dateLabel(item.date)}</strong></span><b aria-hidden="true">→</b><label><small>Move to</small><select value={date} onChange={(event) => onDateChange(event.target.value)}>{days.map((day) => <option key={day} value={day}>{dateLabel(day)}</option>)}</select></label></div>
-      {unchanged && <p className="move-hint">Choose a different day to move this item.</p>}
+      <p>This will update its day, time and position on the shared calendar. The route map will rebuild automatically.</p>
+      <div className="move-summary"><span><small>From</small><strong>{dateLabel(item.date)} · {item.time || "Flexible"}</strong></span><b aria-hidden="true">→</b><div className="move-fields"><label><small>Move to</small><select value={date} onChange={(event) => onDateChange(event.target.value)}>{days.map((day) => <option key={day} value={day}>{dateLabel(day)}</option>)}</select></label><label><small>Start time</small><input type="time" value={time} onChange={(event) => onTimeChange(event.target.value)} /></label></div></div>
+      {reordered && <p className="move-hint">The item will be placed at the position where you dropped it.</p>}
+      {unchanged && <p className="move-hint">Choose a different day or time, or drag the card above or below another item.</p>}
       <footer><button type="button" onClick={onCancel}>Cancel</button><button type="button" className="primary" onClick={onConfirm} disabled={unchanged}>Confirm move</button></footer>
     </section>
   </div>;
