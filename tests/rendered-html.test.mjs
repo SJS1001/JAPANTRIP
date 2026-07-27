@@ -26,6 +26,9 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /japanTripCloudCache/);
   assert.match(calendar, /OpenStreetMap route planner/);
   assert.match(calendar, /OpenTripMap/);
+  assert.match(calendar, /Confirm calendar change/);
+  assert.match(calendar, /Confirm move/);
+  assert.match(calendar, /setPendingMove/);
   assert.match(calendar, /card-photo/);
   assert.match(calendar, /imageCredit/);
   assert.match(calendar, /<img src=\{item\.imageUrl\}/);

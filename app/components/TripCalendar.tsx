@@ -190,6 +190,7 @@ export function TripCalendar() {
   const [flipped, setFlipped] = useState<string | null>(null);
   const [draft, setDraft] = useState<TripItem | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
+  const [pendingMove, setPendingMove] = useState<{ itemId: string; date: string } | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationMessage, setLocationMessage] = useState("");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -530,11 +531,24 @@ export function TripCalendar() {
     if (!dragging) return;
     const moved = items.find((item) => item.id === dragging);
     if (!moved || moved.date === date) return setDragging(null);
-    commit(
-      items.map((item) => (item.id === dragging ? { ...item, date } : item)),
-      `Moved ${moved.title} to ${dateLabel(date)}`,
-    );
+    setPendingMove({ itemId: dragging, date });
     setDragging(null);
+  }
+
+  function confirmMove() {
+    if (!pendingMove) return;
+    const moved = items.find((item) => item.id === pendingMove.itemId);
+    if (!moved || moved.date === pendingMove.date) {
+      setPendingMove(null);
+      return;
+    }
+    commit(
+      items.map((item) =>
+        item.id === pendingMove.itemId ? { ...item, date: pendingMove.date } : item,
+      ),
+      `Moved ${moved.title} from ${dateLabel(moved.date)} to ${dateLabel(pendingMove.date)}`,
+    );
+    setPendingMove(null);
   }
 
   function nextFrom(item: TripItem) {
@@ -674,7 +688,7 @@ export function TripCalendar() {
                         </figure>}
                         {!isFlipped ? <>
                           <div className="card-top"><span>{item.category}</span><time>{item.time}</time></div>
-                          <h3>{item.title}</h3><button className="edit" aria-label={`Edit ${item.title}`} onClick={() => setDraft({ ...item })}>•••</button>
+                          <h3>{item.title}</h3><div className="card-actions"><button className="move-item" aria-label={`Move ${item.title}`} onClick={() => setPendingMove({ itemId: item.id, date: item.date })}>Move</button><button className="edit" aria-label={`Edit ${item.title}`} onClick={() => setDraft({ ...item })}>•••</button></div>
                           <div className="location">{item.location}</div>
                           {item.notes && <p>{item.notes}</p>}
                           <div className={`status ${item.ticketStatus || "not-needed"}`}><i />{item.ticketStatus === "booked" ? "Booked" : item.ticketStatus === "to-buy" ? "To buy / confirm" : "No advance ticket / conditional"}{item.quantity ? ` · ${item.quantity}` : ""}{item.cost ? ` · ${item.cost}` : ""}</div>
@@ -701,8 +715,27 @@ export function TripCalendar() {
       <footer><span>Shared family version {version}</span><button onClick={async () => { await fetch("/api/logout", { method: "POST" }); setPhase("locked"); }}>Lock calendar</button></footer>
 
       {draft && <Editor item={draft} setItem={setDraft} onSave={saveDraft} onDelete={removeDraft} onClose={() => setDraft(null)} onReset={() => { if (confirm("Restore the verified complete itinerary for everyone?")) { setDraft(null); void resetDefaults(); } }} busy={locating} />}
+      {pendingMove && (() => {
+        const moved = items.find((item) => item.id === pendingMove.itemId);
+        if (!moved) return null;
+        return <MoveDialog item={moved} date={pendingMove.date} onDateChange={(date) => setPendingMove({ ...pendingMove, date })} onConfirm={confirmMove} onCancel={() => setPendingMove(null)} />;
+      })()}
     </main>
   );
+}
+
+function MoveDialog({ item, date, onDateChange, onConfirm, onCancel }: { item: TripItem; date: string; onDateChange: (date: string) => void; onConfirm: () => void; onCancel: () => void }) {
+  const unchanged = item.date === date;
+  return <div className="modal" role="dialog" aria-modal="true" aria-labelledby="move-title">
+    <section className="move-dialog">
+      <div className="kicker">Confirm calendar change</div>
+      <h2 id="move-title">Move {item.title}?</h2>
+      <p>This will update the shared family calendar and automatically rebuild that day’s route map.</p>
+      <div className="move-summary"><span><small>From</small><strong>{dateLabel(item.date)}</strong></span><b aria-hidden="true">→</b><label><small>Move to</small><select value={date} onChange={(event) => onDateChange(event.target.value)}>{days.map((day) => <option key={day} value={day}>{dateLabel(day)}</option>)}</select></label></div>
+      {unchanged && <p className="move-hint">Choose a different day to move this item.</p>}
+      <footer><button type="button" onClick={onCancel}>Cancel</button><button type="button" className="primary" onClick={onConfirm} disabled={unchanged}>Confirm move</button></footer>
+    </section>
+  </div>;
 }
 
 function TicketsPanel({ items, onEdit }: { items: TripItem[]; onEdit: (item: TripItem) => void }) {

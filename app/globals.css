@@ -285,11 +285,14 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .card-photo img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .card-photo figcaption { position: absolute; right: 7px; bottom: 7px; max-width: calc(100% - 14px); padding: 4px 7px; background: rgb(35 30 22 / 84%); color: white; font-size: 8px; line-height: 1.35; }
 .card-photo figcaption a { overflow: hidden; display: block; color: inherit; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
-.card-top { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; padding-right: 27px; }
+.card-top { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; padding-right: 82px; }
 .card-top span, .back-label { color: var(--vermillion); font-size: 9px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .card-top time { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
-.item-card h3 { margin: 0 28px 5px 0; font-size: 14px; line-height: 1.35; }
-.item-card .edit { position: absolute; top: 9px; right: 8px; border: 0; background: transparent; color: var(--muted); cursor: pointer; letter-spacing: 1px; }
+.item-card h3 { margin: 0 82px 5px 0; font-size: 14px; line-height: 1.35; }
+.card-actions { position: absolute; top: 8px; right: 7px; display: flex; align-items: center; gap: 2px; }
+.item-card .card-actions button { min-height: 30px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.item-card .move-item { padding: 0 6px; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.item-card .edit { padding: 0 4px; letter-spacing: 1px; }
 .location { overflow: hidden; color: var(--muted); font-size: 11px; line-height: 1.4; text-overflow: ellipsis; }
 .item-card p { margin: 9px 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
 .status { display: flex; align-items: center; gap: 6px; margin-top: 10px; color: var(--muted); font-size: 9px; font-weight: 700; text-transform: uppercase; }
@@ -397,6 +400,19 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .editor footer span { flex: 1; }
 .editor .danger { color: var(--vermillion-dark); }
 .editor .quiet { border-color: transparent; color: var(--muted); background: transparent; }
+.move-dialog { width: min(100%, 560px); padding: clamp(24px, 5vw, 42px); background: var(--card); box-shadow: 0 25px 90px rgb(0 0 0 / 35%); }
+.move-dialog h2 { margin: 9px 0 10px; font-family: var(--font-serif), serif; font-size: clamp(25px, 4vw, 36px); font-weight: 500; }
+.move-dialog > p { margin: 0; color: var(--muted); line-height: 1.6; }
+.move-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 16px; align-items: end; margin: 26px 0 12px; padding: 20px; border: 1px solid var(--line); background: #fffefa; }
+.move-summary span, .move-summary label { display: grid; gap: 7px; }
+.move-summary small { color: var(--vermillion); font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.move-summary strong { min-height: 43px; display: flex; align-items: center; font-size: 13px; }
+.move-summary b { align-self: center; color: var(--vermillion); font-size: 20px; font-weight: 400; }
+.move-dialog .move-hint { color: var(--vermillion-dark); font-size: 11px; }
+.move-dialog footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 25px; }
+.move-dialog button { min-height: 42px; padding: 0 17px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+.move-dialog .primary { border-color: var(--vermillion); background: var(--vermillion); color: white; }
+.move-dialog button:disabled { cursor: not-allowed; opacity: .45; }
 
 @media (max-width: 1120px) {
   .calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -441,6 +457,9 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
   .editor > footer { flex-wrap: wrap; }
   .editor footer span { display: none; }
   .editor footer button { flex: 1 1 42%; }
+  .move-summary { grid-template-columns: 1fr; gap: 12px; }
+  .move-summary b { display: none; }
+  .move-dialog footer button { flex: 1; }
 }
 
 @media (max-width: 430px) {
