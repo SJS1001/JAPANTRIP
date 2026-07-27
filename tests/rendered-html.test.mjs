@@ -37,6 +37,13 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /Pre-departure bookings/);
   assert.match(calendar, /Confirm before departure/);
   assert.match(calendar, /Completed/);
+
+  const byId = new Map(seed.map((item) => [item.id, item]));
+  assert.equal(byId.get("a9")?.time, "12:30 target · allow 2h");
+  assert.equal(byId.get("a09b")?.date, "2026-08-21");
+  assert.equal(byId.get("a09b")?.time, "11:30 target · allow 2h");
+  assert.equal(byId.get("a09c")?.time, "18:00–19:15");
+  assert.equal(byId.get("m09b")?.title, "Dinner after Tokyo Tower");
   assert.match(calendar, /card-photo/);
   assert.match(calendar, /imageCredit/);
   assert.match(calendar, /<img src=\{photo\.imageUrl\}/);
