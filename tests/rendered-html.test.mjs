@@ -3,7 +3,7 @@ import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("ships the protected shared family calendar", async () => {
-  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText] = await Promise.all([
+  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText, imageManifestText] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TripCalendar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/OpenTripMap.tsx", import.meta.url), "utf8"),
@@ -14,10 +14,13 @@ test("ships the protected shared family calendar", async () => {
     readFile(new URL("../data/merge-audit.json", import.meta.url), "utf8"),
     readFile(new URL("../data/cloud-baseline.json", import.meta.url), "utf8"),
     readFile(new URL("../data/seed.json", import.meta.url), "utf8"),
+    readFile(new URL("../data/image-manifest.json", import.meta.url), "utf8"),
   ]);
   const mergeAudit = JSON.parse(audit);
   const seed = JSON.parse(seedText);
   const attractions = seed.filter((item) => item.category === "attraction");
+  const hotels = seed.filter((item) => item.category === "hotel");
+  const imageManifest = JSON.parse(imageManifestText);
   const geocodeApi = await readFile(new URL("../app/api/geocode/route.ts", import.meta.url), "utf8");
 
   assert.match(page, /TripCalendar/);
@@ -34,7 +37,9 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /Completed/);
   assert.match(calendar, /card-photo/);
   assert.match(calendar, /imageCredit/);
-  assert.match(calendar, /<img src=\{item\.imageUrl\}/);
+  assert.match(calendar, /<img src=\{photo\.imageUrl\}/);
+  assert.match(calendar, /lockedImageManifest/);
+  assert.match(calendar, /\["attraction", "hotel"\]/);
   assert.doesNotMatch(calendar, /from "next\/image"/);
 
   const cacheRegistration = await readFile(new URL("../app/components/PhotoCacheRegistration.tsx", import.meta.url), "utf8");
@@ -68,6 +73,8 @@ test("ships the protected shared family calendar", async () => {
   assert.deepEqual(mergeAudit.unresolved, []);
   assert.equal(attractions.length, 86);
   assert.ok(attractions.every((item) => item.imageUrl && item.imageSource && item.imageCredit));
+  assert.ok(attractions.every((item) => imageManifest[item.id]?.imageUrl));
+  assert.ok(hotels.every((item) => imageManifest[item.id]?.imageUrl));
   await Promise.all(attractions.map((item) => access(new URL(`../public${item.imageUrl}`, import.meta.url))));
   assert.match(hosting, /"d1":\s*"DB"/);
   assert.doesNotMatch(page, /Your site is taking shape/);

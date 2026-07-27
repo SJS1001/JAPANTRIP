@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import lockedImageManifest from "../../data/image-manifest.json";
 import { OpenTripMap, type MapPoint } from "./OpenTripMap";
 
 type Category = "hotel" | "transport" | "attraction" | "meal" | "ticket" | "note";
@@ -35,6 +36,17 @@ type HistoryItem = {
   changedBy: string;
   changedAt: string;
 };
+
+type LockedImage = { imageUrl: string; imageSource?: string; imageCredit?: string };
+const lockedImages = lockedImageManifest as Record<string, LockedImage>;
+
+function itemImage(item: TripItem): LockedImage | null {
+  return lockedImages[item.id] || (item.imageUrl ? {
+    imageUrl: item.imageUrl,
+    imageSource: item.imageSource,
+    imageCredit: item.imageCredit,
+  } : null);
+}
 
 const categories: Category[] = ["hotel", "transport", "attraction", "meal", "ticket", "note"];
 const preDepartureNow = new Set(["tkrail", "tk1", "tk2", "tk3", "ticket-tokyo-tower", "pass-hakone", "tk-oam", "pass-kansai", "tk-nijo", "t9"]);
@@ -680,13 +692,14 @@ export function TripCalendar() {
                   {dayItems.map((item) => {
                     const isFlipped = flipped === item.id;
                     const next = nextFrom(item);
+                    const photo = itemImage(item);
                     return (
                       <div className={`item-card ${isFlipped ? "flipped" : ""}`} data-category={item.category} key={item.id} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (item.category === "attraction") setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
-                        {item.category === "attraction" && item.imageUrl && <figure className="card-photo">
+                        {["attraction", "hotel"].includes(item.category) && photo && <figure className="card-photo">
                           {/* Local trip photos must bypass the unavailable hosted image optimizer. */}
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={item.imageUrl} alt={`${item.title} in Japan`} loading="lazy" decoding="async" />
-                          {isFlipped && item.imageSource && <figcaption><a href={item.imageSource} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>{item.imageCredit || "Photo source"} ↗</a></figcaption>}
+                          <img src={photo.imageUrl} alt={`${item.title} in Japan`} loading="lazy" decoding="async" />
+                          {isFlipped && photo.imageSource && <figcaption><a href={photo.imageSource} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>{photo.imageCredit || "Photo source"} ↗</a></figcaption>}
                         </figure>}
                         {!isFlipped ? <>
                           <div className="card-top"><span>{item.category}</span><time>{item.time}</time></div>

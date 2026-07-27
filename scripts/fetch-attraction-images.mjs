@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const seedPath = new URL("../data/seed.json", import.meta.url);
+const manifestPath = new URL("../data/image-manifest.json", import.meta.url);
 const imageDirectory = new URL("../public/images/attractions/", import.meta.url);
 
 const pages = {
@@ -190,6 +191,11 @@ for (const item of items) {
 const verifiedFallbacks = {
   a7: "a60", // Shibuya PARCO: Pokémon Center Shibuya is inside this building.
   a36b: "a34", // Miyajima waterfront: use the verified island/torii view.
+  h1: "a12", // Shiomi hotel: Tokyo Bay neighbourhood view.
+  h2: "a21", // Namba hotel: Dotonbori/Namba neighbourhood view.
+  h3: "hr-hondori", // Hiroshima hotel: central Hiroshima neighbourhood view.
+  h4: "a37", // Kyoto hotel: nearby Nijo Castle view.
+  h5: "a51b", // Cava House: Shinjuku neighbourhood view.
 };
 const itemsById = new Map(items.map((item) => [item.id, item]));
 for (const [targetId, sourceId] of Object.entries(verifiedFallbacks)) {
@@ -198,8 +204,20 @@ for (const [targetId, sourceId] of Object.entries(verifiedFallbacks)) {
   if (!target || !source?.imageUrl) continue;
   target.imageUrl = source.imageUrl;
   target.imageSource = source.imageSource;
-  target.imageCredit = source.imageCredit;
+  target.imageCredit = target.category === "hotel"
+    ? `${source.imageCredit || "Local trip image"} · neighbourhood view`
+    : source.imageCredit;
 }
 
 await writeFile(seedPath, `${JSON.stringify(items, null, 2)}\n`);
+const imageManifest = Object.fromEntries(
+  items
+    .filter((item) => item.imageUrl)
+    .map((item) => [item.id, {
+      imageUrl: item.imageUrl,
+      imageSource: item.imageSource || "",
+      imageCredit: item.imageCredit || "Local trip image",
+    }]),
+);
+await writeFile(manifestPath, `${JSON.stringify(imageManifest, null, 2)}\n`);
 console.log(JSON.stringify({ downloaded, missing }, null, 2));
