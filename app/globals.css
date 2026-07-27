@@ -307,6 +307,27 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .next-stop a, .official { color: var(--indigo); font-size: 11px; font-weight: 700; text-decoration: none; }
 .official { display: inline-block; margin-top: 7px; }
 
+.departure-panel { margin: 14px 0 26px; padding: clamp(24px, 4vw, 48px); border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
+.departure-panel > header { display: grid; grid-template-columns: minmax(260px, .8fr) 1.2fr; gap: 8px 44px; align-items: end; margin-bottom: 28px; }
+.departure-panel > header .kicker { grid-column: 1; }
+.departure-panel > header h2 { grid-column: 1; margin: 3px 0 0; font-family: var(--font-serif), serif; font-size: clamp(29px, 4vw, 46px); font-weight: 500; }
+.departure-panel > header p { grid-column: 2; grid-row: 1 / 3; margin: 0; color: var(--muted); line-height: 1.65; }
+.departure-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+.departure-group { min-width: 0; border: 1px solid var(--line); background: #fffefa; }
+.departure-group > h3 { display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 14px 15px; border-top: 3px solid var(--gold); border-bottom: 1px solid var(--line); font-size: 12px; }
+.departure-group.urgent > h3 { border-top-color: var(--vermillion); }
+.departure-group.done > h3 { border-top-color: var(--moss); }
+.departure-group h3 span { display: grid; place-items: center; min-width: 24px; height: 24px; border-radius: 50%; background: #eee7da; color: var(--muted); font-size: 10px; }
+.departure-group > div { display: grid; }
+.departure-group article { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 13px 12px; border-top: 1px solid var(--line); }
+.departure-group article:first-child { border-top: 0; }
+.departure-group article button { display: grid; gap: 4px; min-width: 0; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.departure-group article small { overflow: hidden; color: var(--muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.departure-group article strong { font-size: 11px; line-height: 1.35; }
+.departure-group article span { color: var(--muted); font-size: 9px; }
+.departure-group article a { padding: 7px 5px; color: var(--indigo); font-size: 9px; font-weight: 800; text-decoration: none; text-transform: uppercase; }
+.departure-empty { margin: 0; padding: 22px 15px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
 .pass-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 12px 0 26px; }
 .pass-card { padding: clamp(22px, 3vw, 38px); border-top: 3px solid var(--moss); background: var(--card); box-shadow: var(--shadow); }
 .pass-card span { color: var(--moss); font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
@@ -439,6 +460,10 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
   .calendar { grid-template-columns: 1fr; gap: 13px; }
   .day-head { padding: 17px 15px 14px; }
   .pass-grid { grid-template-columns: 1fr; }
+  .departure-panel { padding: 22px 16px; }
+  .departure-panel > header { grid-template-columns: 1fr; gap: 8px; }
+  .departure-panel > header .kicker, .departure-panel > header h2, .departure-panel > header p { grid-column: 1; grid-row: auto; }
+  .departure-columns { grid-template-columns: 1fr; }
   .ticket-list, .route-panel, .history-panel { padding: 22px 16px; }
   .ticket-row { grid-template-columns: 82px minmax(0, 1fr); gap: 11px; }
   .ticket-row button { grid-column: 2; justify-self: start; }

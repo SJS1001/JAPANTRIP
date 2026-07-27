@@ -37,6 +37,8 @@ type HistoryItem = {
 };
 
 const categories: Category[] = ["hotel", "transport", "attraction", "meal", "ticket", "note"];
+const preDepartureNow = new Set(["tkrail", "tk1", "tk2", "tk3", "ticket-tokyo-tower", "pass-hakone", "tk-oam", "pass-kansai", "tk-nijo", "t9"]);
+const preDepartureConfirm = new Set(["t07start", "t08start", "t10a", "tk4", "lug2", "m14b", "tk-miyajima-ropeway", "m16b", "t17a", "t18a", "m21b", "tk8"]);
 const days = Array.from({ length: 17 }, (_, index) => {
   const date = new Date("2026-08-06T12:00:00Z");
   date.setUTCDate(date.getUTCDate() + index);
@@ -739,7 +741,26 @@ function MoveDialog({ item, date, onDateChange, onConfirm, onCancel }: { item: T
 }
 
 function TicketsPanel({ items, onEdit }: { items: TripItem[]; onEdit: (item: TripItem) => void }) {
-  return <section><div className="pass-grid"><article className="pass-card"><span>Recommended</span><h2>Hakone Freepass</h2><strong>¥24,000 family</strong><p>Four Odawara-origin passes for the buses, Tozan train, cable car and ropeway.</p></article><article className="pass-card"><span>Recommended</span><h2>Kansai–Hiroshima Area Pass</h2><strong>¥68,000 family</strong><p>Four five-day adult passes, activated Aug 14, covering the eligible regional JR journeys.</p></article><article className="pass-card"><span>Use throughout</span><h2>Four IC cards</h2><strong>Pay as used</strong><p>For ordinary city trains, subways and buses. Reserved intercity trains remain separate.</p></article></div><div className="ticket-list"><h2>Purchase and confirmation list</h2>{items.map((item) => <div className="ticket-row" key={item.id}><small>{dateLabel(item.date)}<br />{item.time}</small><div><strong>{item.title}</strong><span>{[item.quantity, item.cost || item.location, item.ticketStatus === "booked" ? "Booked" : "To buy"].filter(Boolean).join(" · ")}</span>{item.fareDetails && <span>{item.fareDetails}</span>}</div><button onClick={() => onEdit(item)}>Edit</button></div>)}</div></section>;
+  const curated = items.filter((item) => preDepartureNow.has(item.id) || preDepartureConfirm.has(item.id) || item.id === "tk5");
+  const booked = curated.filter((item) => item.ticketStatus === "booked");
+  const bookNow = curated.filter((item) => item.ticketStatus !== "booked" && preDepartureNow.has(item.id));
+  const confirmSoon = curated.filter((item) => item.ticketStatus !== "booked" && preDepartureConfirm.has(item.id));
+  return <section>
+    <section className="departure-panel" aria-labelledby="departure-title">
+      <header><div className="kicker">Before leaving Canada</div><h2 id="departure-title">Pre-departure bookings</h2><p>Book the capacity-limited items first, then confirm taxis, luggage and meals. Mark an item “Booked” and it moves automatically to Completed.</p></header>
+      <div className="departure-columns">
+        <DepartureGroup title="Book now" tone="urgent" items={bookNow} onEdit={onEdit} empty="All priority bookings are complete." />
+        <DepartureGroup title="Confirm before departure" tone="soon" items={confirmSoon} onEdit={onEdit} empty="All trip logistics are confirmed." />
+        <DepartureGroup title="Completed" tone="done" items={booked} onEdit={onEdit} empty="Booked items will appear here." />
+      </div>
+    </section>
+    <div className="pass-grid"><article className="pass-card"><span>Recommended</span><h2>Hakone Freepass</h2><strong>¥24,000 family</strong><p>Four Odawara-origin passes for the buses, Tozan train, cable car and ropeway.</p></article><article className="pass-card"><span>Recommended</span><h2>Kansai–Hiroshima Area Pass</h2><strong>¥68,000 family</strong><p>Four five-day adult passes, activated Aug 14, covering the eligible regional JR journeys.</p></article><article className="pass-card"><span>Use throughout</span><h2>Four IC cards</h2><strong>Pay as used</strong><p>For ordinary city trains, subways and buses. Reserved intercity trains remain separate.</p></article></div>
+    <div className="ticket-list"><h2>Complete purchase and confirmation list</h2>{items.map((item) => <div className="ticket-row" key={item.id}><small>{dateLabel(item.date)}<br />{item.time}</small><div><strong>{item.title}</strong><span>{[item.quantity, item.cost || item.location, item.ticketStatus === "booked" ? "Booked" : "To buy"].filter(Boolean).join(" · ")}</span>{item.fareDetails && <span>{item.fareDetails}</span>}</div><button type="button" onClick={() => onEdit(item)}>Edit</button></div>)}</div>
+  </section>;
+}
+
+function DepartureGroup({ title, tone, items, onEdit, empty }: { title: string; tone: "urgent" | "soon" | "done"; items: TripItem[]; onEdit: (item: TripItem) => void; empty: string }) {
+  return <section className={`departure-group ${tone}`}><h3>{title}<span>{items.length}</span></h3>{!items.length && <p className="departure-empty">{empty}</p>}<div>{items.map((item) => <article key={item.id}><button type="button" onClick={() => onEdit(item)} aria-label={`Edit ${item.title}`}><small>{dateLabel(item.date)} · {item.time}</small><strong>{item.title}</strong><span>{item.ticketStatus === "booked" ? `Booked${item.confirmation ? ` · ${item.confirmation}` : ""}` : item.cost || "Open to update or book"}</span></button>{item.link && <a href={item.link} target="_blank" rel="noreferrer" aria-label={`Open booking page for ${item.title}`}>Book ↗</a>}</article>)}</div></section>;
 }
 
 function RoutePanel({ items, selectedDate, onDateChange, mode, onModeChange }: { items: TripItem[]; selectedDate: string; onDateChange: (date: string) => void; mode: "day" | "master"; onModeChange: (mode: "day" | "master") => void }) {
