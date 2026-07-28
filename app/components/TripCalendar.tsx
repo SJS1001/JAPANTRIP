@@ -180,6 +180,20 @@ function mapsSearchUrl(query: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
+function reservationSearchUrl(query: string) {
+  return `https://www.google.com/search?q=${encodeURIComponent(`${query} official reservation booking`)}`;
+}
+
+function reservationAdvice(kind: string, detail: string) {
+  const text = detail.toLowerCase();
+  if (text.includes("already included") || text.includes("dinner is already included")) return { label: "Included with hotel · no extra booking", link: false };
+  if (text.includes("reservation-only") || text.includes("reservation-essential") || text.includes("books out")) return { label: "Reservation needed", link: true };
+  if (text.includes("reserve") || text.includes("reservation")) return { label: "Reservation recommended", link: true };
+  if (kind === "Top restaurant") return { label: "Usually walk-in · check current policy", link: false };
+  if (["Viral food", "Coffee/sweets"].includes(kind)) return { label: "Walk-in · expect a possible queue", link: false };
+  return null;
+}
+
 function newItem(): TripItem {
   return {
     id: `u${Date.now()}`,
@@ -745,8 +759,8 @@ export function TripCalendar() {
                           {areaGuide && <>
                             <div className="local-tip"><div className="back-label">Insider move</div><p>{areaGuide.tip}</p></div>
                             <div className="local-picks">
-                              {areaGuide.picks.slice(0, 2).map((pick) => <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">Find on Google Maps ↗</a></article>)}
-                              {areaGuide.picks.length > 2 && <details className="more-nearby"><summary>More nearby ({areaGuide.picks.length - 2})</summary>{areaGuide.picks.slice(2).map((pick) => <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">Find on Google Maps ↗</a></article>)}</details>}
+                              {areaGuide.picks.slice(0, 2).map((pick) => { const reservation = reservationAdvice(pick.kind, pick.detail); return <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p>{reservation && <em className={reservation.link ? "reserve" : "walk-in"}>{reservation.label}</em>}<div className="pick-links"><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">{pick.kind === "Hidden/local" ? "Open place" : "Restaurant / place"} ↗</a>{reservation?.link && <a href={reservationSearchUrl(pick.query)} target="_blank" rel="noreferrer">Check tables / reserve ↗</a>}</div></article>; })}
+                              {areaGuide.picks.length > 2 && <details className="more-nearby"><summary>More nearby ({areaGuide.picks.length - 2})</summary>{areaGuide.picks.slice(2).map((pick) => { const reservation = reservationAdvice(pick.kind, pick.detail); return <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p>{reservation && <em className={reservation.link ? "reserve" : "walk-in"}>{reservation.label}</em>}<div className="pick-links"><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">{pick.kind === "Hidden/local" ? "Open place" : "Restaurant / place"} ↗</a>{reservation?.link && <a href={reservationSearchUrl(pick.query)} target="_blank" rel="noreferrer">Check tables / reserve ↗</a>}</div></article>; })}</details>}
                             </div>
                           </>}
                           {transportGuide && <div className="transport-guide">

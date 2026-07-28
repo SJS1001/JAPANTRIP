@@ -43,6 +43,10 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /Tap for secrets, food & local tips/);
   assert.match(calendar, /Tap for booking, seats & views/);
   assert.match(calendar, /Tap for nearby restaurant choices/);
+  assert.match(calendar, /Restaurant \/ place/);
+  assert.match(calendar, /Check tables \/ reserve/);
+  assert.match(calendar, /Reservation recommended/);
+  assert.match(calendar, /Walk-in · expect a possible queue/);
   assert.match(calendar, /More nearby/);
   assert.match(calendar, /Best seats & views/);
 
