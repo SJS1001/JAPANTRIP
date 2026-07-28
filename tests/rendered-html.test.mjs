@@ -3,7 +3,7 @@ import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("ships the protected shared family calendar", async () => {
-  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText, imageManifestText, cardGuides, restaurantGuidesText] = await Promise.all([
+  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText, imageManifestText, cardGuides, restaurantGuidesText, weatherApi] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TripCalendar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/OpenTripMap.tsx", import.meta.url), "utf8"),
@@ -17,6 +17,7 @@ test("ships the protected shared family calendar", async () => {
     readFile(new URL("../data/image-manifest.json", import.meta.url), "utf8"),
     readFile(new URL("../data/card-guides.ts", import.meta.url), "utf8"),
     readFile(new URL("../data/restaurant-guides.json", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/weather/route.ts", import.meta.url), "utf8"),
   ]);
   const mergeAudit = JSON.parse(audit);
   const seed = JSON.parse(seedText);
@@ -54,6 +55,19 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /not a medical guarantee/);
   assert.match(calendar, /More nearby/);
   assert.match(calendar, /Best seats & views/);
+  assert.match(calendar, /Weather & heat plan/);
+  assert.match(calendar, /Current conditions refresh automatically every 30 minutes/);
+  assert.match(calendar, /japanTripWeatherCache/);
+  assert.match(calendar, /30 \* 60_000/);
+  assert.match(calendar, /Forecast not open yet/);
+  assert.match(calendar, /Extreme heat plan/);
+  assert.match(calendar, /Weather data by/);
+  assert.match(weatherApi, /api\.open-meteo\.com\/v1\/forecast/);
+  assert.match(weatherApi, /forecast_days: "16"/);
+  assert.match(weatherApi, /isAuthorized/);
+  assert.match(weatherApi, /Asia\/Tokyo/);
+  assert.match(weatherApi, /current: "temperature_2m/);
+  assert.doesNotMatch(weatherApi, /apikey|apiKey|API_KEY/);
 
   const byId = new Map(seed.map((item) => [item.id, item]));
   assert.equal(byId.get("a9")?.time, "12:30 target · allow 2h");

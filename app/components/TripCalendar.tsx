@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { areaByItem, areaGuides, transportGuideByItem, transportGuides } from "../../data/card-guides";
 import lockedImageManifest from "../../data/image-manifest.json";
 import rankedRestaurantGuides from "../../data/restaurant-guides.json";
@@ -38,6 +38,42 @@ type HistoryItem = {
   action: string;
   changedBy: string;
   changedAt: string;
+};
+
+type WeatherDay = {
+  date: string;
+  weatherCode: number | null;
+  temperatureMax: number | null;
+  temperatureMin: number | null;
+  apparentTemperatureMax: number | null;
+  precipitationProbability: number | null;
+  precipitationSum: number | null;
+  sunrise: string | null;
+  sunset: string | null;
+  uvIndexMax: number | null;
+};
+
+type WeatherCity = {
+  id: string;
+  name: string;
+  current: {
+    time: string | null;
+    temperature: number | null;
+    apparentTemperature: number | null;
+    humidity: number | null;
+    precipitation: number | null;
+    weatherCode: number | null;
+    windSpeed: number | null;
+  };
+  daily: WeatherDay[];
+};
+
+type WeatherPayload = {
+  generatedAt: string;
+  timezone: string;
+  forecastDays: number;
+  provider: string;
+  cities: WeatherCity[];
 };
 
 type LockedImage = { imageUrl: string; imageSource?: string; imageCredit?: string };
@@ -120,6 +156,49 @@ function dateLabel(date: string) {
     day: "numeric",
     timeZone: "UTC",
   }).format(new Date(`${date}T12:00:00Z`));
+}
+
+function weatherCityId(date: string) {
+  if (date === "2026-08-10") return "hakone";
+  if (date >= "2026-08-11" && date <= "2026-08-13") return "osaka";
+  if (date >= "2026-08-14" && date <= "2026-08-15") return "hiroshima";
+  if (date >= "2026-08-16" && date <= "2026-08-18") return "kyoto";
+  return "tokyo";
+}
+
+function weatherCondition(code: number | null) {
+  if (code === 0) return { icon: "☀️", label: "Clear sky" };
+  if (code === 1) return { icon: "🌤️", label: "Mainly clear" };
+  if (code === 2) return { icon: "⛅", label: "Partly cloudy" };
+  if (code === 3) return { icon: "☁️", label: "Overcast" };
+  if (code === 45 || code === 48) return { icon: "🌫️", label: "Fog" };
+  if ([51, 53, 55, 56, 57].includes(Number(code))) return { icon: "🌦️", label: "Drizzle" };
+  if ([61, 63, 65, 66, 67].includes(Number(code))) return { icon: "🌧️", label: "Rain" };
+  if ([71, 73, 75, 77, 85, 86].includes(Number(code))) return { icon: "🌨️", label: "Snow" };
+  if ([80, 81, 82].includes(Number(code))) return { icon: "🌦️", label: "Rain showers" };
+  if ([95, 96, 99].includes(Number(code))) return { icon: "⛈️", label: "Thunderstorms" };
+  return { icon: "◌", label: "Forecast pending" };
+}
+
+function weatherNumber(value: number | null, suffix = "°") {
+  return value === null ? "—" : `${Math.round(value)}${suffix}`;
+}
+
+function japanTime(value: string | null) {
+  return value?.includes("T") ? value.split("T")[1].slice(0, 5) : "—";
+}
+
+function forecastOpens(date: string) {
+  const available = new Date(`${date}T12:00:00Z`);
+  available.setUTCDate(available.getUTCDate() - 15);
+  return new Intl.DateTimeFormat("en-CA", { month: "short", day: "numeric", timeZone: "UTC" }).format(available);
+}
+
+function weatherPlan(day: WeatherDay) {
+  if ((day.apparentTemperatureMax ?? 0) >= 38) return { tone: "danger", label: "Extreme heat plan", detail: "Move outdoor sights early, take a long indoor break and carry electrolytes." };
+  if ((day.precipitationProbability ?? 0) >= 70) return { tone: "rain", label: "Rain backup likely", detail: "Pack a light rain layer and recheck transport before leaving the hotel." };
+  if ((day.apparentTemperatureMax ?? 0) >= 33) return { tone: "heat", label: "Heat caution", detail: "Prioritize shade, water refills and the planned midday cooling stop." };
+  return { tone: "calm", label: "Normal summer plan", detail: "Recheck the evening before; mountain and coastal weather can change quickly." };
 }
 
 function sortItems(list: TripItem[]) {
@@ -277,7 +356,7 @@ export function TripCalendar() {
   const [name, setName] = useState("Family member");
   const [sync, setSync] = useState<"saved" | "saving" | "offline" | "error">("saved");
   const [syncMessage, setSyncMessage] = useState("");
-  const [activeTab, setActiveTab] = useState<"calendar" | "tickets" | "route" | "history">("calendar");
+  const [activeTab, setActiveTab] = useState<"calendar" | "tickets" | "weather" | "route" | "history">("calendar");
   const [mapDate, setMapDate] = useState(days[0]);
   const [mapMode, setMapMode] = useState<"day" | "master">("day");
   const [visible, setVisible] = useState<Set<Category>>(new Set(categories));
@@ -287,6 +366,9 @@ export function TripCalendar() {
   const [pendingMove, setPendingMove] = useState<{ itemId: string; date: string; time: string; beforeItemId?: string } | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationMessage, setLocationMessage] = useState("");
+  const [weather, setWeather] = useState<WeatherPayload | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [weatherError, setWeatherError] = useState("");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const versionRef = useRef(1);
   const editRevisionRef = useRef(0);
@@ -295,6 +377,22 @@ export function TripCalendar() {
   const locatingRef = useRef(false);
   const saveChain = useRef(Promise.resolve());
   const importRef = useRef<HTMLInputElement>(null);
+
+  const loadWeather = useCallback(async () => {
+    setWeatherLoading(true);
+    setWeatherError("");
+    try {
+      const response = await fetch("/api/weather", { cache: "no-store" });
+      const data = (await response.json()) as WeatherPayload & { error?: string };
+      if (!response.ok) throw new Error(data.error || "Weather is temporarily unavailable.");
+      setWeather(data);
+      localStorage.setItem("japanTripWeatherCache", JSON.stringify(data));
+    } catch (error) {
+      setWeatherError(error instanceof Error ? error.message : "Weather is temporarily unavailable.");
+    } finally {
+      setWeatherLoading(false);
+    }
+  }, []);
 
   async function loadTrip() {
     setSyncMessage("");
@@ -427,6 +525,25 @@ export function TripCalendar() {
       document.removeEventListener("visibilitychange", checkWhenVisible);
     };
   }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "ready") return;
+    const cached = localStorage.getItem("japanTripWeatherCache");
+    if (cached) {
+      try {
+        const savedWeather = JSON.parse(cached) as WeatherPayload;
+        queueMicrotask(() => setWeather(savedWeather));
+      } catch {
+        localStorage.removeItem("japanTripWeatherCache");
+      }
+    }
+    const initial = window.setTimeout(() => void loadWeather(), 0);
+    const interval = window.setInterval(() => void loadWeather(), 30 * 60_000);
+    return () => {
+      window.clearTimeout(initial);
+      window.clearInterval(interval);
+    };
+  }, [loadWeather, phase]);
 
   async function signIn(event: FormEvent) {
     event.preventDefault();
@@ -717,6 +834,15 @@ export function TripCalendar() {
     () => sortItems(items.filter((item) => item.category === "ticket" || (item.ticketStatus === "to-buy" && item.category !== "attraction"))).sort((a, b) => a.date.localeCompare(b.date) || String(a.time).localeCompare(String(b.time))),
     [items],
   );
+  const weatherByDate = useMemo(() => {
+    const forecast = new Map<string, WeatherDay & { cityName: string }>();
+    days.forEach((date) => {
+      const city = weather?.cities.find((candidate) => candidate.id === weatherCityId(date));
+      const day = city?.daily.find((candidate) => candidate.date === date);
+      if (city && day) forecast.set(date, { ...day, cityName: city.name });
+    });
+    return forecast;
+  }, [weather]);
 
   if (phase === "loading") {
     return <main className="access-screen"><div className="access-box"><div className="kicker">日本 · Family itinerary</div><h1>Opening the family calendar…</h1><p>Loading the latest shared copy.</p></div></main>;
@@ -759,7 +885,7 @@ export function TripCalendar() {
       {locationMessage && <div className="notice saved">{locationMessage}</div>}
 
       <nav className="tabs" aria-label="Calendar sections">
-        {(["calendar", "tickets", "route", "history"] as const).map((tab) => (
+        {(["calendar", "tickets", "weather", "route", "history"] as const).map((tab) => (
           <button key={tab} className={activeTab === tab ? "active" : ""} onClick={() => setActiveTab(tab)}>{tab === "tickets" ? "Passes & tickets" : tab[0].toUpperCase() + tab.slice(1)}</button>
         ))}
       </nav>
@@ -779,9 +905,11 @@ export function TripCalendar() {
         <section className="calendar">
           {days.map((date) => {
             const dayItems = sortItems(items.filter((item) => item.date === date && visible.has(item.category)));
+            const dayWeather = weatherByDate.get(date);
+            const condition = weatherCondition(dayWeather?.weatherCode ?? null);
             return (
               <article className="day" key={date} onDragOver={(event) => event.preventDefault()} onDrop={() => dropOnDay(date)}>
-                <header className="day-head"><div><small>{dateLabel(date).split(",")[0]}</small><h2>{dateLabel(date).replace(/^[^,]+,\s*/, "")}</h2><span>{dayHotel(date)}</span></div><button className="day-map-button" onClick={() => { setMapDate(date); setMapMode("day"); setActiveTab("route"); }}>Open map ↗</button></header>
+                <header className="day-head"><div><small>{dateLabel(date).split(",")[0]}</small><h2>{dateLabel(date).replace(/^[^,]+,\s*/, "")}</h2><span>{dayHotel(date)}</span></div><div className="day-head-actions">{dayWeather && <button className="day-weather" onClick={() => setActiveTab("weather")} aria-label={`Open weather for ${dateLabel(date)}`}><span aria-hidden="true">{condition.icon}</span><strong>{weatherNumber(dayWeather.temperatureMax)}</strong><small>{dayWeather.cityName} · rain {weatherNumber(dayWeather.precipitationProbability, "%")}</small></button>}<button className="day-map-button" onClick={() => { setMapDate(date); setMapMode("day"); setActiveTab("route"); }}>Open map ↗</button></div></header>
                 <div className="day-items">
                   {!dayItems.length && <div className="empty">No visible items</div>}
                   {dayItems.map((item) => {
@@ -840,6 +968,7 @@ export function TripCalendar() {
       )}
 
       {activeTab === "tickets" && <TicketsPanel items={ticketItems} onEdit={(item) => setDraft({ ...item })} />}
+      {activeTab === "weather" && <WeatherPanel weather={weather} loading={weatherLoading} error={weatherError} onRefresh={loadWeather} />}
       {activeTab === "route" && <RoutePanel items={items} selectedDate={mapDate} onDateChange={setMapDate} mode={mapMode} onModeChange={setMapMode} />}
       {activeTab === "history" && <HistoryPanel history={history} />}
 
@@ -868,6 +997,53 @@ function MoveDialog({ item, date, time, reordered, onDateChange, onTimeChange, o
       <footer><button type="button" onClick={onCancel}>Cancel</button><button type="button" className="primary" onClick={onConfirm} disabled={unchanged}>Confirm move</button></footer>
     </section>
   </div>;
+}
+
+function WeatherPanel({ weather, loading, error, onRefresh }: { weather: WeatherPayload | null; loading: boolean; error: string; onRefresh: () => Promise<void> }) {
+  const updated = weather?.generatedAt
+    ? new Intl.DateTimeFormat("en-CA", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "Asia/Tokyo", timeZoneName: "short" }).format(new Date(weather.generatedAt))
+    : "Not loaded";
+
+  return <section className="weather-panel">
+    <header className="weather-head">
+      <div><div className="kicker">Live Japan conditions</div><h2>Weather & heat plan</h2><p>Current conditions refresh automatically every 30 minutes. Trip forecasts populate on a rolling 16-day window; later dates will appear automatically.</p></div>
+      <div><small>Updated {updated}</small><button type="button" onClick={() => void onRefresh()} disabled={loading}>{loading ? "Refreshing…" : "Refresh weather"}</button></div>
+    </header>
+    {error && <div className="weather-error" role="alert">{error}{weather ? " Showing the last saved weather update." : " Try again in a moment."}</div>}
+    {!weather && loading && <div className="weather-loading">Loading current weather for the trip cities…</div>}
+    {weather && <>
+      <div className="weather-section-title"><div className="back-label">Right now</div><h3>Current conditions across the route</h3></div>
+      <div className="current-weather-grid">
+        {weather.cities.map((city) => {
+          const condition = weatherCondition(city.current.weatherCode);
+          return <article key={city.id}>
+            <div className="weather-city"><div><span aria-hidden="true">{condition.icon}</span><strong>{city.name}</strong></div><em>{japanTime(city.current.time)} JST</em></div>
+            <b>{weatherNumber(city.current.temperature)}</b><p>{condition.label} · feels {weatherNumber(city.current.apparentTemperature)}</p>
+            <dl><div><dt>Humidity</dt><dd>{weatherNumber(city.current.humidity, "%")}</dd></div><div><dt>Wind</dt><dd>{weatherNumber(city.current.windSpeed, " km/h")}</dd></div><div><dt>Rain now</dt><dd>{weatherNumber(city.current.precipitation, " mm")}</dd></div></dl>
+          </article>;
+        })}
+      </div>
+
+      <div className="weather-section-title"><div className="back-label">Aug 6–22 itinerary</div><h3>Rolling trip forecast</h3><p>Long-range model guidance is less certain. Treat forecasts beyond 7–10 days as planning signals and recheck each evening in Japan.</p></div>
+      <div className="trip-weather-grid">
+        {days.map((date) => {
+          const city = weather.cities.find((candidate) => candidate.id === weatherCityId(date));
+          const day = city?.daily.find((candidate) => candidate.date === date);
+          if (!day) return <article className="trip-weather pending" key={date}><header><div><small>{dateLabel(date)}</small><strong>{city?.name || weatherCityId(date)}</strong></div><span aria-hidden="true">◌</span></header><h4>Forecast not open yet</h4><p>This date should enter the 16-day window around {forecastOpens(date)}. It will load automatically.</p></article>;
+          const condition = weatherCondition(day.weatherCode);
+          const plan = weatherPlan(day);
+          return <article className="trip-weather" key={date}>
+            <header><div><small>{dateLabel(date)}</small><strong>{city?.name}</strong></div><span aria-hidden="true">{condition.icon}</span></header>
+            <div className="forecast-temperatures"><b>{weatherNumber(day.temperatureMax)}</b><span>low {weatherNumber(day.temperatureMin)}</span></div>
+            <p>{condition.label} · feels up to {weatherNumber(day.apparentTemperatureMax)}</p>
+            <dl><div><dt>Rain</dt><dd>{weatherNumber(day.precipitationProbability, "%")}</dd></div><div><dt>UV max</dt><dd>{weatherNumber(day.uvIndexMax, "")}</dd></div><div><dt>Sun</dt><dd>{japanTime(day.sunrise)}–{japanTime(day.sunset)}</dd></div></dl>
+            <div className={`weather-plan ${plan.tone}`}><strong>{plan.label}</strong><span>{plan.detail}</span></div>
+          </article>;
+        })}
+      </div>
+      <footer className="weather-credit">Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo ↗</a> under CC BY 4.0. Forecasts are guidance, not safety guarantees; follow local heat, typhoon and transport alerts.</footer>
+    </>}
+  </section>;
 }
 
 function TicketsPanel({ items, onEdit }: { items: TripItem[]; onEdit: (item: TripItem) => void }) {
