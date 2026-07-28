@@ -103,7 +103,11 @@ test("ships the protected shared family calendar", async () => {
   assert.equal(byId.get("hk-luggage")?.category, "transport");
   assert.match(byId.get("hk-luggage")?.fareDetails || "", /Size 160 \/ ≤25 kg ¥2,630/);
   assert.match(byId.get("hk-luggage")?.notes || "", /at least two days/);
-  assert.equal(byId.get("a9")?.time, "12:30 target · allow 2h");
+  assert.equal(byId.get("a9")?.time, "14:30 target · allow 2h");
+  assert.equal(byId.get("tk2")?.time, "Book 14:30 slot · 15:00 latest");
+  assert.equal(byId.get("m09c")?.time, "11:45–13:00");
+  assert.equal(byId.get("t09b")?.time, "16:30–17:30");
+  assert.match(store, /aug9-teamlab-1430-ticket-window-2026-07-28-v1/);
   assert.equal(byId.get("a09b")?.date, "2026-08-21");
   assert.equal(byId.get("a09b")?.time, "11:30 target · allow 2h");
   assert.equal(byId.get("a09c")?.time, "18:00–19:15");

@@ -445,7 +445,7 @@ export const areaByItem: Record<string, string> = {
   a56: "tsukiji", a57: "shiodome", a58: "ginza", "tok-imperial": "marunouchi", a59: "marunouchi",
   m06: "shiomi", m07a: "asakusa", m07b: "akihabara", m07lunch: "skytree",
   m08a: "harajuku", m08b: "shibuya", m08c: "shibuya", "tok-shibuya-dinner": "shibuya",
-  m09a: "shiomi", m09b: "roppongi", m09c: "toyosu",
+  m09a: "shiomi", m09b: "roppongi", m09c: "odaiba",
   m10a: "marunouchi", m10b: "hakone_museum", m10c: "odawara", m10d: "namba",
   m11: "namba", m11b: "namba", m12a: "tenjinbashi", m12b: "tenjinbashi", m12c: "umeda",
   m13a: "naramachi", m13b: "nara_park", "hr-lunch": "peace_park", "hr-dinner": "central_hiroshima",
