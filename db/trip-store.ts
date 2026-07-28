@@ -11,6 +11,7 @@ const FINAL_AUDIT_HEAT_REPLAN_ID = "final-audit-heat-replan-2026-07-27-v1";
 const RESTAURANT_CLOSURE_REPLAN_ID = "restaurant-closure-replan-2026-07-27-v1";
 const VERIFIED_TRANSPORT_PLAN_ID = "verified-transport-plan-2026-07-27-v1";
 const LUGGAGE_FORWARDING_PLAN_ID = "tokyo-osaka-luggage-forwarding-2026-07-28-v1";
+const JR_PASS_COLLECTION_PLAN_ID = "shin-osaka-jr-pass-collection-2026-07-28-v1";
 const TOKYO_TEAMLAB_REPLAN_ITEMS = new Set([
   "t09start", "m09a", "a12", "a10", "t09a", "a9", "m09c", "t09b",
   "a09c", "m09b", "a09d", "ticket-tokyo-tower", "tk2", "a09b", "tk3",
@@ -645,6 +646,62 @@ async function applyLuggageForwardingPlan(row: StateRow) {
   );
 }
 
+async function applyJrPassCollectionPlan(row: StateRow) {
+  const db = database();
+  const applied = await db
+    .prepare("SELECT id FROM trip_migrations WHERE id = ?")
+    .bind(JR_PASS_COLLECTION_PLAN_ID)
+    .first<{ id: string }>();
+  if (applied) return row;
+
+  const currentItems = JSON.parse(row.payload) as TripRecord[];
+  const current = new Map(currentItems.map((item) => [item.id, item]));
+  const canonical = new Map((seedItems as TripRecord[]).map((item) => [item.id, item]));
+  const plannedIds = ["jr-pass-pickup", "t10g", "m10d", "pass-kansai"];
+  const bookingFields = ["ticketStatus", "confirmed", "confirmation", "cost", "quantity", "fareDetails"];
+
+  for (const id of plannedIds) {
+    const planned = canonical.get(id);
+    if (!planned) continue;
+    const live = current.get(id);
+    if (!live) {
+      current.set(id, { ...planned });
+      continue;
+    }
+
+    const merged: TripRecord = { ...live, ...planned, id };
+    const hasLiveBooking = live.ticketStatus === "booked" || String(live.confirmation ?? "").trim().length > 0;
+    if (hasLiveBooking) {
+      for (const field of bookingFields) {
+        if (live[field] !== undefined) merged[field] = live[field];
+      }
+    }
+    delete merged.order;
+    current.set(id, merged);
+  }
+
+  const nextVersion = row.version + 1;
+  const update = await db
+    .prepare("UPDATE trip_state SET payload = ?, version = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND version = ?")
+    .bind(JSON.stringify([...current.values()]), nextVersion, "Transport planner", "family-trip", row.version)
+    .run();
+
+  if (update.meta?.changes) {
+    await db.batch([
+      db.prepare("INSERT OR IGNORE INTO trip_migrations (id) VALUES (?)").bind(JR_PASS_COLLECTION_PLAN_ID),
+      db.prepare("INSERT INTO trip_history (version, action, changed_by) VALUES (?, ?, ?)")
+        .bind(nextVersion, "Added Shin-Osaka JR pass collection, required documents and reserved-seat verification", "Transport planner"),
+    ]);
+  }
+
+  return (
+    (await db
+      .prepare("SELECT payload, version, updated_by, updated_at FROM trip_state WHERE id = ?")
+      .bind("family-trip")
+      .first<StateRow>()) ?? row
+  );
+}
+
 export async function readTrip() {
   await ensureTripSchema();
   const db = database();
@@ -679,6 +736,7 @@ export async function readTrip() {
   row = await applyRestaurantClosureReplan(row);
   row = await applyVerifiedTransportPlan(row);
   row = await applyLuggageForwardingPlan(row);
+  row = await applyJrPassCollectionPlan(row);
   return {
     items: JSON.parse(row.payload),
     version: row.version,

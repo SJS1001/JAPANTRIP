@@ -528,6 +528,12 @@ export const transportGuides: Record<string, TransportGuide> = {
     luggage: "Photograph every waybill and tracking number. Keep passports, medication, electronics, valuables, chargers and enough clothing through delivery in the overnight bag.",
     fallback: "If the hotel cannot guarantee the requested arrival during Obon, send earlier or travel with only the affected bag. Never risk the fixed Hakone Shinkansen connection for luggage handling.",
   },
+  jr_pass_pickup: {
+    booking: "Buy four adult Kansai–Hiroshima Area Passes through JR West, then collect them at JR Shin-Osaka on Aug 10. Set the five-day start date to Aug 14 and issue both the Aug 14 and Aug 16 reserved-seat tickets during the same stop.",
+    seats: "For both Sanyo Shinkansen trips, request two consecutive D/E pairs so the family stays together. Ordinary reserved seating is included; Green Car requires extra tickets and is unnecessary.",
+    luggage: "Keep all four passports, the JR West reservation number, 4-digit identification number, physical payment card and e-ticket documents in the day bag. The main luggage should already be waiting at APA.",
+    fallback: "The JR ticket office and Travel Service Center are scheduled until 22:00. If the Hikari is badly delayed, return to Shin-Osaka on Aug 11–13; do not wait until the early Obon departure on Aug 14.",
+  },
 };
 
 export const transportGuideByItem: Record<string, string> = {
@@ -537,6 +543,7 @@ export const transportGuideByItem: Record<string, string> = {
   t4: "kintetsu", t4b: "kintetsu",
   t10b: "hakone_local", t10c: "hakone_local", t10d: "hakone_local", t10e: "hakone_local", t10f: "hakone_local",
   t6b: "miyajima", t6c: "miyajima",
+  "jr-pass-pickup": "jr_pass_pickup",
   t07start: "taxi", t08start: "taxi", t10a: "taxi", t5b: "taxi", t6: "taxi", t7a: "taxi", t7c: "taxi", t17a: "taxi", t18a: "taxi", t8a: "taxi", t9a: "taxi",
   "hk-luggage": "forwarding", lug2: "forwarding",
   t1b: "metro", t09start: "metro", t09a: "metro", t09b: "metro", t10g: "metro", t11start: "metro", t12start: "metro", t13start: "metro", t4walk: "metro", t14start: "metro", t15walk: "metro", t7b: "metro", t7d: "metro", t7e: "metro", t17return: "metro", t18b: "metro", t18c: "metro", t8b: "metro", "tok-west-to-ike": "metro", "tok-west-to-nakano": "metro", "tok-west-to-koenji": "metro", "tok-west-return": "metro", t21start: "metro", t21borderless: "taxi",
