@@ -1,0 +1,3445 @@
+{
+  "shiomi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "TIDE TABLE Shiomi",
+        "cuisine": "Japanese-Western hotel dining",
+        "rating": null,
+        "reviews": null,
+        "walk": "on site",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=TIDE+TABLE+Shiomi",
+        "reserveUrl": "https://www.princehotels.com/shiomi/restaurants/",
+        "why": "No-transfer arrival-night dinner."
+      },
+      {
+        "rank": 2,
+        "name": "Uochu Shiomi",
+        "cuisine": "Seafood izakaya",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-6 min",
+        "reservation": "unknown",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Uochu+Shiomi+Tokyo",
+        "reserveUrl": null,
+        "why": "Nearest local alternative."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "TIDE TABLE Shiomi",
+        "cuisine": "Hotel dining",
+        "walk": "on site",
+        "safety": "accommodates-request",
+        "note": "Contact hotel before arrival; allergen accommodation does not mean a dedicated kitchen.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=TIDE+TABLE+Shiomi",
+        "officialUrl": "https://www.princehotels.com/shiomi/restaurants/"
+      },
+      {
+        "name": "Gluten Free KIKUYA",
+        "cuisine": "Japanese gluten-free",
+        "walk": "~35-45 min transit to Asakusa",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist anchor found; confirm current hours.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+KIKUYA+Asakusa",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "asakusa": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Onigiri Asakusa Yadoroku",
+        "cuisine": "Onigiri",
+        "rating": 3.49,
+        "reviews": 652,
+        "walk": "8-10 min from Senso-ji",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Onigiri+Asakusa+Yadoroku",
+        "reserveUrl": "http://onigiriyadoroku.com/",
+        "why": "Historic, efficient lunch with a strong current rating signal."
+      },
+      {
+        "rank": 2,
+        "name": "MISOJYU Asakusa",
+        "cuisine": "Miso soup and rice",
+        "rating": 3.48,
+        "reviews": 742,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=MISOJYU+Asakusa",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131102/13223128/",
+        "why": "Family-friendly Japanese set meal close to the temple."
+      },
+      {
+        "rank": 3,
+        "name": "Sometaro",
+        "cuisine": "Okonomiyaki / monjayaki",
+        "rating": null,
+        "reviews": 283,
+        "walk": "10-15 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Sometaro",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131102/13003710/",
+        "why": "Atmospheric local meal; August reservations are not accepted."
+      },
+      {
+        "rank": 4,
+        "name": "Kameju",
+        "cuisine": "Dorayaki / wagashi",
+        "rating": 3.79,
+        "reviews": 4350,
+        "walk": "2-4 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kameju",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131102/rank/",
+        "why": "Very high-volume signature Asakusa sweet."
+      },
+      {
+        "rank": 5,
+        "name": "Yoshikami Asakusa",
+        "cuisine": "Yoshoku",
+        "rating": 3.73,
+        "reviews": 3374,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Yoshikami+Asakusa",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131102/rank/",
+        "why": "Long-running western-Japanese comfort-food institution."
+      },
+      {
+        "rank": 6,
+        "name": "Fruit Parlor Goto Asakusa",
+        "cuisine": "Fruit parfait / cafe",
+        "rating": 3.77,
+        "reviews": 1653,
+        "walk": "7-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Fruit+Parlor+Goto+Asakusa",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131102/rank/",
+        "why": "Excellent cold dessert break in August heat."
+      },
+      {
+        "rank": 7,
+        "name": "Asakusa Naniwaya",
+        "cuisine": "Taiyaki / kakigori",
+        "rating": 3.76,
+        "reviews": 1648,
+        "walk": "6-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Asakusa+Naniwaya",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131102/rank/",
+        "why": "Highly rated traditional sweet and shaved-ice stop."
+      },
+      {
+        "rank": 8,
+        "name": "Asakusa Imahan Kokusai-dori Honten",
+        "cuisine": "Sukiyaki / shabu-shabu",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-12 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Asakusa+Imahan+Kokusai-dori+Honten",
+        "reserveUrl": "https://www.asakusaimahan.co.jp/english/",
+        "why": "Reliable reserved family meal when a queue is undesirable."
+      },
+      {
+        "rank": 9,
+        "name": "Kura Asakusa",
+        "cuisine": "Japanese cuisine",
+        "rating": 3.57,
+        "reviews": 139,
+        "walk": "5-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kura+Asakusa",
+        "reserveUrl": "https://tabelog.com/en/japanese/tokyo/A1311/A131102/rank/",
+        "why": "Higher-end Japanese choice with online availability."
+      },
+      {
+        "rank": 10,
+        "name": "Asakusa Kagetsudo",
+        "cuisine": "Melonpan / snack",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-6 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Asakusa+Kagetsudo",
+        "reserveUrl": "https://asakusa-kagetudo.com/",
+        "why": "Fast viral snack after the early temple visit."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free KIKUYA",
+        "cuisine": "Japanese gluten-free",
+        "walk": "8-15 min",
+        "safety": "dedicated",
+        "note": "Use as the primary gluten-aware Asakusa meal; reconfirm operation and allergen policy.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+KIKUYA+Asakusa",
+        "officialUrl": null
+      },
+      {
+        "name": "My Banh Mi by Gluten Free KIKUYA",
+        "cuisine": "Gluten-free sandwiches",
+        "walk": "same operator / verify branch",
+        "safety": "uncertain",
+        "note": "Brand is GF-focused but current branch and dedicated-kitchen status were not independently verified.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=My+Banh+Mi+Gluten+Free+KIKUYA+Tokyo",
+        "officialUrl": null
+      }
+    ]
+  },
+  "kappabashi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Iriyama Senbei",
+        "cuisine": "Rice crackers",
+        "rating": null,
+        "reviews": null,
+        "walk": "2-5 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Iriyama+Senbei+Kappabashi",
+        "reserveUrl": null,
+        "why": "Local snack with minimal detour."
+      },
+      {
+        "rank": 2,
+        "name": "Cafe Otonova",
+        "cuisine": "Cafe",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "unknown",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Cafe+Otonova+Kappabashi",
+        "reserveUrl": null,
+        "why": "Air-conditioned seated break."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free KIKUYA",
+        "cuisine": "Japanese gluten-free",
+        "walk": "10-18 min",
+        "safety": "dedicated",
+        "note": "Nearest specialist anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+KIKUYA+Asakusa",
+        "officialUrl": null
+      },
+      {
+        "name": "Plain senbei only after ingredient check",
+        "cuisine": "Rice crackers",
+        "walk": "2-5 min",
+        "safety": "uncertain",
+        "note": "Many senbei use wheat-containing soy sauce; not celiac-safe without packaging/utensil confirmation.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Iriyama+Senbei+Kappabashi",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "skytree": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Rokurinsha Tokyo Solamachi",
+        "cuisine": "Tsukemen",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Solamachi",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Rokurinsha+Tokyo+Solamachi",
+        "reserveUrl": null,
+        "why": "Reliable family lunch without leaving the complex."
+      },
+      {
+        "rank": 2,
+        "name": "Uoriki-zushi Solamachi",
+        "cuisine": "Sushi",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Solamachi",
+        "reservation": "unknown",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Uoriki+zushi+Solamachi",
+        "reserveUrl": null,
+        "why": "Views plus food without a tower ticket."
+      },
+      {
+        "rank": 3,
+        "name": "Kirby Cafe Tokyo",
+        "cuisine": "Character cafe",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Solamachi",
+        "reservation": "required",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kirby+Cafe+Tokyo+Solamachi",
+        "reserveUrl": "https://kirbycafe.jp/",
+        "why": "Teen-friendly but reservation-dependent."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free KIKUYA",
+        "cuisine": "Japanese gluten-free",
+        "walk": "~20-30 min transit/walk",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist; Solamachi sushi is not automatically safe.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+KIKUYA+Asakusa",
+        "officialUrl": null
+      },
+      {
+        "name": "Uoriki-zushi by prior arrangement",
+        "cuisine": "Sushi",
+        "walk": "inside Solamachi",
+        "safety": "accommodates-request",
+        "note": "Ask for plain fish/rice, GF tamari and clean tools; eel, imitation crab and regular soy sauce are unsafe.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Uoriki+zushi+Solamachi",
+        "officialUrl": "https://en.www.tokyo-solamachi.jp/shop/"
+      }
+    ],
+    "availabilityNote": "Only 3 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "ueno": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Ramen Kamo to Negi Ueno Okachimachi",
+        "cuisine": "Duck ramen",
+        "rating": 3.73,
+        "reviews": 4635,
+        "walk": "1 min Okachimachi / 6-7 min Ueno",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ramen+Kamo+to+Negi+Ueno+Okachimachi",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131101/13210392/",
+        "why": "Outstanding rating-volume signal and efficient market location."
+      },
+      {
+        "rank": 2,
+        "name": "Inshotei Ueno",
+        "cuisine": "Japanese kaiseki",
+        "rating": 3.65,
+        "reviews": 1610,
+        "walk": "inside Ueno Park",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Inshotei+Ueno",
+        "reserveUrl": "https://tabelog.com/en/japanese/tokyo/A1311/rank/",
+        "why": "Most atmospheric seated meal inside the park."
+      },
+      {
+        "rank": 3,
+        "name": "Niku no Oyama Ueno",
+        "cuisine": "Croquettes / meat",
+        "rating": 3.49,
+        "reviews": 2378,
+        "walk": "2-4 min from Ameyoko",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Niku+no+Oyama+Ueno",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131101/13016728/",
+        "why": "Fast, popular market snack with huge review volume."
+      },
+      {
+        "rank": 4,
+        "name": "Izuei Honten",
+        "cuisine": "Unagi",
+        "rating": 3.48,
+        "reviews": 984,
+        "walk": "8-12 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Izuei+Honten",
+        "reserveUrl": "http://www.izuei.co.jp/",
+        "why": "Long-established Ueno specialty with family seating."
+      },
+      {
+        "rank": 5,
+        "name": "DELHI Ueno",
+        "cuisine": "Indian curry",
+        "rating": 3.79,
+        "reviews": 3615,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=DELHI+Ueno",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131101/rank/",
+        "why": "Very strong rating-volume signal and quick service."
+      },
+      {
+        "rank": 6,
+        "name": "Usagiya Ueno",
+        "cuisine": "Dorayaki / wagashi",
+        "rating": 3.84,
+        "reviews": 3894,
+        "walk": "8-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Usagiya+Ueno",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/rank/",
+        "why": "One of the district's highest-volume classic sweets."
+      },
+      {
+        "rank": 7,
+        "name": "Kuriya Kurogi",
+        "cuisine": "Japanese sweets / kakigori",
+        "rating": 3.8,
+        "reviews": 1602,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kuriya+Kurogi",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131101/rank/",
+        "why": "Premium cold-dessert break near the park."
+      },
+      {
+        "rank": 8,
+        "name": "Ponta Honke",
+        "cuisine": "Yoshoku / pork cutlet",
+        "rating": 3.78,
+        "reviews": 2016,
+        "walk": "10-15 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ponta+Honke",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/A131101/rank/",
+        "why": "Historic yoshoku destination with a strong rating signal."
+      },
+      {
+        "rank": 9,
+        "name": "Ueno Sakae",
+        "cuisine": "Sushi",
+        "rating": 3.54,
+        "reviews": 599,
+        "walk": "5-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ueno+Sakae",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1311/",
+        "why": "Bookable, non-smoking higher-end sushi for a planned meal."
+      },
+      {
+        "rank": 10,
+        "name": "Hard Rock Cafe Uyeno-Eki",
+        "cuisine": "American / burgers",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Ueno Station",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hard+Rock+Cafe+Uyeno-Eki",
+        "reserveUrl": "https://cafe.hardrock.com/tokyo-uyeno-eki/",
+        "why": "Easy family fallback with a published gluten-free menu."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free KIKUYA",
+        "cuisine": "Japanese gluten-free",
+        "walk": "~20 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+KIKUYA+Asakusa",
+        "officialUrl": null
+      },
+      {
+        "name": "Izuei by advance request",
+        "cuisine": "Unagi / Japanese",
+        "walk": "8-12 min",
+        "safety": "accommodates-request",
+        "note": "Regular eel sauce contains soy sauce/wheat; request plain preparation and confirm clean handling before booking.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Izuei+Honten+Ueno",
+        "officialUrl": "https://www.izuei.co.jp/"
+      }
+    ]
+  },
+  "akihabara": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Tonkatsu Marugo",
+        "cuisine": "Tonkatsu",
+        "rating": 3.75,
+        "reviews": 3340,
+        "walk": "4-6 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tonkatsu+Marugo",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1310/A131001/13000379/",
+        "why": "District benchmark, but only if the queue and weekday work."
+      },
+      {
+        "rank": 2,
+        "name": "Umakara Curry Hakuyotei Akihabara",
+        "cuisine": "Japanese curry",
+        "rating": 3.57,
+        "reviews": 470,
+        "walk": "2-4 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Umakara+Curry+Hakuyotei+Akihabara",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1310/A131001/?genre_name=tonkatsu",
+        "why": "High-rated practical curry close to the station."
+      },
+      {
+        "rank": 3,
+        "name": "Roast Beef Ohno Akihabara",
+        "cuisine": "Roast-beef rice bowl",
+        "rating": 3.48,
+        "reviews": 869,
+        "walk": "4-6 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Roast+Beef+Ohno+Akihabara",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1310/A131001/13187964/",
+        "why": "Fast, teen-friendly meal."
+      },
+      {
+        "rank": 4,
+        "name": "Gyukatsu Ichi Ni San",
+        "cuisine": "Beef cutlet",
+        "rating": null,
+        "reviews": null,
+        "walk": "4-6 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gyukatsu+Ichi+Ni+San",
+        "reserveUrl": null,
+        "why": "Popular interactive beef-cutlet option."
+      },
+      {
+        "rank": 5,
+        "name": "Kyushu Jangara Akihabara",
+        "cuisine": "Ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "2-4 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kyushu+Jangara+Akihabara",
+        "reserveUrl": "https://kyushujangara.co.jp/",
+        "why": "Long-running, efficient ramen stop."
+      },
+      {
+        "rank": 6,
+        "name": "Kanda Matsuya",
+        "cuisine": "Soba",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kanda+Matsuya",
+        "reserveUrl": "https://www.kanda-matsuya.jp/",
+        "why": "Historic soba house within a reasonable walk."
+      },
+      {
+        "rank": 7,
+        "name": "Kanda Yabu Soba",
+        "cuisine": "Soba",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kanda+Yabu+Soba",
+        "reserveUrl": "https://www.yabusoba.net/",
+        "why": "Classic Kanda meal with atmospheric surroundings."
+      },
+      {
+        "rank": 8,
+        "name": "Jiromaru Akihabara",
+        "cuisine": "Standing yakiniku",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-5 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Jiromaru+Akihabara",
+        "reserveUrl": null,
+        "why": "Quick individual-cut yakiniku experience."
+      },
+      {
+        "rank": 9,
+        "name": "Hitachino Brewing Lab Akihabara",
+        "cuisine": "Beer hall / grill",
+        "rating": 3.28,
+        "reviews": 119,
+        "walk": "3-5 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hitachino+Brewing+Lab+Akihabara",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1310/A131001/?genre_name=tonkatsu",
+        "why": "Useful seated cooling break over the railway."
+      },
+      {
+        "rank": 10,
+        "name": "Gluten Free T's Kitchen Ueno-Hirokoji",
+        "cuisine": "Japanese gluten-free",
+        "rating": null,
+        "reviews": null,
+        "walk": "12-18 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+T's+Kitchen+Ueno-Hirokoji",
+        "reserveUrl": "https://glutenfree.co.jp/home-en/",
+        "why": "Nearest robust dedicated gluten-free meal."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free KIKUYA",
+        "cuisine": "Japanese gluten-free",
+        "walk": "~25 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+KIKUYA+Asakusa",
+        "officialUrl": null
+      },
+      {
+        "name": "Roast Beef Ono by request",
+        "cuisine": "Roast beef bowl",
+        "walk": "3-6 min",
+        "safety": "uncertain",
+        "note": "Sauce and shared kitchen are risks; only use if staff confirms a plain bowl and clean handling.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Roast+Beef+Ono+Akihabara",
+        "officialUrl": null
+      }
+    ]
+  },
+  "harajuku": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Sakura-tei",
+        "cuisine": "Okonomiyaki",
+        "rating": null,
+        "reviews": null,
+        "walk": "6-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Sakura-tei+Harajuku",
+        "reserveUrl": "https://www.sakuratei.co.jp/en/",
+        "why": "Interactive, family-friendly meal on the route."
+      },
+      {
+        "rank": 2,
+        "name": "Koffee Mameya",
+        "cuisine": "Coffee",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Koffee+Mameya+Omotesando",
+        "reserveUrl": null,
+        "why": "Serious coffee and cooling stop."
+      },
+      {
+        "rank": 3,
+        "name": "Rizlabo Kitchen",
+        "cuisine": "Rice-flour pancakes",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-15 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Rizlabo+Kitchen+Omotesando",
+        "reserveUrl": null,
+        "why": "Best gluten-aware sweet option nearby."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Rizlabo Kitchen",
+        "cuisine": "Rice-flour pancakes",
+        "walk": "10-15 min",
+        "safety": "gluten-free-menu",
+        "note": "GF-focused; confirm dedicated-kitchen and cross-contact policy before treating as celiac-safe.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Rizlabo+Kitchen+Omotesando",
+        "officialUrl": null
+      },
+      {
+        "name": "RiceHACK",
+        "cuisine": "Gluten-free pizza/bakery",
+        "walk": "~20 min toward Shibuya",
+        "safety": "dedicated",
+        "note": "Best specialist fallback between Harajuku and Shibuya; verify current hours.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=RiceHACK+Tokyo+gluten+free",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 3 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "shibuya": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Shibuya PARCO Chaos Kitchen",
+        "cuisine": "Multi-restaurant food floor",
+        "rating": null,
+        "reviews": null,
+        "walk": "on site",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Shibuya+PARCO+Chaos+Kitchen",
+        "reserveUrl": "https://shibuya.parco.jp/restaurant/",
+        "why": "Best family flexibility beside Pokémon Center and Nintendo Tokyo."
+      },
+      {
+        "rank": 2,
+        "name": "Jikasei MENSHO Shibuya PARCO",
+        "cuisine": "Ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside PARCO",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Jikasei+MENSHO+Shibuya+PARCO",
+        "reserveUrl": "https://menya-shono.com/",
+        "why": "No-detour high-quality ramen."
+      },
+      {
+        "rank": 3,
+        "name": "Kiwamiya Shibuya PARCO",
+        "cuisine": "Hamburg steak",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside PARCO",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kiwamiya+Shibuya+PARCO",
+        "reserveUrl": null,
+        "why": "Interactive hot-stone meal popular with families."
+      },
+      {
+        "rank": 4,
+        "name": "Uobei Shibuya Dogenzaka",
+        "cuisine": "Conveyor sushi",
+        "rating": 3.08,
+        "reviews": 192,
+        "walk": "4-7 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Uobei+Shibuya+Dogenzaka",
+        "reserveUrl": "https://www.genkisushi.co.jp/en/",
+        "why": "Fast, inexpensive and teen-friendly."
+      },
+      {
+        "rank": 5,
+        "name": "Gyukatsu Motomura Shibuya",
+        "cuisine": "Beef cutlet",
+        "rating": null,
+        "reviews": 697,
+        "walk": "5-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gyukatsu+Motomura+Shibuya",
+        "reserveUrl": "https://www.gyukatsu-motomura.com/",
+        "why": "Popular signature meal if the queue is manageable."
+      },
+      {
+        "rank": 6,
+        "name": "Sushi no Midori Shibuya Mark City",
+        "cuisine": "Sushi",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Sushi+no+Midori+Shibuya+Mark+City",
+        "reserveUrl": "https://www.sushino-midori.co.jp/",
+        "why": "Reliable family sushi with electronic queueing."
+      },
+      {
+        "rank": 7,
+        "name": "Toritake Shibuya",
+        "cuisine": "Yakitori / chicken",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-5 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Toritake+Shibuya",
+        "reserveUrl": null,
+        "why": "Old-school local counter near the station."
+      },
+      {
+        "rank": 8,
+        "name": "Han no Daidokoro Kadochika",
+        "cuisine": "Wagyu yakiniku",
+        "rating": null,
+        "reviews": null,
+        "walk": "7-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Han+no+Daidokoro+Kadochika",
+        "reserveUrl": "https://www.tablecheck.com/en/shops/hannodaidokoro-kadochika/reserve",
+        "why": "Bookable family splurge with private-room potential."
+      },
+      {
+        "rank": 9,
+        "name": "Nabezo Shibuya Koen-dori",
+        "cuisine": "Shabu-shabu / sukiyaki",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Nabezo+Shibuya+Koen-dori",
+        "reserveUrl": "https://nabe-zo.com/en/",
+        "why": "High-capacity, bookable family meal near PARCO."
+      },
+      {
+        "rank": 10,
+        "name": "Gluten Free T's Kitchen Harajuku",
+        "cuisine": "Japanese gluten-free",
+        "rating": null,
+        "reviews": null,
+        "walk": "15-20 min walk/transit",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+T's+Kitchen+Harajuku",
+        "reserveUrl": "https://glutenfree.co.jp/home-en/",
+        "why": "Strongest nearby dedicated gluten-free choice."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "RiceHACK",
+        "cuisine": "Gluten-free pizza/bakery",
+        "walk": "10-20 min depending on branch",
+        "safety": "dedicated",
+        "note": "Primary Shibuya GF specialist; verify branch and hours.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=RiceHACK+Tokyo+gluten+free",
+        "officialUrl": null
+      },
+      {
+        "name": "Moyan Curry Shibuya",
+        "cuisine": "Japanese curry",
+        "walk": "8-15 min",
+        "safety": "gluten-free-menu",
+        "note": "Curry is marketed as GF; mixed-kitchen cross-contact must be confirmed.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Moyan+Curry+Shibuya",
+        "officialUrl": null
+      }
+    ]
+  },
+  "odaiba": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "bills Odaiba",
+        "cuisine": "Australian cafe",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=bills+Odaiba",
+        "reserveUrl": "https://billsjapan.com/en/odaiba",
+        "why": "Best seated waterfront breakfast/lunch with family space."
+      },
+      {
+        "rank": 2,
+        "name": "DiverCity food court",
+        "cuisine": "Multi-restaurant",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside DiverCity",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=DiverCity+Tokyo+Plaza+Food+Court",
+        "reserveUrl": null,
+        "why": "Fastest variety during the scheduled block."
+      },
+      {
+        "rank": 3,
+        "name": "Takoyaki Museum at DECKS",
+        "cuisine": "Takoyaki",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-15 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Odaiba+Takoyaki+Museum",
+        "reserveUrl": null,
+        "why": "Only if Marine Park is shortened."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "bills Odaiba",
+        "cuisine": "Cafe",
+        "walk": "5-10 min",
+        "safety": "accommodates-request",
+        "note": "Ask for current GF menu and cross-contact controls when reserving.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=bills+Odaiba",
+        "officialUrl": "https://billsjapan.com/en/odaiba"
+      },
+      {
+        "name": "Gluten Free T's Kitchen",
+        "cuisine": "Japanese gluten-free",
+        "walk": "~30-40 min transit to Roppongi",
+        "safety": "dedicated",
+        "note": "Nearest robust dedicated dinner anchor later in the day.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Roppongi",
+        "officialUrl": "https://glutenfree.co.jp/"
+      }
+    ],
+    "availabilityNote": "Only 3 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "toyosu": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Toyosu Senkyaku Banrai food street",
+        "cuisine": "Japanese food hall",
+        "rating": null,
+        "reviews": null,
+        "walk": "7-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Toyosu+Senkyaku+Banrai",
+        "reserveUrl": null,
+        "why": "Best variety and cooling break after teamLab."
+      },
+      {
+        "rank": 2,
+        "name": "Vegan Ramen UZU Tokyo",
+        "cuisine": "Vegan ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "at teamLab Planets",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Vegan+Ramen+UZU+Tokyo",
+        "reserveUrl": null,
+        "why": "No-detour themed meal."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Vegan Ramen UZU Tokyo",
+        "cuisine": "Vegan ramen",
+        "walk": "at teamLab Planets",
+        "safety": "uncertain",
+        "note": "Vegan is not GF; noodles/soy sauce require explicit confirmation.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Vegan+Ramen+UZU+Tokyo",
+        "officialUrl": "https://vegan-uzu.com/"
+      },
+      {
+        "name": "Gluten Free T's Kitchen",
+        "cuisine": "Japanese gluten-free",
+        "walk": "~35-45 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust dedicated dinner anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Roppongi",
+        "officialUrl": "https://glutenfree.co.jp/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "tokyo_tower": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured; Tofuya Ukai closure verified in research report",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "SAVOY Azabudai",
+        "cuisine": "Pizza",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-15 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=SAVOY+Azabudai",
+        "reserveUrl": null,
+        "why": "Highly practical after tower sunset; Tokyo Shiba Tofuya Ukai permanently closed in March 2026."
+      },
+      {
+        "rank": 2,
+        "name": "Gluten Free T's Kitchen Roppongi",
+        "cuisine": "Japanese gluten-free",
+        "rating": null,
+        "reviews": null,
+        "walk": "15-20 min / short taxi",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Roppongi",
+        "reserveUrl": "https://glutenfree.co.jp/",
+        "why": "Best dietary-confidence dinner nearby."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free T's Kitchen",
+        "cuisine": "Japanese gluten-free",
+        "walk": "15-20 min / short taxi",
+        "safety": "dedicated",
+        "note": "Strongest celiac-oriented option in the district.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Roppongi",
+        "officialUrl": "https://glutenfree.co.jp/"
+      },
+      {
+        "name": "SAVOY Azabudai by request",
+        "cuisine": "Pizza / Italian",
+        "walk": "10-15 min",
+        "safety": "uncertain",
+        "note": "No dedicated GF controls verified; do not treat as celiac-safe.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=SAVOY+Azabudai",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "roppongi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Gluten Free T's Kitchen",
+        "cuisine": "Japanese gluten-free",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Roppongi",
+        "reserveUrl": "https://glutenfree.co.jp/",
+        "why": "Best dietary-confidence choice near the optional stop."
+      },
+      {
+        "rank": 2,
+        "name": "Rigoletto Bar and Grill",
+        "cuisine": "Italian / grill",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Roppongi Hills",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Rigoletto+Bar+and+Grill+Roppongi",
+        "reserveUrl": null,
+        "why": "Family-sized, late-hours option."
+      },
+      {
+        "rank": 3,
+        "name": "TsuruTonTan Roppongi",
+        "cuisine": "Udon",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=TsuruTonTan+Roppongi",
+        "reserveUrl": null,
+        "why": "Late-night option, not GF."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free T's Kitchen",
+        "cuisine": "Japanese gluten-free",
+        "walk": "5-10 min",
+        "safety": "dedicated",
+        "note": "Primary dedicated anchor; reserve for four.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Roppongi",
+        "officialUrl": "https://glutenfree.co.jp/"
+      },
+      {
+        "name": "Rigoletto by request",
+        "cuisine": "Italian / grill",
+        "walk": "inside Roppongi Hills",
+        "safety": "accommodates-request",
+        "note": "Request current GF menu and cross-contact protocol when reserving.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Rigoletto+Bar+and+Grill+Roppongi",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 3 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "moto_hakone": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "La Terrazza Ashinoko",
+        "cuisine": "Italian",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=La+Terrazza+Ashinoko",
+        "reserveUrl": null,
+        "why": "Best full meal near shrine/lake route."
+      },
+      {
+        "rank": 2,
+        "name": "Bakery and Table Hakone",
+        "cuisine": "Bakery / cafe",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Bakery+and+Table+Hakone",
+        "reserveUrl": null,
+        "why": "Quick lake-view snack if ahead."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "La Terrazza Ashinoko by request",
+        "cuisine": "Italian",
+        "walk": "5-10 min",
+        "safety": "uncertain",
+        "note": "No official GF/cross-contact protocol verified; call ahead, do not rely on same-day adaptation.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=La+Terrazza+Ashinoko",
+        "officialUrl": null
+      },
+      {
+        "name": "Sealed meal carried from Tokyo",
+        "cuisine": "Packaged food",
+        "walk": "carried",
+        "safety": "uncertain",
+        "note": "No celiac-safe nearby restaurant verified; this is safer operationally than improvising in the 75-minute shrine window.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tokyo+Bay+Shiomi+Prince+Hotel",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "hakone_museum": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Hakone Open-Air Museum Dining",
+        "cuisine": "Japanese-Western museum dining",
+        "rating": null,
+        "reviews": null,
+        "walk": "on site",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hakone+Open-Air+Museum+restaurant",
+        "reserveUrl": "https://www.hakone-oam.or.jp/en/restaurantsandshops/",
+        "why": "Only choice that preserves the hard Hakone timetable."
+      },
+      {
+        "rank": 2,
+        "name": "Cafe at Hakone Open-Air Museum",
+        "cuisine": "Cafe",
+        "rating": null,
+        "reviews": null,
+        "walk": "on site",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hakone+Open-Air+Museum+cafe",
+        "reserveUrl": null,
+        "why": "Fastest fallback."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Hakone Open-Air Museum Dining by advance request",
+        "cuisine": "Museum dining",
+        "walk": "on site",
+        "safety": "accommodates-request",
+        "note": "Contact before travel; no dedicated kitchen was verified.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hakone+Open-Air+Museum+restaurant",
+        "officialUrl": "https://www.hakone-oam.or.jp/en/restaurantsandshops/"
+      },
+      {
+        "name": "Sealed backup meal",
+        "cuisine": "Packaged food",
+        "walk": "carried",
+        "safety": "uncertain",
+        "note": "Recommended contingency because leaving the site threatens the reserved Hikari buffer.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hakone+Open-Air+Museum",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "hakone_mountain": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Owakudani Station Restaurant",
+        "cuisine": "Japanese curry / noodles",
+        "rating": null,
+        "reviews": null,
+        "walk": "on site",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Owakudani+Station+Restaurant",
+        "reserveUrl": null,
+        "why": "Weather-delay fallback only."
+      },
+      {
+        "rank": 2,
+        "name": "Owakudani black egg shop",
+        "cuisine": "Egg snack",
+        "rating": null,
+        "reviews": null,
+        "walk": "on site",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Owakudani+black+eggs",
+        "reserveUrl": null,
+        "why": "Signature shareable snack."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Plain black eggs",
+        "cuisine": "Egg snack",
+        "walk": "on site",
+        "safety": "uncertain",
+        "note": "Ingredient is naturally GF but facility/cross-contact and accompanying salt/seasonings were not verified.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Owakudani+black+eggs",
+        "officialUrl": null
+      },
+      {
+        "name": "Sealed backup meal",
+        "cuisine": "Packaged food",
+        "walk": "carried",
+        "safety": "uncertain",
+        "note": "No celiac-safe mountain venue verified.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Owakudani",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "odawara": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Odawara Oden Main Store",
+        "cuisine": "Oden / fish cakes",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-15 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Odawara+Oden+Main+Store",
+        "reserveUrl": null,
+        "why": "Local specialty only if mountain route returns early."
+      },
+      {
+        "rank": 2,
+        "name": "Minaka Odawara food hall",
+        "cuisine": "Multi-restaurant",
+        "rating": null,
+        "reviews": null,
+        "walk": "2-4 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Minaka+Odawara",
+        "reserveUrl": null,
+        "why": "Safest use of the Shinkansen buffer."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Minaka Odawara vendor by ingredient check",
+        "cuisine": "Food hall",
+        "walk": "2-4 min",
+        "safety": "uncertain",
+        "note": "Choose sealed labelled foods; fish cakes and oden broth often contain wheat/soy sauce.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Minaka+Odawara",
+        "officialUrl": null
+      },
+      {
+        "name": "Odawara Station packaged-food shop",
+        "cuisine": "Packaged meals",
+        "walk": "inside station",
+        "safety": "uncertain",
+        "note": "Use a translation/allergen scanner and prefer sealed products; no dedicated GF kitchen verified.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Odawara+Station+ekiben",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "namba": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Ajinoya Honten",
+        "cuisine": "Okonomiyaki",
+        "rating": 3.6,
+        "reviews": 1729,
+        "walk": "6-9 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ajinoya+Honten",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/27001439/",
+        "why": "Volume-tested Osaka classic near the hotel."
+      },
+      {
+        "rank": 2,
+        "name": "Gluten-Free and Vegan Okonomiyaki Vim",
+        "cuisine": "Dedicated gluten-free okonomiyaki",
+        "rating": 4.6,
+        "reviews": 135,
+        "walk": "5-8 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten-Free+and+Vegan+Okonomiyaki+Vim",
+        "reserveUrl": "https://www.godotonbori.com/shop/gluten-freevegan-okonomiyaki-vim/",
+        "why": "Safest way to experience Osaka's signature dish; Google rating snapshot."
+      },
+      {
+        "rank": 3,
+        "name": "Fukutaro Honten",
+        "cuisine": "Okonomiyaki / negiyaki",
+        "rating": 3.74,
+        "reviews": 2664,
+        "walk": "7-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Fukutaro+Honten",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/27002665/",
+        "why": "Strongest Tabelog rating-volume signal among central casual classics."
+      },
+      {
+        "rank": 4,
+        "name": "Menya Joroku Namba",
+        "cuisine": "Ramen",
+        "rating": 3.73,
+        "reviews": 2669,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Menya+Joroku+Namba",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/rank/",
+        "why": "High-volume local ramen benchmark."
+      },
+      {
+        "rank": 5,
+        "name": "Chitose Honten",
+        "cuisine": "Udon",
+        "rating": 3.73,
+        "reviews": 2224,
+        "walk": "10-15 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Chitose+Honten",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/rank/",
+        "why": "Classic Osaka udon with a very strong rating signal."
+      },
+      {
+        "rank": 6,
+        "name": "Creperie Alcyon",
+        "cuisine": "Crepes / galettes",
+        "rating": 3.72,
+        "reviews": 2244,
+        "walk": "6-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Creperie+Alcyon",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/rank/",
+        "why": "Excellent air-conditioned dessert or light-meal break."
+      },
+      {
+        "rank": 7,
+        "name": "Naniwa Menjiro",
+        "cuisine": "Ramen",
+        "rating": 3.71,
+        "reviews": 2098,
+        "walk": "inside Osaka-Namba Station",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Naniwa+Menjiro",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/rank/",
+        "why": "Most efficient high-rated bowl near the hotel and station."
+      },
+      {
+        "rank": 8,
+        "name": "Alcyon Houzenji Honten",
+        "cuisine": "Cake / tea",
+        "rating": 3.7,
+        "reviews": 1176,
+        "walk": "5-8 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Alcyon+Houzenji+Honten",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/rank/",
+        "why": "Bookable cooling stop beside Hozenji and Dotonbori."
+      },
+      {
+        "rank": 9,
+        "name": "Rikuro Ojisan Namba",
+        "cuisine": "Cheesecake",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Rikuro+Ojisan+Namba",
+        "reserveUrl": "https://www.rikuro.co.jp/shoplist/",
+        "why": "Iconic Osaka takeaway cheesecake."
+      },
+      {
+        "rank": 10,
+        "name": "Marufuku Coffee Sennichimae",
+        "cuisine": "Kissaten cafe",
+        "rating": 3.42,
+        "reviews": 840,
+        "walk": "6-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Marufuku+Coffee+Sennichimae",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/27001450/",
+        "why": "Reliable historic coffee and pancake break."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten-Free and Vegan Okonomiyaki Vim",
+        "cuisine": "Okonomiyaki",
+        "walk": "5-8 min",
+        "safety": "dedicated",
+        "note": "Dedicated GF operation per Dotonbori district guide; reserve for four.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Vegan+Okonomiyaki+Vim+Osaka",
+        "officialUrl": "https://www.godotonbori.com/shop/gluten-freevegan-okonomiyaki-vim/"
+      },
+      {
+        "name": "Chibo JO-TERRACE",
+        "cuisine": "Okonomiyaki",
+        "walk": "~25 min transit",
+        "safety": "gluten-free-menu",
+        "note": "Official tourism listing mentions a GF option; mixed griddle requires cross-contact discussion.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Chibo+JO+TERRACE+Osaka",
+        "officialUrl": "https://osaka-info.jp/fr/special/universal/course01/spot01/"
+      }
+    ]
+  },
+  "osaka_castle": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Chibo JO-TERRACE",
+        "cuisine": "Okonomiyaki",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Chibo+JO+TERRACE+Osaka",
+        "reserveUrl": null,
+        "why": "On-route meal with documented GF option."
+      },
+      {
+        "rank": 2,
+        "name": "JO-TERRACE Osaka food cluster",
+        "cuisine": "Multi-restaurant",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=JO+TERRACE+Osaka",
+        "reserveUrl": null,
+        "why": "Flexible family fallback."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Chibo JO-TERRACE",
+        "cuisine": "Okonomiyaki",
+        "walk": "8-12 min",
+        "safety": "gluten-free-menu",
+        "note": "GF item documented; confirm griddle/utensil cross-contact.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Chibo+JO+TERRACE+Osaka",
+        "officialUrl": "https://osaka-info.jp/fr/special/universal/course01/spot01/"
+      },
+      {
+        "name": "Vim Namba",
+        "cuisine": "Dedicated GF okonomiyaki",
+        "walk": "~25 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Vegan+Okonomiyaki+Vim+Osaka",
+        "officialUrl": "https://www.godotonbori.com/shop/gluten-freevegan-okonomiyaki-vim/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "nipponbashi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Fukutarou Honten",
+        "cuisine": "Okonomiyaki / teppanyaki",
+        "rating": 3.74,
+        "reviews": 2664,
+        "walk": "6-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Fukutarou+Honten+Osaka",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/27002665/",
+        "why": "Strongest rating-volume signal in the area."
+      },
+      {
+        "rank": 2,
+        "name": "Marufuku Coffee Sennichimae",
+        "cuisine": "Kissaten cafe",
+        "rating": 3.42,
+        "reviews": 840,
+        "walk": "6-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Marufuku+Coffee+Sennichimae",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270202/27001450/",
+        "why": "Reliable cooling stop."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Vim Namba",
+        "cuisine": "Dedicated GF okonomiyaki",
+        "walk": "8-15 min",
+        "safety": "dedicated",
+        "note": "Best nearby celiac-oriented option.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Vegan+Okonomiyaki+Vim+Osaka",
+        "officialUrl": "https://www.godotonbori.com/shop/gluten-freevegan-okonomiyaki-vim/"
+      },
+      {
+        "name": "Plain sashimi from Kuromon by request",
+        "cuisine": "Seafood",
+        "walk": "inside market",
+        "safety": "uncertain",
+        "note": "Regular soy sauce, knives and boards create risk; not a celiac-safe default.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kuromon+Market+Osaka",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "shinsekai": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Yaekatsu",
+        "cuisine": "Kushikatsu",
+        "rating": null,
+        "reviews": null,
+        "walk": "4-7 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Yaekatsu+Osaka",
+        "reserveUrl": null,
+        "why": "Classic local counter if the queue is short."
+      },
+      {
+        "rank": 2,
+        "name": "Kushikatsu Daruma Shinsekai",
+        "cuisine": "Kushikatsu",
+        "rating": null,
+        "reviews": null,
+        "walk": "2-5 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kushikatsu+Daruma+Shinsekai",
+        "reserveUrl": "https://www.kushikatu-daruma.com/location/",
+        "why": "Most accessible famous option."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Vim Namba",
+        "cuisine": "Dedicated GF okonomiyaki",
+        "walk": "15-20 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist; all local kushikatsu uses breading/shared oil.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Vegan+Okonomiyaki+Vim+Osaka",
+        "officialUrl": "https://www.godotonbori.com/shop/gluten-freevegan-okonomiyaki-vim/"
+      },
+      {
+        "name": "Plain convenience-store sealed foods",
+        "cuisine": "Packaged food",
+        "walk": "nearby",
+        "safety": "uncertain",
+        "note": "No second official GF restaurant verified in Shinsekai.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=convenience+store+Shinsekai+Osaka",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "sumiyoshi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Yaroku Restaurant Honten",
+        "cuisine": "Yoshoku / croquettes",
+        "rating": 3.48,
+        "reviews": 428,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Yaroku+Restaurant+Sumiyoshi",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270404/27002854/",
+        "why": "Strong local institution, but opens after the scheduled shrine block."
+      },
+      {
+        "rank": 2,
+        "name": "Yaroku takeaway shop",
+        "cuisine": "Croquettes / bento",
+        "rating": null,
+        "reviews": 103,
+        "walk": "3-5 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Yaroku+takeaway+Sumiyoshi",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270404/27041924/",
+        "why": "Quicker local option when open."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Vim Namba",
+        "cuisine": "Dedicated GF okonomiyaki",
+        "walk": "~30 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Vegan+Okonomiyaki+Vim+Osaka",
+        "officialUrl": "https://www.godotonbori.com/shop/gluten-freevegan-okonomiyaki-vim/"
+      },
+      {
+        "name": "Sealed breakfast carried from hotel",
+        "cuisine": "Packaged food",
+        "walk": "carried",
+        "safety": "uncertain",
+        "note": "No celiac-safe breakfast venue verified near the shrine at 06:30.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=APA+Hotel+Osaka+Namba+Ekimae",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "tenjinbashi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Harukoma Main",
+        "cuisine": "Sushi",
+        "rating": 3.58,
+        "reviews": 1765,
+        "walk": "3-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Harukoma+Sushi+Tenjinbashisuji",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270103/27002205/",
+        "why": "Best rating-volume combination."
+      },
+      {
+        "rank": 2,
+        "name": "Harukoma Branch",
+        "cuisine": "Sushi / seafood",
+        "rating": 3.52,
+        "reviews": 1068,
+        "walk": "3-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Harukoma+Branch+Tenma",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270103/27023038/",
+        "why": "More seats and practical queue backup."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Harukoma by explicit request",
+        "cuisine": "Sushi",
+        "walk": "3-8 min",
+        "safety": "uncertain",
+        "note": "Bring tamari; request plain fish/rice and clean tools. Cross-contact remains likely.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Harukoma+Sushi+Tenjinbashisuji",
+        "officialUrl": null
+      },
+      {
+        "name": "Vim Namba",
+        "cuisine": "Dedicated GF okonomiyaki",
+        "walk": "~25 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Vegan+Okonomiyaki+Vim+Osaka",
+        "officialUrl": "https://www.godotonbori.com/shop/gluten-freevegan-okonomiyaki-vim/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "umeda": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Okonomiyaki Kiji Honten",
+        "cuisine": "Okonomiyaki",
+        "rating": 3.67,
+        "reviews": 2121,
+        "walk": "inside Shin-Umeda dining street",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Okonomiyaki+Kiji+Honten",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270101/27000297/",
+        "why": "Top practical rating-volume choice in the station area."
+      },
+      {
+        "rank": 2,
+        "name": "Okonomiyaki Kiji Umeda Sky Building",
+        "cuisine": "Okonomiyaki",
+        "rating": 3.69,
+        "reviews": 878,
+        "walk": "10-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Okonomiyaki+Kiji+Umeda+Sky+Building",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270101/rstLst/RC0109",
+        "why": "Slightly higher rating with a location beside the scheduled district."
+      },
+      {
+        "rank": 3,
+        "name": "Hanadako",
+        "cuisine": "Takoyaki",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Shin-Umeda Shokudogai",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hanadako",
+        "reserveUrl": null,
+        "why": "Iconic quick Osaka snack."
+      },
+      {
+        "rank": 4,
+        "name": "Kushikatsu Matsuba Sohonten",
+        "cuisine": "Kushikatsu",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Shin-Umeda Shokudogai",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kushikatsu+Matsuba+Sohonten",
+        "reserveUrl": null,
+        "why": "Classic standing fried-skewer stop."
+      },
+      {
+        "rank": 5,
+        "name": "Mugito Mensuke",
+        "cuisine": "Ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "12-18 min toward Nakatsu",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Mugito+Mensuke",
+        "reserveUrl": null,
+        "why": "One of north Osaka's strongest ramen choices."
+      },
+      {
+        "rank": 6,
+        "name": "Ramen Yashichi",
+        "cuisine": "Ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "12-18 min toward Nakatsu",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ramen+Yashichi",
+        "reserveUrl": null,
+        "why": "Well-regarded local ramen alternative."
+      },
+      {
+        "rank": 7,
+        "name": "Okonomiyaki Sakura Umeda",
+        "cuisine": "Okonomiyaki",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Okonomiyaki+Sakura+Umeda",
+        "reserveUrl": null,
+        "why": "Convenient fallback when Kiji's line is too long."
+      },
+      {
+        "rank": 8,
+        "name": "TsuruTonTan Top Chefs Kitashinchi",
+        "cuisine": "Udon",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=TsuruTonTan+Top+Chefs+Kitashinchi",
+        "reserveUrl": "https://www.tsurutontan.co.jp/shop/kitashinchi/",
+        "why": "Bookable seated family dinner with a broad menu."
+      },
+      {
+        "rank": 9,
+        "name": "Rikuro Ojisan Daimaru Umeda",
+        "cuisine": "Cheesecake",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Daimaru",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Rikuro+Ojisan+Daimaru+Umeda",
+        "reserveUrl": "https://www.rikuro.co.jp/shoplist/",
+        "why": "Easy Osaka cheesecake stop at the station."
+      },
+      {
+        "rank": 10,
+        "name": "Hankyu Umeda Depachika",
+        "cuisine": "Department-store food hall",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside station district",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hankyu+Umeda+Depachika",
+        "reserveUrl": "https://www.hankyu-dept.co.jp/honten/",
+        "why": "Best flexible air-conditioned family backup."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Vim Namba",
+        "cuisine": "Dedicated GF okonomiyaki",
+        "walk": "~20 min metro",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Vegan+Okonomiyaki+Vim+Osaka",
+        "officialUrl": "https://www.godotonbori.com/shop/gluten-freevegan-okonomiyaki-vim/"
+      },
+      {
+        "name": "Hankyu allergen-labelled packaged foods",
+        "cuisine": "Food hall",
+        "walk": "inside station district",
+        "safety": "uncertain",
+        "note": "Choose sealed labelled items; open counters share tools and soy sauce.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hankyu+Umeda+depachika",
+        "officialUrl": null
+      }
+    ]
+  },
+  "nakanoshima": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Drawing House of Nakanoshima",
+        "cuisine": "Bistro / omurice",
+        "rating": 3.48,
+        "reviews": 587,
+        "walk": "on site",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Drawing+House+of+Nakanoshima",
+        "reserveUrl": "https://tabelog.com/en/osaka/A2701/A270101/27085674/",
+        "why": "Most efficient seated meal in the Central Public Hall."
+      },
+      {
+        "rank": 2,
+        "name": "Gokan Kitahama Honten",
+        "cuisine": "Patisserie / cafe",
+        "rating": null,
+        "reviews": null,
+        "walk": "7-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gokan+Kitahama+Honten",
+        "reserveUrl": null,
+        "why": "Atmospheric cooling break."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Drawing House by advance request",
+        "cuisine": "Bistro",
+        "walk": "on site",
+        "safety": "accommodates-request",
+        "note": "No dedicated-kitchen evidence; contact before travel.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Drawing+House+of+Nakanoshima",
+        "officialUrl": null
+      },
+      {
+        "name": "Vim Namba",
+        "cuisine": "Dedicated GF okonomiyaki",
+        "walk": "~25 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust specialist.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Vegan+Okonomiyaki+Vim+Osaka",
+        "officialUrl": "https://www.godotonbori.com/shop/gluten-freevegan-okonomiyaki-vim/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "nara_park": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Kasuga Ninai Jaya",
+        "cuisine": "Japanese set meals / tea",
+        "rating": null,
+        "reviews": null,
+        "walk": "2-5 min from Kasuga route",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kasuga+Ninai+Jaya+Nara",
+        "reserveUrl": "https://www.visitnara.jp/venues/D01056/",
+        "why": "Best on-route seated lunch."
+      },
+      {
+        "rank": 2,
+        "name": "Mizuya Chaya",
+        "cuisine": "Udon / sweets",
+        "rating": 3.26,
+        "reviews": 60,
+        "walk": "5-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Mizuya+Chaya+Nara",
+        "reserveUrl": "https://tabelog.com/en/nara/A2901/A290101/29001604/",
+        "why": "Atmospheric park tea house."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Big Mountain Cafe and Farm",
+        "cuisine": "Gluten-free vegan",
+        "walk": "20-30 min / short taxi",
+        "safety": "dedicated",
+        "note": "Officially describes itself as a GF and vegan shop.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Big+Mountain+Cafe+Farm+Nara",
+        "officialUrl": "https://www.bmcaf.co/"
+      },
+      {
+        "name": "+FINO HOME CAFE",
+        "cuisine": "Gluten-free waffles",
+        "walk": "outside central park; taxi practical",
+        "safety": "gluten-free-menu",
+        "note": "Official GF waffle menu; verify cross-contact and hours.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=FINO+HOME+CAFE+Nara",
+        "officialUrl": "https://plufino-cafe.com/top-en/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "naramachi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Edogawa Naramachi",
+        "cuisine": "Unagi / Japanese",
+        "rating": 3.43,
+        "reviews": 182,
+        "walk": "3-7 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Edogawa+Naramachi",
+        "reserveUrl": "https://tabelog.com/en/nara/A2901/A290101/29000292/",
+        "why": "Comfortable, bookable family meal in a machiya."
+      },
+      {
+        "rank": 2,
+        "name": "Nakanishi Yosaburo",
+        "cuisine": "Wagashi / tea",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-7 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Nakanishi+Yosaburo+Nara",
+        "reserveUrl": "https://www.visitnara.jp/venues/S01120/",
+        "why": "Best cooling tea stop."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Big Mountain Cafe and Farm",
+        "cuisine": "Gluten-free vegan",
+        "walk": "20-30 min / short taxi",
+        "safety": "dedicated",
+        "note": "Primary dedicated Nara option.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Big+Mountain+Cafe+Farm+Nara",
+        "officialUrl": "https://www.bmcaf.co/"
+      },
+      {
+        "name": "+FINO HOME CAFE",
+        "cuisine": "Gluten-free waffles",
+        "walk": "taxi practical",
+        "safety": "gluten-free-menu",
+        "note": "Official GF waffle menu; verify cross-contact.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=FINO+HOME+CAFE+Nara",
+        "officialUrl": "https://plufino-cafe.com/top-en/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "peace_park": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Caffe Ponte Italiano Hiroshima",
+        "cuisine": "Italian / cafe",
+        "rating": 3.47,
+        "reviews": 460,
+        "walk": "2-5 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Caffe+Ponte+Italiano+Hiroshima",
+        "reserveUrl": "https://tabelog.com/en/hiroshima/A3401/A340116/34004795/",
+        "why": "Best indoor decompression meal beside the memorial park."
+      },
+      {
+        "rank": 2,
+        "name": "Mitchan Sohonten Orizuru Tower",
+        "cuisine": "Hiroshima okonomiyaki",
+        "rating": null,
+        "reviews": null,
+        "walk": "4 min from Peace Memorial Park",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Mitchan+Sohonten+Orizuru+Tower",
+        "reserveUrl": "https://www.orizurutower.jp/en/shop/",
+        "why": "Best same-cuisine replacement for Nagata-ya, directly beside the Atomic Bomb Dome."
+      },
+      {
+        "rank": 3,
+        "name": "Musubi Musashi Dobashi",
+        "cuisine": "Onigiri / bento",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Musubi+Musashi+Dobashi",
+        "reserveUrl": "https://www.city.hiroshima.lg.jp/english/hiroshima-brand-en/1032092/1032094/1014814.html",
+        "why": "Fast local bento choice when the museum visit runs late."
+      },
+      {
+        "rank": 4,
+        "name": "Koguma Hiroshima",
+        "cuisine": "Gluten-free okonomiyaki",
+        "rating": null,
+        "reviews": null,
+        "walk": "short tram/taxi",
+        "reservation": "required",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Koguma+Hiroshima",
+        "reserveUrl": "https://www.hiroshimayaki.biz/?mode=f7",
+        "why": "Best gluten-aware signature meal; separate GF grill stated by the restaurant."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Koguma",
+        "cuisine": "Hiroshima okonomiyaki",
+        "walk": "short tram/taxi",
+        "safety": "gluten-free-menu",
+        "note": "Official site says GF okonomiyaki uses a separate GF grill; reservation required.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Koguma+gluten+free+okonomiyaki+Hiroshima",
+        "officialUrl": "https://www.hiroshimayaki.biz/?mode=f7"
+      },
+      {
+        "name": "OKOSTA Hiroshima Station",
+        "cuisine": "Okonomiyaki cooking experience",
+        "walk": "~20 min transit",
+        "safety": "gluten-free-menu",
+        "note": "Official rice-flour noodles/GF sauce; 90-minute reserved class, not a drop-in restaurant.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=OKOSTA+Hiroshima",
+        "officialUrl": "https://www.otafuku.co.jp/visit/en/experience/"
+      }
+    ],
+    "availabilityNote": "Only 4 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "central_hiroshima": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Okonomiyaki Hasshou Ginzancho",
+        "cuisine": "Hiroshima okonomiyaki",
+        "rating": 3.74,
+        "reviews": 1177,
+        "walk": "10-15 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Okonomiyaki+Hasshou+Ginzancho+Hiroshima",
+        "reserveUrl": "https://tabelog.com/en/hiroshima/A3401/A340108/34019405/",
+        "why": "Best rating-volume signal but queue/detour costs time."
+      },
+      {
+        "rank": 2,
+        "name": "Hassho Okonomimura",
+        "cuisine": "Hiroshima okonomiyaki",
+        "rating": 3.46,
+        "reviews": 235,
+        "walk": "5-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hassho+Okonomimura+Hiroshima",
+        "reserveUrl": "https://tabelog.com/en/hiroshima/A3401/A340114/34002533/",
+        "why": "More efficient from Hondori."
+      },
+      {
+        "rank": 3,
+        "name": "Hiroshima Andersen",
+        "cuisine": "Bakery / cafe",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-6 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hiroshima+Andersen+Honden",
+        "reserveUrl": "https://www.andersen.co.jp/hiroshima/english/",
+        "why": "Reliable cooling stop."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Koguma",
+        "cuisine": "Hiroshima okonomiyaki",
+        "walk": "short taxi/tram",
+        "safety": "gluten-free-menu",
+        "note": "Separate GF grill; reservation required.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Koguma+gluten+free+okonomiyaki+Hiroshima",
+        "officialUrl": "https://www.hiroshimayaki.biz/?mode=f7"
+      },
+      {
+        "name": "OKOSTA Hiroshima Station",
+        "cuisine": "Okonomiyaki experience",
+        "walk": "near station",
+        "safety": "gluten-free-menu",
+        "note": "Reserve the GF class; not a quick meal.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=OKOSTA+Hiroshima",
+        "officialUrl": "https://www.otafuku.co.jp/visit/en/experience/"
+      }
+    ],
+    "availabilityNote": "Only 3 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "shukkeien": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Sensuitei tea shop",
+        "cuisine": "Tea / wagashi",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside garden",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Sensuitei+Shukkeien",
+        "reserveUrl": null,
+        "why": "Only no-detour refreshment."
+      },
+      {
+        "rank": 2,
+        "name": "Hilton Hiroshima dining",
+        "cuisine": "Hotel dining",
+        "rating": null,
+        "reviews": null,
+        "walk": "at hotel",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hilton+Hiroshima+restaurants",
+        "reserveUrl": "https://www.hilton.com/en/hotels/hijshhi-hilton-hiroshima/dining/",
+        "why": "Dinner is already included; avoids another queue."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Koguma",
+        "cuisine": "Hiroshima okonomiyaki",
+        "walk": "short taxi",
+        "safety": "gluten-free-menu",
+        "note": "Separate GF grill; reserve.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Koguma+gluten+free+okonomiyaki+Hiroshima",
+        "officialUrl": "https://www.hiroshimayaki.biz/?mode=f7"
+      },
+      {
+        "name": "Hilton Hiroshima by advance request",
+        "cuisine": "Hotel dining",
+        "walk": "at hotel",
+        "safety": "accommodates-request",
+        "note": "Contact hotel dining before arrival; included meal should be adapted in advance.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hilton+Hiroshima+restaurants",
+        "officialUrl": "https://www.hilton.com/en/hotels/hijshhi-hilton-hiroshima/dining/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "miyajima": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Fujitaya",
+        "cuisine": "Anagomeshi",
+        "rating": 3.57,
+        "reviews": 932,
+        "walk": "5-9 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Fujitaya+Miyajima",
+        "reserveUrl": "https://www.fujitayamiyajima.com/",
+        "why": "Highest score among practical island specialties; queue cap required."
+      },
+      {
+        "rank": 2,
+        "name": "Kakiya",
+        "cuisine": "Oysters / seafood",
+        "rating": 3.56,
+        "reviews": 2062,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kakiya+Miyajima",
+        "reserveUrl": "https://www.kaki-ya.jp/",
+        "why": "Huge review volume and 100 seats make it operationally strong."
+      },
+      {
+        "rank": 3,
+        "name": "Kakiwai",
+        "cuisine": "Cafe",
+        "rating": 3.41,
+        "reviews": 147,
+        "walk": "8-12 min uphill",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kakiwai+Miyajima",
+        "reserveUrl": "https://tabelog.com/en/hiroshima/A3402/A340202/34020139/",
+        "why": "Scenic coffee fallback."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Plain grilled oysters by explicit request",
+        "cuisine": "Seafood",
+        "walk": "5-8 min",
+        "safety": "uncertain",
+        "note": "No official celiac controls verified; sauces, fryers and tools are risks.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kakiya+Miyajima",
+        "officialUrl": "https://www.kaki-ya.jp/"
+      },
+      {
+        "name": "Koguma in central Hiroshima",
+        "cuisine": "GF okonomiyaki",
+        "walk": "60-90 min including ferry/train",
+        "safety": "gluten-free-menu",
+        "note": "Nearest robust option, not a practical island lunch detour; carry a sealed backup meal.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Koguma+gluten+free+okonomiyaki+Hiroshima",
+        "officialUrl": "https://www.hiroshimayaki.biz/?mode=f7"
+      }
+    ],
+    "availabilityNote": "Only 3 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "nijo": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Menbaka Fire Ramen",
+        "cuisine": "Ramen experience",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-14 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Menbaka+Fire+Ramen+Kyoto",
+        "reserveUrl": "https://www.fireramen.com/",
+        "why": "Memorable, family-friendly and officially supports GF orders."
+      },
+      {
+        "rank": 2,
+        "name": "Nijo Wakasaya",
+        "cuisine": "Wagashi / shaved ice",
+        "rating": null,
+        "reviews": null,
+        "walk": "7-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Nijo+Wakasaya+Kyoto",
+        "reserveUrl": null,
+        "why": "Best local cooling stop."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Menbaka Fire Ramen GF option",
+        "cuisine": "Ramen",
+        "walk": "10-14 min",
+        "safety": "gluten-free-menu",
+        "note": "Official rice noodles and dedicated pots/utensils reduce cross-contact; kitchen is not stated dedicated.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Menbaka+Fire+Ramen+Kyoto",
+        "officialUrl": "https://www.fireramen.com/"
+      },
+      {
+        "name": "Toshoan",
+        "cuisine": "Gluten-free wagashi",
+        "walk": "10-20 min depending on branch",
+        "safety": "dedicated",
+        "note": "GF guide describes a 100% GF sweets shop; verify current hours.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Toshoan+Kyoto+gluten+free",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "nishiki": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Katsukura Sanjo Honten",
+        "cuisine": "Tonkatsu",
+        "rating": 3.22,
+        "reviews": 242,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Katsukura+Sanjo+Kyoto",
+        "reserveUrl": "https://tabelog.com/en/kyoto/A2601/A260201/26001918/",
+        "why": "Reliable family seating just beyond market crush."
+      },
+      {
+        "rank": 2,
+        "name": "Nishiki market shop tasting",
+        "cuisine": "Japanese snacks",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside market",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Nishiki+Market+Kyoto",
+        "reserveUrl": null,
+        "why": "Fastest route-aligned food experience."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "CHOICE",
+        "cuisine": "GF vegan/vegetarian",
+        "walk": "15-20 min",
+        "safety": "dedicated",
+        "note": "Kyoto GF guide describes a fully GF kitchen.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=CHOICE+Kyoto+gluten+free",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      },
+      {
+        "name": "Toshoan",
+        "cuisine": "GF wagashi",
+        "walk": "10-20 min",
+        "safety": "dedicated",
+        "note": "Dedicated GF sweets fallback; market stalls are not celiac-safe by default.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Toshoan+Kyoto+gluten+free",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "demachiyanagi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Bon Bon Cafe",
+        "cuisine": "Cafe / casual dining",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Bon+Bon+Cafe+Demachiyanagi",
+        "reserveUrl": null,
+        "why": "Best early dinner for the Gozan viewpoint."
+      },
+      {
+        "rank": 2,
+        "name": "Demachi Futaba",
+        "cuisine": "Mame-mochi",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Demachi+Futaba+Kyoto",
+        "reserveUrl": null,
+        "why": "Iconic snack, buy before sellout."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "CHOICE",
+        "cuisine": "GF vegan/vegetarian",
+        "walk": "15-20 min transit",
+        "safety": "dedicated",
+        "note": "Nearest dedicated casual meal.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=CHOICE+Kyoto+gluten+free",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      },
+      {
+        "name": "La Locanda",
+        "cuisine": "Italian fine dining",
+        "walk": "~20 min",
+        "safety": "gluten-free-menu",
+        "note": "Official menu marks GF items; declare allergy when reserving.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=La+Locanda+Ritz+Carlton+Kyoto",
+        "officialUrl": "https://lalocanda.ritzcarltonkyoto.com/en/our-menus"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "fushimi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Vermillion Cafe",
+        "cuisine": "Cafe / breakfast",
+        "rating": 3.22,
+        "reviews": 41,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Vermillion+Cafe+Fushimi+Inari",
+        "reserveUrl": "https://tabelog.com/en/kyoto/A2601/A260601/26025786/",
+        "why": "Best practical breakfast after shrine."
+      },
+      {
+        "rank": 2,
+        "name": "Nezameya",
+        "cuisine": "Inari sushi / eel",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-6 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Nezameya+Fushimi+Inari",
+        "reserveUrl": null,
+        "why": "Historic local specialty."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "CHOICE",
+        "cuisine": "GF vegan/vegetarian",
+        "walk": "30-40 min transit",
+        "safety": "dedicated",
+        "note": "Nearest verified dedicated anchor; no celiac-safe breakfast found at shrine.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=CHOICE+Kyoto+gluten+free",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      },
+      {
+        "name": "Sealed breakfast carried from hotel",
+        "cuisine": "Packaged food",
+        "walk": "carried",
+        "safety": "uncertain",
+        "note": "Inari sushi tofu and eel sauce commonly contain wheat-containing soy sauce.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=KOKO+Hotel+Residence+Kyoto+Nijo+Castle",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "higashiyama": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Current venue ratings not independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "GF Ramen Kyoto / Gion Soy Milk Ramen UNO",
+        "cuisine": "Gluten-free ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-20 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gion+Soy+Milk+Ramen+UNO+Kyoto",
+        "reserveUrl": null,
+        "why": "Dedicated GF meal on the Higashiyama-Gion route."
+      },
+      {
+        "rank": 2,
+        "name": "Kagizen Yoshifusa",
+        "cuisine": "Wagashi / tea",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-15 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kagizen+Yoshifusa+Gion",
+        "reserveUrl": null,
+        "why": "Historic cooling stop."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "GF Ramen Kyoto / Gion Soy Milk Ramen UNO",
+        "cuisine": "Ramen",
+        "walk": "10-20 min",
+        "safety": "dedicated",
+        "note": "Kyoto GF guide describes a fully GF kitchen with rice noodles.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gion+Soy+Milk+Ramen+UNO+Kyoto",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      },
+      {
+        "name": "CHOICE",
+        "cuisine": "GF vegan/vegetarian",
+        "walk": "15-25 min",
+        "safety": "dedicated",
+        "note": "Second dedicated city anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=CHOICE+Kyoto+gluten+free",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "gion": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Gion Soy Milk Ramen UNO",
+        "cuisine": "Dedicated gluten-free ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gion+Soy+Milk+Ramen+UNO",
+        "reserveUrl": "https://www.gluten-free-japan.com/guide/kyoto",
+        "why": "Best casual dietary-confidence choice."
+      },
+      {
+        "rank": 2,
+        "name": "Gion Endo",
+        "cuisine": "Japanese kaiseki",
+        "rating": 3.88,
+        "reviews": 140,
+        "walk": "5-10 min",
+        "reservation": "required",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gion+Endo",
+        "reserveUrl": "https://tabelog.com/en/kyoto/A2601/A260301/26019418/",
+        "why": "Highest verified rating signal among practical central choices."
+      },
+      {
+        "rank": 3,
+        "name": "Gion Duck Noodles",
+        "cuisine": "Duck ramen",
+        "rating": 3.68,
+        "reviews": 984,
+        "walk": "5-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gion+Duck+Noodles",
+        "reserveUrl": "https://tabelog.com/en/ramen/kyoto/A2601/A260301/rank/",
+        "why": "Strong casual rating-volume option."
+      },
+      {
+        "rank": 4,
+        "name": "Gion Karyo",
+        "cuisine": "Japanese kaiseki",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gion+Karyo",
+        "reserveUrl": "https://www.gion-karyo.com/",
+        "why": "Refined but more accessible alternative to elite counters."
+      },
+      {
+        "rank": 5,
+        "name": "Izuju Sushi",
+        "cuisine": "Kyoto-style pressed sushi",
+        "rating": null,
+        "reviews": null,
+        "walk": "2-5 min from Yasaka Shrine",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Izuju+Sushi",
+        "reserveUrl": null,
+        "why": "Historic, distinctive Kyoto specialty."
+      },
+      {
+        "rank": 6,
+        "name": "Hisago Kyoto",
+        "cuisine": "Oyakodon / soba",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Hisago+Kyoto",
+        "reserveUrl": null,
+        "why": "Famous casual bowl near the Higashiyama route."
+      },
+      {
+        "rank": 7,
+        "name": "Kagizen Yoshifusa Gion",
+        "cuisine": "Wagashi / tea",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-6 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kagizen+Yoshifusa+Gion",
+        "reserveUrl": "https://www.kagizen.co.jp/",
+        "why": "Excellent traditional cooling stop."
+      },
+      {
+        "rank": 8,
+        "name": "Gion Tanto",
+        "cuisine": "Okonomiyaki",
+        "rating": 3.29,
+        "reviews": 70,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gion+Tanto",
+        "reserveUrl": "https://tabelog.com/en/kyoto/A2601/A260301/26007590/",
+        "why": "Approachable but wheat-heavy and current smoking conditions require checking."
+      },
+      {
+        "rank": 9,
+        "name": "Tempura Endo Yasaka",
+        "cuisine": "Tempura",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "required",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tempura+Endo+Yasaka",
+        "reserveUrl": "https://www.gion-endo.com/english/",
+        "why": "Bookable Kyoto tempura splurge."
+      },
+      {
+        "rank": 10,
+        "name": "Gion Kyomen",
+        "cuisine": "Kyoto noodles / Japanese",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gion+Kyomen",
+        "reserveUrl": null,
+        "why": "Practical family fallback close to the evening route."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "GF Ramen Kyoto / Gion Soy Milk Ramen UNO",
+        "cuisine": "Ramen",
+        "walk": "3-10 min",
+        "safety": "dedicated",
+        "note": "Primary dedicated option.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gion+Soy+Milk+Ramen+UNO+Kyoto",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      },
+      {
+        "name": "CHOICE",
+        "cuisine": "GF vegan/vegetarian",
+        "walk": "10-20 min",
+        "safety": "dedicated",
+        "note": "Second dedicated option.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=CHOICE+Kyoto+gluten+free",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      }
+    ]
+  },
+  "arashiyama": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Shigetsu",
+        "cuisine": "Shojin ryori",
+        "rating": 3.59,
+        "reviews": 176,
+        "walk": "inside Tenryu-ji",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Shigetsu+Tenryuji+Kyoto",
+        "reserveUrl": "https://www.tenryuji.com/en/shigetsu/",
+        "why": "Best experience and no-detour lunch."
+      },
+      {
+        "rank": 2,
+        "name": "Arashiyama Yoshimura",
+        "cuisine": "Soba / tempura",
+        "rating": 3.52,
+        "reviews": 1019,
+        "walk": "3-6 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Arashiyama+Yoshimura",
+        "reserveUrl": "https://tabelog.com/en/kyoto/A2601/A260403/26000403/",
+        "why": "High-volume river-view alternative."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "CHOICE",
+        "cuisine": "GF vegan/vegetarian",
+        "walk": "35-50 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust dedicated anchor; not a lunch detour.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=CHOICE+Kyoto+gluten+free",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      },
+      {
+        "name": "Shigetsu by advance request",
+        "cuisine": "Shojin ryori",
+        "walk": "inside Tenryu-ji",
+        "safety": "uncertain",
+        "note": "Vegetarian is not GF; soy sauce and fu are risks. Only use if the restaurant confirms a GF set and controls.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Shigetsu+Tenryuji+Kyoto",
+        "officialUrl": "https://www.tenryuji.com/en/shigetsu/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "north_kyoto": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog snapshot 2026-07-27",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Seigeiin Yudofu",
+        "cuisine": "Temple tofu cuisine",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Ryoan-ji",
+        "reservation": "unknown",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Seigeiin+Ryoanji",
+        "reserveUrl": null,
+        "why": "Only efficient proper meal on route."
+      },
+      {
+        "rank": 2,
+        "name": "Okonomiyaki Katsu",
+        "cuisine": "Okonomiyaki",
+        "rating": 3.03,
+        "reviews": 7,
+        "walk": "7-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Okonomiyaki+Katsu+Ryoanji",
+        "reserveUrl": "https://tabelog.com/en/kyoto/A2601/A260402/26011168/",
+        "why": "Tiny local fallback with limited evidence."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "CHOICE",
+        "cuisine": "GF vegan/vegetarian",
+        "walk": "35-50 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust dedicated anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=CHOICE+Kyoto+gluten+free",
+        "officialUrl": "https://www.gluten-free-japan.com/guide/kyoto"
+      },
+      {
+        "name": "Seigeiin by advance request",
+        "cuisine": "Tofu cuisine",
+        "walk": "inside Ryoan-ji",
+        "safety": "uncertain",
+        "note": "Tofu is GF but soy sauce and shared preparation are not; confirm a complete GF set.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Seigeiin+Ryoanji",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "shinjuku": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Fuunji Shinjuku",
+        "cuisine": "Tsukemen",
+        "rating": 3.76,
+        "reviews": 5247,
+        "walk": "12-18 min from Cava House",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Fuunji+Shinjuku",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1304/A130401/13044091/",
+        "why": "Outstanding rating-volume signal."
+      },
+      {
+        "rank": 2,
+        "name": "Shinjuku Kappo Nakajima",
+        "cuisine": "Japanese / sardine lunch",
+        "rating": 3.67,
+        "reviews": 1514,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Shinjuku+Kappo+Nakajima",
+        "reserveUrl": "https://tabelog.com/japanese/tokyo/A1304/A130401/rank/",
+        "why": "Excellent-value Michelin-linked lunch near Shinjuku-sanchome."
+      },
+      {
+        "rank": 3,
+        "name": "Tsukemen Gonokami Seisakujo",
+        "cuisine": "Shrimp tsukemen",
+        "rating": 3.77,
+        "reviews": 5317,
+        "walk": "12-18 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tsukemen+Gonokami+Seisakujo",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1304/A130401/rank/",
+        "why": "One of Shinjuku's strongest casual rating-volume choices."
+      },
+      {
+        "rank": 4,
+        "name": "Menya Sho Honten",
+        "cuisine": "Ramen",
+        "rating": 3.77,
+        "reviews": 4550,
+        "walk": "15-20 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Menya+Sho+Honten",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1304/A130401/rank/",
+        "why": "High-volume ramen benchmark."
+      },
+      {
+        "rank": 5,
+        "name": "FISH Shinjuku",
+        "cuisine": "Spice curry",
+        "rating": 3.79,
+        "reviews": 2679,
+        "walk": "15-20 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=FISH+Shinjuku",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1304/A130401/rank/",
+        "why": "Strong curry option with a very high review count."
+      },
+      {
+        "rank": 6,
+        "name": "Tempura Shinjuku Tsunahachi Keio",
+        "cuisine": "Tempura",
+        "rating": 3.12,
+        "reviews": 91,
+        "walk": "10-15 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tempura+Shinjuku+Tsunahachi+Keio",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1304/A130401/13017310/",
+        "why": "Verified replacement for the closed/on-hold Sohonten."
+      },
+      {
+        "rank": 7,
+        "name": "Udon Shin",
+        "cuisine": "Handmade udon",
+        "rating": null,
+        "reviews": null,
+        "walk": "15-20 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Udon+Shin",
+        "reserveUrl": "https://www.udonshin.com/",
+        "why": "Excellent noodles without a fixed reservation."
+      },
+      {
+        "rank": 8,
+        "name": "Oiwake Dango Honpo Shinjuku",
+        "cuisine": "Wagashi / cafe",
+        "rating": 3.76,
+        "reviews": 2159,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Oiwake+Dango+Honpo+Shinjuku",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1304/A130401/rank/",
+        "why": "Ideal cold sweet and tea break near Cava House."
+      },
+      {
+        "rank": 9,
+        "name": "noix de beurre Shinjuku Isetan",
+        "cuisine": "Patisserie",
+        "rating": 3.79,
+        "reviews": 1867,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=noix+de+beurre+Shinjuku+Isetan",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1304/A130401/rank/",
+        "why": "High-rated takeaway sweet at Isetan."
+      },
+      {
+        "rank": 10,
+        "name": "HealthyTOKYO Cafe Shinjuku",
+        "cuisine": "Vegan / gluten-free options",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-15 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=HealthyTOKYO+Cafe+Shinjuku",
+        "reserveUrl": "https://www.healthytokyo.com/",
+        "why": "Best local dietary fallback; confirm current cross-contact policy."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free T's Kitchen Harajuku",
+        "cuisine": "Japanese GF",
+        "walk": "~20 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust dedicated anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Harajuku",
+        "officialUrl": "https://glutenfree.co.jp/"
+      },
+      {
+        "name": "Moyan Curry Shinjuku",
+        "cuisine": "Japanese curry",
+        "walk": "10-20 min",
+        "safety": "gluten-free-menu",
+        "note": "GF curry but mixed kitchen; confirm cross-contact.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Moyan+Curry+Shinjuku",
+        "officialUrl": null
+      }
+    ]
+  },
+  "ikebukuro": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "See research/tokyo-hakone-restaurants.md",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Mutekiya",
+        "cuisine": "Ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "10-15 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Mutekiya+Ikebukuro",
+        "reserveUrl": null,
+        "why": "High-demand classic, only if queue is manageable."
+      },
+      {
+        "rank": 2,
+        "name": "Sunshine City dining",
+        "cuisine": "Multi-restaurant",
+        "rating": null,
+        "reviews": null,
+        "walk": "on site",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Sunshine+City+restaurants",
+        "reserveUrl": null,
+        "why": "Most efficient family variety."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Moyan Curry Ikebukuro",
+        "cuisine": "Japanese curry",
+        "walk": "10-15 min",
+        "safety": "gluten-free-menu",
+        "note": "GF curry; mixed kitchen requires confirmation.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Moyan+Curry+Ikebukuro",
+        "officialUrl": null
+      },
+      {
+        "name": "Gluten Free T's Kitchen Ueno",
+        "cuisine": "Japanese GF",
+        "walk": "~25 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust dedicated anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Ueno",
+        "officialUrl": "https://glutenfree.co.jp/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "nakano": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "See research/tokyo-hakone-restaurants.md",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Maguro Mart",
+        "cuisine": "Tuna / seafood",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "required",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Maguro+Mart+Nakano",
+        "reserveUrl": null,
+        "why": "Top local dinner if reserved."
+      },
+      {
+        "rank": 2,
+        "name": "Aoba Nakano Honten",
+        "cuisine": "Ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-6 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Aoba+Nakano+Honten",
+        "reserveUrl": null,
+        "why": "Efficient local classic."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free T's Kitchen Harajuku",
+        "cuisine": "Japanese GF",
+        "walk": "~25 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust dedicated anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Harajuku",
+        "officialUrl": "https://glutenfree.co.jp/"
+      },
+      {
+        "name": "Maguro Mart by advance request",
+        "cuisine": "Seafood",
+        "walk": "8-12 min",
+        "safety": "uncertain",
+        "note": "Request plain fish, rice, tamari and clean tools; no celiac controls verified.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Maguro+Mart+Nakano",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "koenji": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "See research/tokyo-hakone-restaurants.md",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Tensuke",
+        "cuisine": "Tempura bowl",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tensuke+Koenji",
+        "reserveUrl": null,
+        "why": "Local cult counter; use only if queue is short."
+      },
+      {
+        "rank": 2,
+        "name": "Koenji Pal and Look street izakaya",
+        "cuisine": "Mixed local dining",
+        "rating": null,
+        "reviews": null,
+        "walk": "on route",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Koenji+Pal+restaurants",
+        "reserveUrl": null,
+        "why": "Flexible dinner without detour."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free T's Kitchen Harajuku",
+        "cuisine": "Japanese GF",
+        "walk": "~25 min transit",
+        "safety": "dedicated",
+        "note": "Nearest robust dedicated anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Harajuku",
+        "officialUrl": "https://glutenfree.co.jp/"
+      },
+      {
+        "name": "Sealed meal backup",
+        "cuisine": "Packaged food",
+        "walk": "carried",
+        "safety": "uncertain",
+        "note": "No second locally verified celiac-safe venue.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Koenji+Station",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "tsukiji": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "See research/tokyo-hakone-restaurants.md",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Kitsuneya",
+        "cuisine": "Horumon rice bowl",
+        "rating": null,
+        "reviews": null,
+        "walk": "2-4 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kitsuneya+Tsukiji",
+        "reserveUrl": null,
+        "why": "Famous breakfast if queue is short."
+      },
+      {
+        "rank": 2,
+        "name": "Tsukiji tamagoyaki specialist",
+        "cuisine": "Rolled omelette",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside market",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tsukiji+tamagoyaki",
+        "reserveUrl": "https://www.tsukiji.or.jp/english/shoplist/",
+        "why": "Fast signature snack."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Kushiage Su Ginza",
+        "cuisine": "GF kushiage",
+        "walk": "15-20 min",
+        "safety": "dedicated",
+        "note": "Nearest dedicated anchor; reservation required.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kushiage+Su+Ginza",
+        "officialUrl": null
+      },
+      {
+        "name": "Plain sashimi by explicit request",
+        "cuisine": "Seafood",
+        "walk": "inside market",
+        "safety": "uncertain",
+        "note": "Bring tamari; shared knives/boards and sauces remain risks.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tsukiji+Outer+Market+sashimi",
+        "officialUrl": "https://www.tsukiji.or.jp/english/shoplist/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "shiodome": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "See research/tokyo-hakone-restaurants.md",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Caretta Shiodome dining",
+        "cuisine": "Multi-restaurant",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Caretta+Shiodome+restaurants",
+        "reserveUrl": null,
+        "why": "Best indoor selection near Hamarikyu."
+      },
+      {
+        "rank": 2,
+        "name": "Hamarikyu Nakajima tea house",
+        "cuisine": "Matcha / wagashi",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside garden",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Nakajima+Tea+House+Hamarikyu",
+        "reserveUrl": null,
+        "why": "No-detour garden refreshment."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Kushiage Su Ginza",
+        "cuisine": "GF kushiage",
+        "walk": "15-20 min",
+        "safety": "dedicated",
+        "note": "Nearest dedicated anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kushiage+Su+Ginza",
+        "officialUrl": null
+      },
+      {
+        "name": "Caretta venue by request",
+        "cuisine": "Mixed",
+        "walk": "8-12 min",
+        "safety": "uncertain",
+        "note": "No current dedicated GF venue verified in complex.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Caretta+Shiodome+restaurants",
+        "officialUrl": null
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "azabudai": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "See research/tokyo-hakone-restaurants.md",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Azabudai Hills Market",
+        "cuisine": "Food hall",
+        "rating": null,
+        "reviews": null,
+        "walk": "on site",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Azabudai+Hills+Market",
+        "reserveUrl": "https://www.azabudai-hills.com/en/shops_restaurants/",
+        "why": "Best post-Borderless cooling/lunch choice."
+      },
+      {
+        "rank": 2,
+        "name": "Gluten Free T's Kitchen Roppongi",
+        "cuisine": "Japanese GF",
+        "rating": null,
+        "reviews": null,
+        "walk": "15-20 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Roppongi",
+        "reserveUrl": "https://glutenfree.co.jp/",
+        "why": "Best dietary-confidence nearby."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Gluten Free T's Kitchen Roppongi",
+        "cuisine": "Japanese GF",
+        "walk": "15-20 min",
+        "safety": "dedicated",
+        "note": "Primary dedicated anchor.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten+Free+Ts+Kitchen+Roppongi",
+        "officialUrl": "https://glutenfree.co.jp/"
+      },
+      {
+        "name": "Azabudai market vendor by request",
+        "cuisine": "Food hall",
+        "walk": "on site",
+        "safety": "uncertain",
+        "note": "Use only with explicit current ingredient/cross-contact confirmation.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Azabudai+Hills+Market",
+        "officialUrl": "https://www.azabudai-hills.com/en/shops_restaurants/"
+      }
+    ],
+    "availabilityNote": "Only 2 credible/practical nearby choices were verified; the list is intentionally not padded with distant, closed, weakly evidenced, or schedule-incompatible venues."
+  },
+  "ginza": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Gluten-Free Kushiage Su",
+        "cuisine": "Gluten-free kushiage omakase",
+        "rating": null,
+        "reviews": 8,
+        "walk": "5-12 min",
+        "reservation": "required",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Gluten-Free+Kushiage+Su",
+        "reserveUrl": "https://www.tablecheck.com/en/shops/glutenfree-kushiage-su/reserve",
+        "why": "Distinctive six-seat dedicated gluten-free meal."
+      },
+      {
+        "rank": 2,
+        "name": "Ginza Hachigo",
+        "cuisine": "Ramen",
+        "rating": 3.95,
+        "reviews": 2420,
+        "walk": "8-12 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ginza+Hachigo",
+        "reserveUrl": null,
+        "why": "Exceptional rating, but difficult ticketing."
+      },
+      {
+        "rank": 3,
+        "name": "Tempura Kondo",
+        "cuisine": "Tempura",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-6 min",
+        "reservation": "required",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tempura+Kondo",
+        "reserveUrl": "https://www.tempura-kondo.com/english/",
+        "why": "Renowned Ginza splurge; book well ahead."
+      },
+      {
+        "rank": 4,
+        "name": "GINZA KUKI",
+        "cuisine": "Japanese / fermented cuisine",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-10 min",
+        "reservation": "required",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=GINZA+KUKI",
+        "reserveUrl": "https://ginzakuki.com/en/",
+        "why": "High-confidence planned meal with GF course support."
+      },
+      {
+        "rank": 5,
+        "name": "Ginza Kagari Honten",
+        "cuisine": "Chicken paitan ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "3-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ginza+Kagari+Honten",
+        "reserveUrl": null,
+        "why": "Acclaimed casual ramen in central Ginza."
+      },
+      {
+        "rank": 6,
+        "name": "Ginza Bairin Honten",
+        "cuisine": "Tonkatsu",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ginza+Bairin+Honten",
+        "reserveUrl": "https://ginza-bairin.com/",
+        "why": "Historic tonkatsu specialist."
+      },
+      {
+        "rank": 7,
+        "name": "Mugi to Olive Ginza",
+        "cuisine": "Ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Mugi+to+Olive+Ginza",
+        "reserveUrl": null,
+        "why": "Popular lighter ramen option."
+      },
+      {
+        "rank": 8,
+        "name": "Shiseido Parlour Salon de Cafe",
+        "cuisine": "Cafe / parfait",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Shiseido+Parlour+Salon+de+Cafe",
+        "reserveUrl": "https://parlour.shiseido.co.jp/en/",
+        "why": "Classic air-conditioned Ginza dessert stop."
+      },
+      {
+        "rank": 9,
+        "name": "Ginza West Main Shop",
+        "cuisine": "Tea room / cakes",
+        "rating": null,
+        "reviews": null,
+        "walk": "8-12 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ginza+West+Main+Shop",
+        "reserveUrl": "https://www.ginza-west.com/",
+        "why": "Traditional quiet tea-room break."
+      },
+      {
+        "rank": 10,
+        "name": "Ginza Kimuraya",
+        "cuisine": "Bakery / anpan",
+        "rating": null,
+        "reviews": null,
+        "walk": "2-5 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ginza+Kimuraya",
+        "reserveUrl": "https://www.kimuraya-sohonten.co.jp/",
+        "why": "Quick historic snack directly on Chuo-dori."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Kushiage Su",
+        "cuisine": "GF kushiage",
+        "walk": "5-12 min",
+        "safety": "dedicated",
+        "note": "Dedicated specialist; reserve well ahead.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kushiage+Su+Ginza",
+        "officialUrl": null
+      },
+      {
+        "name": "Vegan Marshmallooow Ginza Mitsukoshi",
+        "cuisine": "GF vegan sweets",
+        "walk": "inside Ginza Mitsukoshi",
+        "safety": "gluten-free-menu",
+        "note": "Verify current counter and cross-contact before relying on it.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Vegan+Marshmallooow+Ginza+Mitsukoshi",
+        "officialUrl": null
+      }
+    ]
+  },
+  "marunouchi": {
+    "updatedAt": "2026-07-27",
+    "ratingSource": "Tabelog and official-source snapshots 2026-07-27; null where no current score/review pair was independently captured",
+    "restaurants": [
+      {
+        "rank": 1,
+        "name": "Rokurinsha Tokyo Station",
+        "cuisine": "Tsukemen",
+        "rating": 3.77,
+        "reviews": 7634,
+        "walk": "inside Tokyo Station",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Rokurinsha+Tokyo+Station",
+        "reserveUrl": "https://tabelog.com/en/tokyo/A1302/A130201/13093047/",
+        "why": "Extraordinary rating-volume signal; queue dependent."
+      },
+      {
+        "rank": 2,
+        "name": "Soranoiro NIPPON",
+        "cuisine": "Ramen with GF option",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside Tokyo Station",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Soranoiro+NIPPON",
+        "reserveUrl": "https://soranoiro-vege.com/store-menu/soranoiro-nippon/",
+        "why": "Best station-area gluten-aware bowl."
+      },
+      {
+        "rank": 3,
+        "name": "Nemuro Hanamaru KITTE Marunouchi",
+        "cuisine": "Conveyor sushi",
+        "rating": null,
+        "reviews": 1716,
+        "walk": "1 min from Marunouchi South Exit",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Nemuro+Hanamaru+KITTE+Marunouchi",
+        "reserveUrl": "https://www.sushi-hanamaru.com/",
+        "why": "High-volume Hokkaido sushi directly across from the station."
+      },
+      {
+        "rank": 4,
+        "name": "Tsujihan Tokyo Midtown Yaesu",
+        "cuisine": "Seafood rice bowl",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Tsujihan+Tokyo+Midtown+Yaesu",
+        "reserveUrl": null,
+        "why": "Popular signature seafood bowl without leaving the station district."
+      },
+      {
+        "rank": 5,
+        "name": "Manten Sushi Marunouchi",
+        "cuisine": "Sushi omakase",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-10 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Manten+Sushi+Marunouchi",
+        "reserveUrl": "https://www.tablecheck.com/en/shops/manten-sushi-marunouchi/reserve",
+        "why": "Compact, bookable omakase experience."
+      },
+      {
+        "rank": 6,
+        "name": "TsuruTonTan Tokyo Building TOKIA",
+        "cuisine": "Udon",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-8 min",
+        "reservation": "recommended",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=TsuruTonTan+Tokyo+Building+TOKIA",
+        "reserveUrl": "https://www.tsurutontan.co.jp/shop/tokyo/",
+        "why": "Large bowls and family seating close to Marunouchi South Exit."
+      },
+      {
+        "rank": 7,
+        "name": "T's Tantan Tokyo Station",
+        "cuisine": "Vegan ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside station",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=T's+Tantan+Tokyo+Station",
+        "reserveUrl": "https://www.jr-cross.co.jp/ts-tantan/",
+        "why": "Fast vegan choice; confirm current GF status separately."
+      },
+      {
+        "rank": 8,
+        "name": "Menya Itto Tokyo Station",
+        "cuisine": "Ramen / tsukemen",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside station",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Menya+Itto+Tokyo+Station",
+        "reserveUrl": "https://www.tokyoeki-1bangai.co.jp/street/ramen/",
+        "why": "Strong Ramen Street alternative when Rokurinsha queue is excessive."
+      },
+      {
+        "rank": 9,
+        "name": "Daimaru Tokyo Depachika",
+        "cuisine": "Department-store food hall",
+        "rating": null,
+        "reviews": null,
+        "walk": "inside station",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Daimaru+Tokyo+Depachika",
+        "reserveUrl": "https://www.daimaru.co.jp/tokyo/",
+        "why": "Best flexible takeaway selection for a family split."
+      },
+      {
+        "rank": 10,
+        "name": "Ippudo Marunouchi",
+        "cuisine": "Tonkotsu ramen",
+        "rating": null,
+        "reviews": null,
+        "walk": "5-10 min",
+        "reservation": "walk-in",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Ippudo+Marunouchi",
+        "reserveUrl": "https://stores.ippudo.com/en/",
+        "why": "Reliable familiar ramen with predictable service."
+      }
+    ],
+    "glutenFriendly": [
+      {
+        "name": "Soranoiro NIPPON",
+        "cuisine": "GF-option ramen",
+        "walk": "inside station",
+        "safety": "gluten-free-menu",
+        "note": "Order the designated GF bowl and confirm cross-contact.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Soranoiro+NIPPON+Tokyo+Station",
+        "officialUrl": null
+      },
+      {
+        "name": "Kushiage Su Ginza",
+        "cuisine": "GF kushiage",
+        "walk": "15-20 min",
+        "safety": "dedicated",
+        "note": "Nearest dedicated destination meal; reservation required.",
+        "placeUrl": "https://www.google.com/maps/search/?api=1&query=Kushiage+Su+Ginza",
+        "officialUrl": null
+      }
+    ]
+  }
+}

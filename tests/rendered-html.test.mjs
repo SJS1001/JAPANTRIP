@@ -3,7 +3,7 @@ import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("ships the protected shared family calendar", async () => {
-  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText, imageManifestText, cardGuides] = await Promise.all([
+  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText, imageManifestText, cardGuides, restaurantGuidesText] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TripCalendar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/OpenTripMap.tsx", import.meta.url), "utf8"),
@@ -16,6 +16,7 @@ test("ships the protected shared family calendar", async () => {
     readFile(new URL("../data/seed.json", import.meta.url), "utf8"),
     readFile(new URL("../data/image-manifest.json", import.meta.url), "utf8"),
     readFile(new URL("../data/card-guides.ts", import.meta.url), "utf8"),
+    readFile(new URL("../data/restaurant-guides.json", import.meta.url), "utf8"),
   ]);
   const mergeAudit = JSON.parse(audit);
   const seed = JSON.parse(seedText);
@@ -24,6 +25,7 @@ test("ships the protected shared family calendar", async () => {
   const meals = seed.filter((item) => item.category === "meal");
   const transports = seed.filter((item) => item.category === "transport");
   const imageManifest = JSON.parse(imageManifestText);
+  const restaurantGuides = JSON.parse(restaurantGuidesText);
   const geocodeApi = await readFile(new URL("../app/api/geocode/route.ts", import.meta.url), "utf8");
 
   assert.match(page, /TripCalendar/);
@@ -47,6 +49,9 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /Check tables \/ reserve/);
   assert.match(calendar, /Reservation recommended/);
   assert.match(calendar, /Walk-in · expect a possible queue/);
+  assert.match(calendar, /Best-rated nearby/);
+  assert.match(calendar, /Gluten-friendly nearby/);
+  assert.match(calendar, /not a medical guarantee/);
   assert.match(calendar, /More nearby/);
   assert.match(calendar, /Best seats & views/);
 
@@ -56,6 +61,8 @@ test("ships the protected shared family calendar", async () => {
   assert.equal(byId.get("a09b")?.time, "11:30 target · allow 2h");
   assert.equal(byId.get("a09c")?.time, "18:00–19:15");
   assert.equal(byId.get("m09b")?.title, "Dinner after Tokyo Tower");
+  assert.equal(byId.get("hr-lunch")?.location, "Caffè Ponte, Hiroshima");
+  assert.match(byId.get("hr-lunch")?.notes || "", /Nagata-ya.*closed/);
   assert.match(calendar, /card-photo/);
   assert.match(calendar, /imageCredit/);
   assert.match(calendar, /<img src=\{photo\.imageUrl\}/);
@@ -80,6 +87,7 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /12_000/);
   assert.match(calendar, /Updated automatically from/);
   assert.match(store, /post-1am-open-map-restore-2026-07-22-v3-images/);
+  assert.match(store, /restaurant-closure-replan-2026-07-27-v1/);
   assert.match(store, /CREATE TABLE IF NOT EXISTS geocode_cache/);
   assert.match(store, /countrycodes/);
   assert.match(store, /JapanFamilyTripCalendar\/1\.0/);
@@ -101,6 +109,19 @@ test("ships the protected shared family calendar", async () => {
   const mapped = (block, id) => new RegExp(`(?:^|[,{\\s])(?:"${id}"|${id.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")})\\s*:`).test(block);
   assert.ok([...attractions, ...hotels, ...meals].every((item) => mapped(areaMappings, item.id)), "every attraction, hotel and meal needs a nearby-area guide");
   assert.ok(transports.every((item) => mapped(transportMappings, item.id)), "every transport card needs booking and seat guidance");
+  const usedAreas = new Set([...attractions, ...hotels, ...meals].map((item) => {
+    const match = areaMappings.match(new RegExp(`(?:^|[,{\\s])(?:"${item.id}"|${item.id.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")})\\s*:\\s*"([^"]+)"`));
+    return match?.[1];
+  }));
+  assert.ok([...usedAreas].every((area) => area && restaurantGuides[area]), "every scheduled attraction, hotel and meal area needs ranked restaurants");
+  assert.ok(Object.values(restaurantGuides).every((guide) => guide.glutenFriendly.length >= 2), "every area needs two gluten-aware choices or clearly marked nearest alternatives");
+  assert.ok(Object.values(restaurantGuides).every((guide) => guide.restaurants.length >= 10 || guide.availabilityNote), "areas with fewer than ten credible choices must explain the verified shortfall");
+  const reservationStatuses = new Set(["required", "recommended", "walk-in", "unknown"]);
+  assert.ok(Object.values(restaurantGuides).flatMap((guide) => guide.restaurants).every((restaurant) => reservationStatuses.has(restaurant.reservation)), "reservation status must render with a supported label and style");
+  for (const area of ["asakusa", "ueno", "akihabara", "shibuya", "namba", "umeda", "gion", "shinjuku", "ginza", "marunouchi"]) {
+    assert.equal(restaurantGuides[area].restaurants.length, 10, `${area} should expose a complete top ten`);
+  }
+  assert.doesNotMatch(cardGuides, /Tokyo Shiba Tōfuya Ukai|Nagata-ya okonomiyaki|Omen Kodaiji|Tsunahachi Sohonten/);
   await Promise.all(attractions.map((item) => access(new URL(`../public${item.imageUrl}`, import.meta.url))));
   assert.match(hosting, /"d1":\s*"DB"/);
   assert.doesNotMatch(page, /Your site is taking shape/);

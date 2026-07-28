@@ -323,6 +323,37 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .transport-guide article { padding: 12px 13px; border: 1px solid var(--line); background: #fffefa; }
 .transport-guide p { margin: 7px 0 0; font-size: 10px; line-height: 1.55; }
 .flip-back { width: 100%; min-height: 39px; margin-top: 14px; border: 1px solid var(--ink); background: transparent; color: var(--ink); font: inherit; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.restaurant-directory { margin-top: 16px; padding-top: 15px; border-top: 1px solid var(--ink); }
+.restaurant-directory > header { display: flex; justify-content: space-between; gap: 14px; align-items: end; }
+.restaurant-directory h4 { margin: 4px 0 0; font-family: var(--font-serif), serif; font-size: 17px; font-weight: 600; }
+.restaurant-directory > header small { color: var(--muted); font-size: 8px; }
+.restaurant-directory .ranking-method, .availability-note { margin: 9px 0 12px; font-size: 9px; line-height: 1.55; }
+.availability-note { padding: 8px 10px; border-left: 3px solid var(--gold); background: rgb(179 132 49 / 8%); color: var(--ink); }
+.restaurant-list { display: grid; gap: 7px; }
+.ranked-restaurant { display: grid; gap: 6px; padding: 11px 12px; border: 1px solid var(--line); background: #fffefa; }
+.restaurant-rank, .restaurant-score { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.restaurant-rank b { color: var(--vermillion); font-size: 11px; }
+.restaurant-rank span { color: var(--muted); font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.restaurant-rank em { margin-left: auto; color: var(--muted); font-size: 8px; font-style: normal; }
+.ranked-restaurant > strong { font-size: 12px; }
+.restaurant-score { justify-content: space-between; }
+.restaurant-score > span { color: var(--gold); font-size: 9px; font-weight: 800; }
+.restaurant-score i { padding: 3px 6px; border-radius: 999px; background: #eee7da; color: var(--muted); font-size: 7px; font-style: normal; font-weight: 800; text-transform: uppercase; }
+.restaurant-score .reservation-required, .restaurant-score .reservation-recommended { background: rgb(183 65 45 / 11%); color: var(--vermillion-dark); }
+.ranked-restaurant p { margin: 0; font-size: 9px; line-height: 1.5; }
+.all-restaurants { margin-top: 8px; border: 1px solid var(--line); }
+.all-restaurants summary { padding: 11px 12px; color: var(--indigo); font-size: 9px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+.all-restaurants .restaurant-list { padding: 0 7px 7px; }
+.gluten-guide { margin-top: 12px; padding: 13px; border: 1px solid rgb(69 91 74 / 28%); background: rgb(69 91 74 / 5%); }
+.gluten-guide > p { margin: 7px 0 11px; font-size: 9px; line-height: 1.5; }
+.gluten-guide > div:last-child { display: grid; gap: 7px; }
+.gluten-guide article { display: grid; gap: 5px; padding: 10px; background: #fffefa; }
+.gluten-guide article > div:first-child { display: flex; gap: 8px; justify-content: space-between; align-items: start; }
+.gluten-guide article strong { font-size: 11px; }
+.gluten-guide article span { flex: 0 0 auto; padding: 3px 5px; border-radius: 999px; background: #e6eee7; color: var(--moss); font-size: 7px; font-weight: 800; text-transform: uppercase; }
+.gluten-guide article .safety-uncertain { background: #f3e9d8; color: #8b641d; }
+.gluten-guide article small { color: var(--muted); font-size: 8px; }
+.gluten-guide article p { margin: 0; font-size: 9px; line-height: 1.5; }
 .next-stop { display: grid; gap: 5px; padding: 13px 0; border-top: 1px solid var(--line); }
 .next-stop strong { margin-top: 3px; font-size: 13px; }
 .next-stop span { color: var(--muted); font-size: 11px; }

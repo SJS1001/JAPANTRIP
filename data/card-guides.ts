@@ -110,7 +110,6 @@ export const areaGuides: Record<string, AreaGuide> = {
     tip: "Pair the tower with Zōjō-ji’s temple axis and the tiny Atago Shrine staircase; do not buy another observation-deck upgrade.",
     picks: [
       { kind: "Hidden/local", name: "Zōjō-ji & Jizō statues", detail: "Historic temple foreground for the classic Tokyo Tower photograph.", walk: "5–8 min", query: "Zojoji Temple Tokyo Tower" },
-      { kind: "Viral food", name: "Tokyo Shiba Tōfuya Ukai", detail: "Atmospheric garden tofu kaiseki beneath the tower; expensive and reservation-essential.", walk: "2–4 min", query: "Tokyo Shiba Tofuya Ukai", when: "Dinner" },
       { kind: "Top restaurant", name: "Savoy Azabudai", detail: "Acclaimed wood-fired pizza for a less formal post-tower dinner.", walk: "10–15 min", query: "Savoy Azabudai pizza", when: "Dinner" },
       { kind: "Coffee/sweets", name: "Le Pain Quotidien Shiba Park", detail: "Easy family seating beside the park when energy is low.", walk: "7–10 min", query: "Le Pain Quotidien Shiba Park", when: "Coffee/dinner" },
     ],
@@ -246,7 +245,7 @@ export const areaGuides: Record<string, AreaGuide> = {
     tip: "The Rest House basement preserves a pre-bombing shop level; the Memorial Hall’s quiet spiral descent is essential after the outdoor monuments.",
     picks: [
       { kind: "Hidden/local", name: "Peace Memorial Rest House basement", detail: "Preserved basement room connected to survivor Eizo Nomura; ask staff about access.", walk: "Inside park", query: "Hiroshima Peace Memorial Rest House basement" },
-      { kind: "Viral food", name: "Nagata-ya okonomiyaki", detail: "Very popular Hiroshima-style layered pancake; use the queue as the deciding factor.", walk: "3–6 min", query: "Nagata-ya Hiroshima", when: "Lunch" },
+      { kind: "Viral food", name: "Musubi Musashi rice balls", detail: "Hiroshima-style musubi and bento make a fast local fallback when the family wants something lighter after the museum.", walk: "5–10 min", query: "Musubi Musashi near Hiroshima Peace Park", when: "Lunch" },
       { kind: "Top restaurant", name: "Caffè Ponte", detail: "Riverside Italian with indoor seating—a calm decompression backup after the museum.", walk: "2–5 min", query: "Caffe Ponte Hiroshima", when: "Lunch" },
       { kind: "Coffee/sweets", name: "Orizuru Tower café", detail: "Lemon drinks and a high city view; tower admission is optional, not part of the core memorial visit.", walk: "3–5 min", query: "Orizuru Tower cafe Hiroshima", when: "Cooling stop" },
     ],
@@ -316,7 +315,6 @@ export const areaGuides: Record<string, AreaGuide> = {
     picks: [
       { kind: "Hidden/local", name: "Zuigudō Tainai-meguri", detail: "A pitch-dark symbolic rebirth walk beneath the hall; verify same-day opening.", walk: "At Kiyomizu", query: "Zuigudo Tainai Meguri Kiyomizudera" },
       { kind: "Viral food", name: "% Arabica Kyoto Higashiyama", detail: "Photogenic coffee near Yasaka Pagoda; skip if the outdoor queue is long.", walk: "3–7 min", query: "Arabica Kyoto Higashiyama", when: "Coffee" },
-      { kind: "Top restaurant", name: "Omen Kodaiji", detail: "Kyoto udon and seasonal vegetables with proper indoor seating.", walk: "8–12 min", query: "Omen Kodaiji Kyoto", when: "Lunch" },
       { kind: "Coffee/sweets", name: "Starbucks Kyoto Ninenzaka Yasaka Chaya", detail: "Tatami Starbucks in a machiya; interesting architecture, not worth a major queue.", walk: "On route", query: "Starbucks Kyoto Ninenzaka Yasaka Chaya", when: "Cooling stop" },
     ],
   },
@@ -352,7 +350,7 @@ export const areaGuides: Record<string, AreaGuide> = {
     picks: [
       { kind: "Hidden/local", name: "Shinjuku Gyoen greenhouse", detail: "Large tropical glasshouse and a reliable heat refuge inside the gardens.", walk: "Inside garden", query: "Shinjuku Gyoen greenhouse" },
       { kind: "Viral food", name: "Fūunji tsukemen", detail: "Famous dipping noodles west of the station; go outside peak hours or expect a line.", walk: "12–18 min", query: "Fuunji Shinjuku", when: "Lunch/dinner" },
-      { kind: "Top restaurant", name: "Tsunahachi Sohonten", detail: "Long-running tempura specialist near Shinjuku-sanchome; a solid family farewell option.", walk: "7–12 min", query: "Tsunahachi Sohonten Shinjuku", when: "Dinner" },
+      { kind: "Top restaurant", name: "Tsunahachi Keio branch", detail: "Station-convenient branch of the long-running tempura specialist; reserve after 15:00 if using it for dinner.", walk: "10–15 min", query: "Tsunahachi Keio Shinjuku", when: "Dinner" },
       { kind: "Coffee/sweets", name: "Isetan depachika", detail: "Exceptional basement sweets and takeaway food with no restaurant commitment.", walk: "5–10 min", query: "Isetan Shinjuku depachika", when: "Snack/takeaway" },
     ],
   },

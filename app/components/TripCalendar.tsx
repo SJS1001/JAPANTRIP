@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { areaByItem, areaGuides, transportGuideByItem, transportGuides } from "../../data/card-guides";
 import lockedImageManifest from "../../data/image-manifest.json";
+import rankedRestaurantGuides from "../../data/restaurant-guides.json";
 import { OpenTripMap, type MapPoint } from "./OpenTripMap";
 
 type Category = "hotel" | "transport" | "attraction" | "meal" | "ticket" | "note";
@@ -192,6 +193,58 @@ function reservationAdvice(kind: string, detail: string) {
   if (kind === "Top restaurant") return { label: "Usually walk-in · check current policy", link: false };
   if (["Viral food", "Coffee/sweets"].includes(kind)) return { label: "Walk-in · expect a possible queue", link: false };
   return null;
+}
+
+type RankedRestaurant = {
+  rank: number;
+  name: string;
+  cuisine: string;
+  rating: number | null;
+  reviews: number | null;
+  walk: string;
+  reservation: "required" | "recommended" | "walk-in" | "unknown";
+  placeUrl: string;
+  reserveUrl: string | null;
+  why: string;
+};
+
+type GlutenChoice = {
+  name: string;
+  cuisine: string;
+  walk: string;
+  safety: "dedicated" | "gluten-free-menu" | "accommodates-request" | "uncertain";
+  note: string;
+  placeUrl: string;
+  officialUrl: string | null;
+};
+
+type RankedAreaGuide = {
+  updatedAt: string;
+  ratingSource: string;
+  availabilityNote?: string;
+  restaurants: RankedRestaurant[];
+  glutenFriendly: GlutenChoice[];
+};
+
+const restaurantGuides = rankedRestaurantGuides as Record<string, RankedAreaGuide>;
+
+function RestaurantDirectory({ guide }: { guide: RankedAreaGuide }) {
+  const restaurantCard = (restaurant: RankedRestaurant) => <article className="ranked-restaurant" key={`${restaurant.rank}-${restaurant.name}`}>
+    <div className="restaurant-rank"><b>#{restaurant.rank}</b><span>{restaurant.cuisine}</span><em>{restaurant.walk}</em></div>
+    <strong>{restaurant.name}</strong>
+    <div className="restaurant-score">{restaurant.rating !== null ? <span>★ {restaurant.rating.toFixed(1)}{restaurant.reviews !== null ? ` · ${restaurant.reviews.toLocaleString()} reviews` : ""}</span> : <span>Rating not independently verified</span>}<i className={`reservation-${restaurant.reservation}`}>{restaurant.reservation === "walk-in" ? "Walk-in" : restaurant.reservation === "required" ? "Reserve" : restaurant.reservation === "recommended" ? "Reservation recommended" : "Check policy"}</i></div>
+    <p>{restaurant.why}</p>
+    <div className="pick-links"><a href={restaurant.placeUrl} target="_blank" rel="noreferrer">Restaurant ↗</a>{restaurant.reserveUrl && restaurant.reservation !== "walk-in" && <a href={restaurant.reserveUrl} target="_blank" rel="noreferrer">Reserve / check tables ↗</a>}</div>
+  </article>;
+
+  return <section className="restaurant-directory">
+    <header><div><div className="back-label">Best-rated nearby</div><h4>{guide.restaurants.length} practical choices</h4></div><small>Checked {guide.updatedAt}</small></header>
+    <p className="ranking-method">Ranked using rating strength, review volume, proximity and fit with the scheduled meal window—not star score alone. {guide.ratingSource}.</p>
+    {guide.availabilityNote && <p className="availability-note">{guide.availabilityNote}</p>}
+    <div className="restaurant-list">{guide.restaurants.slice(0, 3).map(restaurantCard)}</div>
+    {guide.restaurants.length > 3 && <details className="all-restaurants"><summary>Show all {guide.restaurants.length} ranked restaurants</summary><div className="restaurant-list">{guide.restaurants.slice(3).map(restaurantCard)}</div></details>}
+    <div className="gluten-guide"><div className="back-label">Gluten-friendly nearby</div><p>These are planning leads, not a medical guarantee. “Accommodates” and “uncertain” options may have soy sauce, shared fryers or cross-contact—confirm directly.</p><div>{guide.glutenFriendly.map((choice) => <article key={choice.name}><div><strong>{choice.name}</strong><span className={`safety-${choice.safety}`}>{choice.safety.replaceAll("-", " ")}</span></div><small>{choice.cuisine} · {choice.walk}</small><p>{choice.note}</p><div className="pick-links"><a href={choice.placeUrl} target="_blank" rel="noreferrer">Restaurant ↗</a>{choice.officialUrl && <a href={choice.officialUrl} target="_blank" rel="noreferrer">Menu / dietary details ↗</a>}</div></article>)}</div></div>
+  </section>;
 }
 
 function newItem(): TripItem {
@@ -735,7 +788,9 @@ export function TripCalendar() {
                     const isFlipped = flipped === item.id;
                     const next = nextFrom(item);
                     const photo = itemImage(item);
-                    const areaGuide = areaGuides[areaByItem[item.id]];
+                    const areaKey = areaByItem[item.id];
+                    const areaGuide = areaGuides[areaKey];
+                    const restaurantGuide = restaurantGuides[areaKey];
                     const transportGuide = transportGuides[transportGuideByItem[item.id]] || (item.category === "transport" ? transportGuides.metro : undefined);
                     const canFlip = ["attraction", "hotel", "transport", "meal"].includes(item.category);
                     return (
@@ -759,10 +814,11 @@ export function TripCalendar() {
                           {areaGuide && <>
                             <div className="local-tip"><div className="back-label">Insider move</div><p>{areaGuide.tip}</p></div>
                             <div className="local-picks">
-                              {areaGuide.picks.slice(0, 2).map((pick) => { const reservation = reservationAdvice(pick.kind, pick.detail); return <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p>{reservation && <em className={reservation.link ? "reserve" : "walk-in"}>{reservation.label}</em>}<div className="pick-links"><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">{pick.kind === "Hidden/local" ? "Open place" : "Restaurant / place"} ↗</a>{reservation?.link && <a href={reservationSearchUrl(pick.query)} target="_blank" rel="noreferrer">Check tables / reserve ↗</a>}</div></article>; })}
-                              {areaGuide.picks.length > 2 && <details className="more-nearby"><summary>More nearby ({areaGuide.picks.length - 2})</summary>{areaGuide.picks.slice(2).map((pick) => { const reservation = reservationAdvice(pick.kind, pick.detail); return <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p>{reservation && <em className={reservation.link ? "reserve" : "walk-in"}>{reservation.label}</em>}<div className="pick-links"><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">{pick.kind === "Hidden/local" ? "Open place" : "Restaurant / place"} ↗</a>{reservation?.link && <a href={reservationSearchUrl(pick.query)} target="_blank" rel="noreferrer">Check tables / reserve ↗</a>}</div></article>; })}</details>}
+                              {areaGuide.picks.filter((pick) => pick.kind !== "Top restaurant").slice(0, 2).map((pick) => { const reservation = reservationAdvice(pick.kind, pick.detail); return <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p>{reservation && <em className={reservation.link ? "reserve" : "walk-in"}>{reservation.label}</em>}<div className="pick-links"><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">{pick.kind === "Hidden/local" ? "Open place" : "Restaurant / place"} ↗</a>{reservation?.link && <a href={reservationSearchUrl(pick.query)} target="_blank" rel="noreferrer">Check tables / reserve ↗</a>}</div></article>; })}
+                              {areaGuide.picks.filter((pick) => pick.kind !== "Top restaurant").length > 2 && <details className="more-nearby"><summary>More nearby ({areaGuide.picks.filter((pick) => pick.kind !== "Top restaurant").length - 2})</summary>{areaGuide.picks.filter((pick) => pick.kind !== "Top restaurant").slice(2).map((pick) => { const reservation = reservationAdvice(pick.kind, pick.detail); return <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p>{reservation && <em className={reservation.link ? "reserve" : "walk-in"}>{reservation.label}</em>}<div className="pick-links"><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">{pick.kind === "Hidden/local" ? "Open place" : "Restaurant / place"} ↗</a>{reservation?.link && <a href={reservationSearchUrl(pick.query)} target="_blank" rel="noreferrer">Check tables / reserve ↗</a>}</div></article>; })}</details>}
                             </div>
                           </>}
+                          {restaurantGuide && item.category !== "transport" && <RestaurantDirectory guide={restaurantGuide} />}
                           {transportGuide && <div className="transport-guide">
                             <article><div className="back-label">Booking & class</div><p>{transportGuide.booking}</p></article>
                             <article><div className="back-label">Best seats & views</div><p>{transportGuide.seats}</p></article>
