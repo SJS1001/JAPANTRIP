@@ -29,3 +29,14 @@ export const geocodeRateLimit = sqliteTable("geocode_rate_limit", {
   id: text("id").primaryKey(),
   lastRequestAt: integer("last_request_at").notNull().default(0),
 });
+
+export const weatherCache = sqliteTable("weather_cache", {
+  id: text("id").primaryKey(),
+  payload: text("payload").notNull(),
+  fetchedAt: integer("fetched_at").notNull(),
+});
+
+export const weatherRefreshLock = sqliteTable("weather_refresh_lock", {
+  id: text("id").primaryKey(),
+  lastRequestAt: integer("last_request_at").notNull().default(0),
+});
