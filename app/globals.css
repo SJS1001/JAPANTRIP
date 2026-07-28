@@ -454,6 +454,44 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .weather-credit { margin-top: 24px; padding-top: 17px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; line-height: 1.55; }
 .weather-credit a { color: var(--indigo); font-weight: 800; text-decoration: none; }
 
+.transport-panel { margin-top: 14px; padding: clamp(24px, 4vw, 50px); border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
+.transport-panel-head { display: grid; grid-template-columns: minmax(280px, .9fr) 1.1fr; gap: 28px; align-items: end; padding-bottom: 26px; border-bottom: 1px solid var(--line); }
+.transport-panel-head h2 { margin: 6px 0 0; font-family: var(--font-serif), serif; font-size: clamp(30px, 4vw, 48px); font-weight: 500; }
+.transport-panel-head p { margin: 0; color: var(--muted); line-height: 1.65; }
+.transport-pass-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 25px 0 17px; }
+.transport-pass-grid article { display: flex; flex-direction: column; min-width: 0; padding: 19px; border-top: 3px solid var(--moss); background: #fffefa; box-shadow: 0 5px 18px rgb(46 38 25 / 6%); }
+.transport-pass-grid article.skip { border-top-color: var(--muted); }
+.transport-pass-grid span { color: var(--moss); font-size: 8px; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; }
+.transport-pass-grid .skip span { color: var(--muted); }
+.transport-pass-grid h3 { margin: 10px 0 5px; font-family: var(--font-serif), serif; font-size: 20px; font-weight: 500; }
+.transport-pass-grid strong { color: var(--vermillion); font-size: 11px; }
+.transport-pass-grid p { flex: 1; margin: 10px 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+.transport-pass-grid a, .transport-source-bar a, .transport-plan-actions a, .transport-rule a { color: var(--indigo); font-size: 9px; font-weight: 900; text-decoration: none; text-transform: uppercase; }
+.transport-source-bar { display: flex; gap: 10px 18px; align-items: center; flex-wrap: wrap; padding: 13px 15px; border: 1px solid var(--line); background: rgb(82 98 76 / 5%); }
+.transport-source-bar strong { margin-right: 4px; font-size: 10px; text-transform: uppercase; }
+.transport-timeline { margin-top: 25px; border-top: 1px solid var(--line); }
+.transport-plan-card { display: grid; grid-template-columns: 190px minmax(0, 1fr) 150px; gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.transport-plan-time { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.transport-plan-time small { color: var(--muted); font-size: 9px; }
+.transport-plan-time > strong { font-family: var(--font-serif), serif; font-size: 18px; font-weight: 500; line-height: 1.25; }
+.transport-plan-time span { padding: 5px 7px; border: 1px solid var(--moss); color: var(--moss); font-size: 7px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.transport-plan-time span.book { border-color: var(--vermillion); color: var(--vermillion); }
+.transport-plan-main h3 { margin: 0 0 7px; font-size: 15px; }
+.transport-plan-main > p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.65; white-space: pre-line; }
+.seat-summary { display: block; margin-top: 10px; color: var(--vermillion-dark); font-size: 9px; line-height: 1.45; }
+.transport-plan-main details { margin-top: 12px; }
+.transport-plan-main summary { color: var(--indigo); cursor: pointer; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+.transport-plan-main dl { display: grid; gap: 8px; margin: 12px 0 0; }
+.transport-plan-main dl div { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 10px; }
+.transport-plan-main dt { color: var(--ink); font-size: 8px; font-weight: 900; text-transform: uppercase; }
+.transport-plan-main dd { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.5; }
+.transport-plan-actions { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.transport-plan-actions a, .transport-plan-actions button { display: grid; place-items: center; min-height: 37px; padding: 7px 9px; border: 1px solid var(--line); background: transparent; text-align: center; }
+.transport-plan-actions button { color: var(--ink); cursor: pointer; font: inherit; font-size: 9px; font-weight: 800; }
+.transport-rule { margin-top: 25px; padding: 19px 21px; border-left: 4px solid var(--gold); background: rgb(162 122 48 / 7%); }
+.transport-rule > strong { font-family: var(--font-serif), serif; font-size: 20px; font-weight: 500; }
+.transport-rule p { margin: 7px 0 12px; color: var(--muted); font-size: 10px; line-height: 1.65; }
+
 .departure-panel { margin: 14px 0 26px; padding: clamp(24px, 4vw, 48px); border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
 .departure-panel > header { display: grid; grid-template-columns: minmax(260px, .8fr) 1.2fr; gap: 8px 44px; align-items: end; margin-bottom: 28px; }
 .departure-panel > header .kicker { grid-column: 1; }
@@ -589,6 +627,9 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 
 @media (max-width: 1120px) {
   .calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .transport-pass-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .transport-plan-card { grid-template-columns: 165px minmax(0, 1fr); }
+  .transport-plan-actions { grid-column: 2; flex-direction: row; }
   .map-layout { grid-template-columns: 1fr; }
   .map-itinerary { max-height: 420px; }
   .current-weather-grid, .trip-weather-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -622,6 +663,12 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
   .day-head { padding: 17px 15px 14px; }
   .day-weather small { max-width: 92px; }
   .pass-grid { grid-template-columns: 1fr; }
+  .transport-panel { padding: 22px 16px; }
+  .transport-panel-head { grid-template-columns: 1fr; gap: 12px; }
+  .transport-pass-grid { grid-template-columns: 1fr; }
+  .transport-plan-card { grid-template-columns: 1fr; gap: 12px; }
+  .transport-plan-actions { grid-column: auto; }
+  .transport-plan-main dl div { grid-template-columns: 72px minmax(0, 1fr); }
   .departure-panel { padding: 22px 16px; }
   .departure-panel > header { grid-template-columns: 1fr; gap: 8px; }
   .departure-panel > header .kicker, .departure-panel > header h2, .departure-panel > header p { grid-column: 1; grid-row: auto; }

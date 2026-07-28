@@ -9,6 +9,7 @@ const TOKYO_TEAMLAB_REPLAN_ID = "tokyo-teamlab-replan-2026-07-27-v1";
 const TOKYO_HEAT_ROUTE_REPLAN_ID = "tokyo-heat-route-replan-2026-07-27-v1";
 const FINAL_AUDIT_HEAT_REPLAN_ID = "final-audit-heat-replan-2026-07-27-v1";
 const RESTAURANT_CLOSURE_REPLAN_ID = "restaurant-closure-replan-2026-07-27-v1";
+const VERIFIED_TRANSPORT_PLAN_ID = "verified-transport-plan-2026-07-27-v1";
 const TOKYO_TEAMLAB_REPLAN_ITEMS = new Set([
   "t09start", "m09a", "a12", "a10", "t09a", "a9", "m09c", "t09b",
   "a09c", "m09b", "a09d", "ticket-tokyo-tower", "tk2", "a09b", "tk3",
@@ -34,6 +35,10 @@ const FINAL_AUDIT_HEAT_REPLAN_ITEMS = new Set([
 ]);
 const FINAL_AUDIT_HEAT_REMOVED_ITEMS = new Set([
   "a4", "tk8", "hr-bags", "m14a", "m14b", "m15b", "a36b", "miy-return", "m15c",
+]);
+const VERIFIED_TRANSPORT_ITEMS = new Set([
+  "pass-ic", "t1", "tkrail", "t2", "t3", "t10b", "pass-hakone", "t4", "t4b",
+  "t5", "pass-kansai", "t6b", "t6c", "t7", "t7b", "t8", "t9",
 ]);
 
 type D1Result<T = unknown> = {
@@ -538,6 +543,61 @@ async function applyRestaurantClosureReplan(row: StateRow) {
   );
 }
 
+async function applyVerifiedTransportPlan(row: StateRow) {
+  const db = database();
+  const applied = await db
+    .prepare("SELECT id FROM trip_migrations WHERE id = ?")
+    .bind(VERIFIED_TRANSPORT_PLAN_ID)
+    .first<{ id: string }>();
+  if (applied) return row;
+
+  const currentItems = JSON.parse(row.payload) as TripRecord[];
+  const current = new Map(currentItems.map((item) => [item.id, item]));
+  const canonical = new Map((seedItems as TripRecord[]).map((item) => [item.id, item]));
+  const liveBookingFields = ["ticketStatus", "confirmed", "confirmation", "cost", "quantity"];
+
+  for (const id of VERIFIED_TRANSPORT_ITEMS) {
+    const planned = canonical.get(id);
+    if (!planned) continue;
+    const live = current.get(id);
+    if (!live) {
+      current.set(id, planned);
+      continue;
+    }
+
+    const merged: TripRecord = { ...live, ...planned, id };
+    const hasLiveBooking = live.ticketStatus === "booked" || String(live.confirmation ?? "").trim().length > 0;
+    if (hasLiveBooking) {
+      for (const field of liveBookingFields) {
+        if (live[field] !== undefined) merged[field] = live[field];
+      }
+    }
+    delete merged.order;
+    current.set(id, merged);
+  }
+
+  const nextVersion = row.version + 1;
+  const update = await db
+    .prepare("UPDATE trip_state SET payload = ?, version = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND version = ?")
+    .bind(JSON.stringify([...current.values()]), nextVersion, "Transport audit", "family-trip", row.version)
+    .run();
+
+  if (update.meta?.changes) {
+    await db.batch([
+      db.prepare("INSERT OR IGNORE INTO trip_migrations (id) VALUES (?)").bind(VERIFIED_TRANSPORT_PLAN_ID),
+      db.prepare("INSERT INTO trip_history (version, action, changed_by) VALUES (?, ?, ?)")
+        .bind(nextVersion, "Verified airport and intercity train times, booking channels, passes, seats, views and luggage rules", "Transport audit"),
+    ]);
+  }
+
+  return (
+    (await db
+      .prepare("SELECT payload, version, updated_by, updated_at FROM trip_state WHERE id = ?")
+      .bind("family-trip")
+      .first<StateRow>()) ?? row
+  );
+}
+
 export async function readTrip() {
   await ensureTripSchema();
   const db = database();
@@ -570,6 +630,7 @@ export async function readTrip() {
   row = await applyTokyoHeatRouteReplan(row);
   row = await applyFinalAuditHeatReplan(row);
   row = await applyRestaurantClosureReplan(row);
+  row = await applyVerifiedTransportPlan(row);
   return {
     items: JSON.parse(row.payload),
     version: row.version,

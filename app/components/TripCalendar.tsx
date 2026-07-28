@@ -93,6 +93,7 @@ function itemImage(item: TripItem): LockedImage | null {
 const categories: Category[] = ["hotel", "transport", "attraction", "meal", "ticket", "note"];
 const preDepartureNow = new Set(["tkrail", "tk1", "tk2", "tk3", "ticket-tokyo-tower", "pass-hakone", "tk-oam", "pass-kansai", "tk-nijo", "t9"]);
 const preDepartureConfirm = new Set(["t07start", "t08start", "t10a", "lug2", "t6", "tk-miyajima-ropeway", "m16b", "t17a", "t18a", "m21b"]);
+const transportPlanIds = ["t1", "t2", "t3", "t4", "t4b", "t5", "t6b", "t6c", "t7", "t7b", "t8", "t9"];
 const days = Array.from({ length: 17 }, (_, index) => {
   const date = new Date("2026-08-06T12:00:00Z");
   date.setUTCDate(date.getUTCDate() + index);
@@ -359,7 +360,7 @@ export function TripCalendar() {
   const [name, setName] = useState("Family member");
   const [sync, setSync] = useState<"saved" | "saving" | "offline" | "error">("saved");
   const [syncMessage, setSyncMessage] = useState("");
-  const [activeTab, setActiveTab] = useState<"calendar" | "tickets" | "weather" | "route" | "history">("calendar");
+  const [activeTab, setActiveTab] = useState<"calendar" | "transport" | "tickets" | "weather" | "route" | "history">("calendar");
   const [mapDate, setMapDate] = useState(days[0]);
   const [mapMode, setMapMode] = useState<"day" | "master">("day");
   const [visible, setVisible] = useState<Set<Category>>(new Set(categories));
@@ -889,7 +890,7 @@ export function TripCalendar() {
       {locationMessage && <div className="notice saved">{locationMessage}</div>}
 
       <nav className="tabs" aria-label="Calendar sections">
-        {(["calendar", "tickets", "weather", "route", "history"] as const).map((tab) => (
+        {(["calendar", "transport", "tickets", "weather", "route", "history"] as const).map((tab) => (
           <button key={tab} className={activeTab === tab ? "active" : ""} onClick={() => setActiveTab(tab)}>{tab === "tickets" ? "Passes & tickets" : tab[0].toUpperCase() + tab.slice(1)}</button>
         ))}
       </nav>
@@ -978,6 +979,7 @@ export function TripCalendar() {
         </section>
       )}
 
+      {activeTab === "transport" && <TransportPanel items={items} onEdit={(item) => setDraft({ ...item })} />}
       {activeTab === "tickets" && <TicketsPanel items={ticketItems} onEdit={(item) => setDraft({ ...item })} />}
       {activeTab === "weather" && <WeatherPanel weather={weather} loading={weatherLoading} error={weatherError} onRefresh={loadWeather} />}
       {activeTab === "route" && <RoutePanel items={items} selectedDate={mapDate} onDateChange={setMapDate} mode={mapMode} onModeChange={setMapMode} />}
@@ -1054,6 +1056,49 @@ function WeatherPanel({ weather, loading, error, onRefresh }: { weather: Weather
       </div>
       <footer className="weather-credit">Current source: <a href={weather.providerUrl || "https://open-meteo.com/"} target="_blank" rel="noreferrer">{weather.provider} ↗</a>. Forecasts are guidance, not safety guarantees; follow local heat, typhoon and transport alerts.</footer>
     </>}
+  </section>;
+}
+
+function TransportPanel({ items, onEdit }: { items: TripItem[]; onEdit: (item: TripItem) => void }) {
+  const byId = new Map(items.map((item) => [item.id, item]));
+  const plan = transportPlanIds.map((id) => byId.get(id)).filter((item): item is TripItem => Boolean(item));
+  const bookingChannel = (id: string) => {
+    if (["t2", "t3", "t8"].includes(id)) return "Book in SmartEX";
+    if (["t5", "t7"].includes(id)) return "Reserve in JR West with pass";
+    if (id === "t9") return "Book in JR East / station office";
+    if (id === "t1") return "Buy after customs";
+    return "No advance reservation";
+  };
+  return <section className="transport-panel" aria-labelledby="transport-title">
+    <header className="transport-panel-head">
+      <div><div className="kicker">Verified booking plan</div><h2 id="transport-title">Trains, passes & best seats</h2></div>
+      <p>Long-distance times below match the published August 2026 timetable. Local services remain targets: check the live platform board for delays or service changes.</p>
+    </header>
+
+    <div className="transport-pass-grid">
+      <article><span>Buy digitally</span><h3>Hakone Freepass</h3><strong>4 adults · ¥24,000</strong><p>Odawara-origin two-day pass. Buy before Aug 10; use for bus, Tozan train, cable car and ropeway.</p><a href="https://www.hakonenavi.jp/international/en/discount_passes/free_pass" target="_blank" rel="noreferrer">Official pass ↗</a></article>
+      <article><span>Buy now</span><h3>Kansai–Hiroshima Area Pass</h3><strong>4 adults · ¥68,000</strong><p>Activate Aug 14–18. Covers Sanyo Shinkansen reservations, eligible regional JR trains and the JR Miyajima ferry.</p><a href="https://www.westjr.co.jp/travel-information/en/tickets-passes/jrwest-rail-pass/kansai_hiroshima/" target="_blank" rel="noreferrer">Buy / reserve with JR West ↗</a></article>
+      <article><span>Set up on arrival</span><h3>Four IC cards</h3><strong>One adult card each</strong><p>Use for local JR, subways, private rail and buses. They do not replace reserved Shinkansen or N’EX tickets.</p><a href="https://www.jreast.co.jp/en/multi/welcomesuica/welcomesuica.html" target="_blank" rel="noreferrer">Welcome Suica ↗</a></article>
+      <article className="skip"><span>Do not buy</span><h3>Unneeded passes</h3><strong>Save the money</strong><p>Skip the nationwide JR Pass, N’EX round-trip ticket, Tokyo Subway Pass, Osaka Amazing Pass and Kintetsu pass for this itinerary.</p></article>
+    </div>
+
+    <div className="transport-source-bar"><strong>Official booking sites</strong><a href="https://smart-ex.jp/en/index.php" target="_blank" rel="noreferrer">SmartEX ↗</a><a href="https://global.jr-central.co.jp/en/info/timetable/index.html" target="_blank" rel="noreferrer">JR Central timetable ↗</a><a href="https://www.jreast.co.jp/en/multi/nex/" target="_blank" rel="noreferrer">Narita Express ↗</a><a href="https://jr-miyajimaferry.co.jp/en/timetable/" target="_blank" rel="noreferrer">Miyajima ferry ↗</a></div>
+
+    <div className="transport-timeline">
+      {plan.map((item) => {
+        const guide = transportGuides[transportGuideByItem[item.id]] || transportGuides.metro;
+        const bookable = item.ticketStatus === "to-buy";
+        return <article className="transport-plan-card" key={item.id}>
+          <div className="transport-plan-time"><small>{dateLabel(item.date)}</small><strong>{item.time}</strong><span className={bookable ? "book" : "ride"}>{bookingChannel(item.id)}</span></div>
+          <div className="transport-plan-main"><h3>{item.title}</h3><p>{item.notes}</p>{item.fareDetails && <strong className="seat-summary">{item.fareDetails}</strong>}
+            <details><summary>Seats, luggage & backup</summary><dl><div><dt>Best seats</dt><dd>{guide.seats}</dd></div><div><dt>Luggage</dt><dd>{guide.luggage}</dd></div><div><dt>If delayed</dt><dd>{guide.fallback}</dd></div></dl></details>
+          </div>
+          <div className="transport-plan-actions">{item.link && <a href={item.link} target="_blank" rel="noreferrer">Official website ↗</a>}<button type="button" onClick={() => onEdit(item)}>{item.ticketStatus === "booked" ? "View confirmation" : "Add confirmation"}</button></div>
+        </article>;
+      })}
+    </div>
+
+    <aside className="transport-rule"><strong>Family seat rule</strong><p>All four travelers use adult rail fares. On ordinary Tokaido/Sanyo Shinkansen cars, request two consecutive D/E pairs—such as 12D/E and 13D/E. E is the Mount Fuji-side window on the Tokaido line. If any suitcase totals 161–250 cm across three dimensions, select “seat with oversized baggage area” while booking.</p><a href="https://smart-ex.jp/en/entraining/oversized-baggage/" target="_blank" rel="noreferrer">Official oversized-baggage rules ↗</a></aside>
   </section>;
 }
 

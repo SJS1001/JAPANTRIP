@@ -40,6 +40,10 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /Export backup/);
   assert.match(calendar, /Import backup/);
   assert.match(calendar, /Passes & tickets/);
+  assert.match(calendar, /Trains, passes & best seats/);
+  assert.match(calendar, /Book in SmartEX/);
+  assert.match(calendar, /Reserve in JR West with pass/);
+  assert.match(calendar, /Official oversized-baggage rules/);
   assert.match(calendar, /japanTripCloudCache/);
   assert.match(calendar, /OpenStreetMap route planner/);
   assert.match(calendar, /OpenTripMap/);
@@ -63,6 +67,9 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /not a medical guarantee/);
   assert.match(calendar, /More nearby/);
   assert.match(calendar, /Best seats & views/);
+  assert.match(seedText, /07:09–08:36 verified/);
+  assert.match(seedText, /10:09–11:27 verified/);
+  assert.match(store, /VERIFIED_TRANSPORT_PLAN_ID/);
   assert.match(calendar, /Weather & heat plan/);
   assert.match(calendar, /Current conditions refresh automatically every 30 minutes/);
   assert.match(calendar, /japanTripWeatherCache/);
