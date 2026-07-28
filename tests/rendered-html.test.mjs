@@ -3,7 +3,7 @@ import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("ships the protected shared family calendar", async () => {
-  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText, imageManifestText, cardGuides, restaurantGuidesText, weatherApi] = await Promise.all([
+  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText, imageManifestText, cardGuides, restaurantGuidesText, weatherApi, weatherStore] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TripCalendar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/OpenTripMap.tsx", import.meta.url), "utf8"),
@@ -18,6 +18,7 @@ test("ships the protected shared family calendar", async () => {
     readFile(new URL("../data/card-guides.ts", import.meta.url), "utf8"),
     readFile(new URL("../data/restaurant-guides.json", import.meta.url), "utf8"),
     readFile(new URL("../app/api/weather/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../db/weather-store.ts", import.meta.url), "utf8"),
   ]);
   const mergeAudit = JSON.parse(audit);
   const seed = JSON.parse(seedText);
@@ -61,12 +62,24 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /30 \* 60_000/);
   assert.match(calendar, /Forecast not open yet/);
   assert.match(calendar, /Extreme heat plan/);
-  assert.match(calendar, /Weather data by/);
+  assert.match(calendar, /Current source:/);
   assert.match(weatherApi, /api\.open-meteo\.com\/v1\/forecast/);
   assert.match(weatherApi, /forecast_days: "16"/);
   assert.match(weatherApi, /isAuthorized/);
   assert.match(weatherApi, /Asia\/Tokyo/);
   assert.match(weatherApi, /current: "temperature_2m/);
+  assert.match(weatherApi, /WEATHER_FRESH_MS/);
+  assert.match(weatherApi, /claimWeatherRefresh/);
+  assert.match(weatherApi, /response\.status !== 429/);
+  assert.match(weatherApi, /showing the last successful forecast/);
+  assert.match(weatherApi, /api\.met\.no\/weatherapi\/locationforecast\/2\.0\/compact/);
+  assert.match(weatherApi, /JapanFamilyTripCalendar\/1\.0/);
+  assert.match(weatherApi, /MET Norway fallback/);
+  assert.match(weatherStore, /CREATE TABLE IF NOT EXISTS weather_cache/);
+  assert.match(weatherStore, /CREATE TABLE IF NOT EXISTS weather_refresh_lock/);
+  assert.match(weatherStore, /INSERT OR REPLACE INTO weather_cache/);
+  assert.match(calendar, /25 \* 60_000/);
+  assert.doesNotMatch(calendar, /fetch\("\/api\/weather", \{ cache: "no-store" \}\)/);
   assert.doesNotMatch(weatherApi, /apikey|apiKey|API_KEY/);
 
   const byId = new Map(seed.map((item) => [item.id, item]));

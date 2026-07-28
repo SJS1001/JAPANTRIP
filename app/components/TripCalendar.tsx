@@ -73,7 +73,10 @@ type WeatherPayload = {
   timezone: string;
   forecastDays: number;
   provider: string;
+  providerUrl?: string;
   cities: WeatherCity[];
+  stale?: boolean;
+  warning?: string | null;
 };
 
 type LockedImage = { imageUrl: string; imageSource?: string; imageCredit?: string };
@@ -382,10 +385,11 @@ export function TripCalendar() {
     setWeatherLoading(true);
     setWeatherError("");
     try {
-      const response = await fetch("/api/weather", { cache: "no-store" });
+      const response = await fetch("/api/weather");
       const data = (await response.json()) as WeatherPayload & { error?: string };
       if (!response.ok) throw new Error(data.error || "Weather is temporarily unavailable.");
       setWeather(data);
+      setWeatherError(data.warning || "");
       localStorage.setItem("japanTripWeatherCache", JSON.stringify(data));
     } catch (error) {
       setWeatherError(error instanceof Error ? error.message : "Weather is temporarily unavailable.");
@@ -529,18 +533,20 @@ export function TripCalendar() {
   useEffect(() => {
     if (phase !== "ready") return;
     const cached = localStorage.getItem("japanTripWeatherCache");
+    let cacheIsFresh = false;
     if (cached) {
       try {
         const savedWeather = JSON.parse(cached) as WeatherPayload;
+        cacheIsFresh = Date.now() - Date.parse(savedWeather.generatedAt) < 25 * 60_000;
         queueMicrotask(() => setWeather(savedWeather));
       } catch {
         localStorage.removeItem("japanTripWeatherCache");
       }
     }
-    const initial = window.setTimeout(() => void loadWeather(), 0);
+    const initial = cacheIsFresh ? null : window.setTimeout(() => void loadWeather(), 0);
     const interval = window.setInterval(() => void loadWeather(), 30 * 60_000);
     return () => {
-      window.clearTimeout(initial);
+      if (initial !== null) window.clearTimeout(initial);
       window.clearInterval(interval);
     };
   }, [loadWeather, phase]);
@@ -1006,10 +1012,10 @@ function WeatherPanel({ weather, loading, error, onRefresh }: { weather: Weather
 
   return <section className="weather-panel">
     <header className="weather-head">
-      <div><div className="kicker">Live Japan conditions</div><h2>Weather & heat plan</h2><p>Current conditions refresh automatically every 30 minutes. Trip forecasts populate on a rolling 16-day window; later dates will appear automatically.</p></div>
+      <div><div className="kicker">Live Japan conditions</div><h2>Weather & heat plan</h2><p>Current conditions refresh automatically every 30 minutes. The primary forecast reaches up to 16 days; later trip dates will appear automatically.</p></div>
       <div><small>Updated {updated}</small><button type="button" onClick={() => void onRefresh()} disabled={loading}>{loading ? "Refreshing…" : "Refresh weather"}</button></div>
     </header>
-    {error && <div className="weather-error" role="alert">{error}{weather ? " Showing the last saved weather update." : " Try again in a moment."}</div>}
+    {error && <div className={weather ? "weather-warning" : "weather-error"} role="alert">{error}{weather ? "" : " Try again in a moment."}</div>}
     {!weather && loading && <div className="weather-loading">Loading current weather for the trip cities…</div>}
     {weather && <>
       <div className="weather-section-title"><div className="back-label">Right now</div><h3>Current conditions across the route</h3></div>
@@ -1041,7 +1047,7 @@ function WeatherPanel({ weather, loading, error, onRefresh }: { weather: Weather
           </article>;
         })}
       </div>
-      <footer className="weather-credit">Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo ↗</a> under CC BY 4.0. Forecasts are guidance, not safety guarantees; follow local heat, typhoon and transport alerts.</footer>
+      <footer className="weather-credit">Current source: <a href={weather.providerUrl || "https://open-meteo.com/"} target="_blank" rel="noreferrer">{weather.provider} ↗</a>. Forecasts are guidance, not safety guarantees; follow local heat, typhoon and transport alerts.</footer>
     </>}
   </section>;
 }

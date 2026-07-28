@@ -373,7 +373,8 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .weather-head small { color: var(--muted); font-size: 10px; }
 .weather-head button { min-height: 42px; padding: 0 14px; border: 1px solid var(--ink); background: var(--ink); color: white; cursor: pointer; font-size: 10px; font-weight: 800; text-transform: uppercase; }
 .weather-head button:disabled { cursor: wait; opacity: .55; }
-.weather-error, .weather-loading { margin-top: 18px; padding: 13px 15px; border-left: 3px solid var(--vermillion); background: rgb(183 65 45 / 7%); color: var(--vermillion-dark); font-size: 11px; }
+.weather-error, .weather-warning, .weather-loading { margin-top: 18px; padding: 13px 15px; border-left: 3px solid var(--vermillion); background: rgb(183 65 45 / 7%); color: var(--vermillion-dark); font-size: 11px; }
+.weather-warning { border-color: var(--gold); background: rgb(162 122 48 / 7%); color: #765818; }
 .weather-section-title { margin: 30px 0 15px; }
 .weather-section-title h3 { margin: 6px 0 0; font-family: var(--font-serif), serif; font-size: clamp(20px, 3vw, 29px); font-weight: 550; }
 .weather-section-title p { max-width: 820px; margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
