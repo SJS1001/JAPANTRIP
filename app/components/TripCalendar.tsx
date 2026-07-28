@@ -51,7 +51,7 @@ function itemImage(item: TripItem): LockedImage | null {
 
 const categories: Category[] = ["hotel", "transport", "attraction", "meal", "ticket", "note"];
 const preDepartureNow = new Set(["tkrail", "tk1", "tk2", "tk3", "ticket-tokyo-tower", "pass-hakone", "tk-oam", "pass-kansai", "tk-nijo", "t9"]);
-const preDepartureConfirm = new Set(["t07start", "t08start", "t10a", "tk4", "lug2", "m14b", "tk-miyajima-ropeway", "m16b", "t17a", "t18a", "m21b", "tk8"]);
+const preDepartureConfirm = new Set(["t07start", "t08start", "t10a", "lug2", "t6", "tk-miyajima-ropeway", "m16b", "t17a", "t18a", "m21b"]);
 const days = Array.from({ length: 17 }, (_, index) => {
   const date = new Date("2026-08-06T12:00:00Z");
   date.setUTCDate(date.getUTCDate() + index);
@@ -642,7 +642,7 @@ export function TripCalendar() {
   }
 
   const ticketItems = useMemo(
-    () => sortItems(items.filter((item) => item.category === "ticket" || item.ticketStatus === "to-buy")).sort((a, b) => a.date.localeCompare(b.date) || String(a.time).localeCompare(String(b.time))),
+    () => sortItems(items.filter((item) => item.category === "ticket" || (item.ticketStatus === "to-buy" && item.category !== "attraction"))).sort((a, b) => a.date.localeCompare(b.date) || String(a.time).localeCompare(String(b.time))),
     [items],
   );
 

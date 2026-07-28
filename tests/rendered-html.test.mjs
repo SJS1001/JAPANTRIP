@@ -80,7 +80,7 @@ test("ships the protected shared family calendar", async () => {
   assert.equal(mergeAudit.finalItems, 210);
   assert.equal(mergeAudit.mappedItems, 177);
   assert.deepEqual(mergeAudit.unresolved, []);
-  assert.equal(attractions.length, 85);
+  assert.equal(attractions.length, 83);
   assert.ok(attractions.every((item) => item.imageUrl && item.imageSource && item.imageCredit));
   assert.ok(attractions.every((item) => imageManifest[item.id]?.imageUrl));
   assert.ok(hotels.every((item) => imageManifest[item.id]?.imageUrl));
