@@ -875,15 +875,13 @@ export function TripCalendar() {
   return (
     <main className="shell">
       <header className="hero">
-        <div>
+        <div className="hero-copy">
           <div className="kicker">日本 · Shared family itinerary</div>
-          <h1>Japan, day by day</h1>
-          <p>One protected calendar for the whole family. Changes save to the shared trip memory automatically.</p>
-        </div>
-        <div className="hero-side">
-          <div className={`sync ${sync}`}><span />{sync === "saved" ? "Shared copy saved" : sync === "saving" ? "Saving…" : sync === "offline" ? "Offline copy" : "Needs attention"}</div>
-          <label>Editing as<input value={name} onChange={(event) => { setName(event.target.value); localStorage.setItem("japanTripFamilyName", event.target.value); }} maxLength={60} /></label>
-          <small>{updatedAt ? `Last saved by ${updatedBy} · ${new Date(updatedAt).toLocaleString()}` : `Shared version ${version}`}</small>
+          <h1>Japan 2026</h1>
+          <div className="hero-status">
+            <div className={`sync ${sync}`}><span />{sync === "saved" ? "Shared copy saved" : sync === "saving" ? "Saving…" : sync === "offline" ? "Offline copy" : "Needs attention"}</div>
+            <small>{updatedAt ? `Last saved by ${updatedBy} · ${new Date(updatedAt).toLocaleString()}` : `Shared version ${version}`}</small>
+          </div>
         </div>
       </header>
 
@@ -901,10 +899,17 @@ export function TripCalendar() {
           {categories.map((category) => <button key={category} className={visible.has(category) ? "active" : ""} onClick={() => setVisible((current) => { const next = new Set(current); if (next.has(category)) next.delete(category); else next.add(category); return next; })}>{category}</button>)}
         </div>
         <div className="spacer" />
-        <button className="button primary" onClick={() => setDraft(newItem())}>＋ Add item</button>
-        <button className="button" onClick={exportBackup}>Export backup</button>
-        <button className="button" onClick={() => importRef.current?.click()}>Import backup</button>
-        <input ref={importRef} className="sr-only" type="file" accept="application/json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.target.value = ""; }} />
+        <details className="settings-menu">
+          <summary aria-label="Open calendar settings"><span aria-hidden="true">⚙</span><b className="settings-label">Settings</b></summary>
+          <div className="settings-popover">
+            <div><span className="kicker">Calendar controls</span><strong>Settings</strong></div>
+            <label>Family member name<input value={name} onChange={(event) => { setName(event.target.value); localStorage.setItem("japanTripFamilyName", event.target.value); }} maxLength={60} /></label>
+            <button className="button primary" onClick={() => setDraft(newItem())}>＋ Add item</button>
+            <button className="button" onClick={exportBackup}>Export backup</button>
+            <button className="button" onClick={() => importRef.current?.click()}>Import backup</button>
+            <input ref={importRef} className="sr-only" type="file" accept="application/json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.target.value = ""; }} />
+          </div>
+        </details>
       </section>
 
       {activeTab === "calendar" && (

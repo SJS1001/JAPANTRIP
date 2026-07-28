@@ -1,5 +1,6 @@
 const PHOTO_CACHE = "japan-trip-attraction-photos";
 const PHOTO_PATH = "/images/attractions/";
+const LOCKED_THEME_ASSETS = new Set(["/japan-watercolor-pokemon.jpg"]);
 
 self.addEventListener("install", () => {
   // Control the current calendar as soon as the worker is ready. Photos are
@@ -18,7 +19,7 @@ self.addEventListener("fetch", (event) => {
   if (
     request.method !== "GET" ||
     url.origin !== self.location.origin ||
-    !url.pathname.startsWith(PHOTO_PATH)
+    !(url.pathname.startsWith(PHOTO_PATH) || LOCKED_THEME_ASSETS.has(url.pathname))
   ) {
     return;
   }

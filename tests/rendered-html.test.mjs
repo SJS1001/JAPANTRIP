@@ -32,6 +32,13 @@ test("ships the protected shared family calendar", async () => {
 
   assert.match(page, /TripCalendar/);
   assert.match(calendar, /Private family calendar/);
+  assert.match(calendar, /Japan 2026/);
+  assert.doesNotMatch(calendar, /Japan, day by day/);
+  assert.doesNotMatch(calendar, /One protected calendar for the whole family/);
+  assert.match(calendar, /Open calendar settings/);
+  assert.match(calendar, /Family member name/);
+  assert.match(calendar, /Export backup/);
+  assert.match(calendar, /Import backup/);
   assert.match(calendar, /Passes & tickets/);
   assert.match(calendar, /japanTripCloudCache/);
   assert.match(calendar, /OpenStreetMap route planner/);
@@ -101,6 +108,7 @@ test("ships the protected shared family calendar", async () => {
   const photoWorker = await readFile(new URL("../public/attraction-photo-cache.js", import.meta.url), "utf8");
   assert.match(cacheRegistration, /serviceWorker\.register\("\/attraction-photo-cache\.js"/);
   assert.match(photoWorker, /japan-trip-attraction-photos/);
+  assert.match(photoWorker, /japan-watercolor-pokemon\.jpg/);
   assert.match(photoWorker, /cache\.match\(request, \{ ignoreSearch: true \}\)/);
   assert.match(photoWorker, /cache\.put\(request, response\.clone\(\)\)/);
 

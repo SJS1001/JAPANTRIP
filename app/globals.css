@@ -130,22 +130,24 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 }
 
 .hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
-  gap: 32px;
-  align-items: end;
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(290px, 29vw, 430px);
+  display: flex;
+  align-items: center;
   padding: clamp(28px, 5vw, 72px) clamp(24px, 5vw, 76px);
   border-top: 4px solid var(--vermillion);
   border-bottom: 1px solid var(--line);
-  background: var(--card);
+  background:
+    linear-gradient(90deg, rgb(251 250 246 / 99%) 0%, rgb(251 250 246 / 96%) 38%, rgb(251 250 246 / 70%) 62%, rgb(251 250 246 / 8%) 100%),
+    url("/japan-watercolor-pokemon.jpg") right center / cover no-repeat,
+    var(--card);
 }
 
+.hero-copy { width: min(64%, 760px); }
 .hero h1 { font-size: clamp(44px, 7vw, 88px); line-height: .98; }
-.hero p { max-width: 660px; margin: 0; color: var(--muted); font-size: clamp(15px, 1.5vw, 19px); line-height: 1.65; }
-.hero-side { display: grid; gap: 10px; justify-items: start; }
-.hero-side label { width: 100%; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.hero-side input { margin-top: 6px; background: transparent; }
-.hero-side small { color: var(--muted); line-height: 1.5; }
+.hero-status { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: clamp(28px, 5vw, 52px); }
+.hero-status small { color: var(--muted); line-height: 1.5; }
 
 .sync {
   display: inline-flex;
@@ -199,6 +201,8 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .tabs button.active { border-color: var(--vermillion); color: var(--ink); }
 
 .toolbar {
+  position: relative;
+  z-index: 19;
   display: flex;
   gap: 8px;
   align-items: center;
@@ -231,6 +235,43 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .button.primary, .editor .primary { border-color: var(--vermillion); background: var(--vermillion); color: white; }
 .button:hover, .ticket-row button:hover, footer button:hover { border-color: var(--ink); }
 .button.primary:hover, .editor .primary:hover { background: var(--vermillion-dark); }
+
+.settings-menu { position: relative; flex: 0 0 auto; }
+.settings-menu > summary {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  user-select: none;
+}
+.settings-menu > summary::-webkit-details-marker { display: none; }
+.settings-menu > summary::marker { content: ""; }
+.settings-menu > summary span { font-size: 17px; line-height: 1; }
+.settings-menu[open] > summary { background: var(--vermillion); border-color: var(--vermillion); }
+.settings-popover {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 35;
+  width: min(300px, calc(100vw - 24px));
+  display: grid;
+  gap: 9px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--vermillion);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.settings-popover > div { display: grid; gap: 4px; margin-bottom: 4px; }
+.settings-popover > div strong { font-family: var(--font-serif), serif; font-size: 22px; font-weight: 500; }
+.settings-popover label { display: grid; gap: 6px; margin-bottom: 5px; color: var(--muted); font-size: 10px; font-weight: 700; }
+.settings-popover .button { width: 100%; min-height: 42px; text-align: left; }
 
 .calendar {
   display: grid;
@@ -548,9 +589,6 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 
 @media (max-width: 1120px) {
   .calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hero { grid-template-columns: 1fr; }
-  .hero-side { grid-template-columns: minmax(200px, 340px) minmax(200px, 1fr); align-items: end; }
-  .hero-side small { grid-column: 1 / -1; }
   .map-layout { grid-template-columns: 1fr; }
   .map-itinerary { max-height: 420px; }
   .current-weather-grid, .trip-weather-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -558,14 +596,24 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 
 @media (max-width: 760px) {
   .shell { padding: 0 12px 22px; }
-  .hero { margin: 0 -12px; padding: 33px 22px 28px; border-top-width: 3px; }
+  .hero {
+    min-height: 340px;
+    margin: 0 -12px;
+    padding: 33px 22px 28px;
+    border-top-width: 3px;
+    align-items: flex-start;
+    background:
+      linear-gradient(90deg, rgb(251 250 246 / 99%) 0%, rgb(251 250 246 / 94%) 54%, rgb(251 250 246 / 25%) 100%),
+      url("/japan-watercolor-pokemon.jpg") right center / auto 100% no-repeat,
+      var(--card);
+  }
+  .hero-copy { width: min(78%, 560px); }
   .hero h1 { font-size: clamp(42px, 15vw, 62px); }
-  .hero-side { grid-template-columns: 1fr; }
-  .hero-side small { grid-column: auto; }
+  .hero-status { display: grid; justify-items: start; margin-top: 24px; }
   .tabs { margin: 0 -12px; padding-left: 12px; padding-right: 12px; }
   .toolbar { align-items: stretch; }
   .toolbar .spacer { display: none; }
-  .toolbar > .button { flex: 1 1 auto; }
+  .settings-menu { margin-left: auto; }
   .filters { flex: 1 0 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
   .filters::-webkit-scrollbar { display: none; }
   .filters button { flex: 0 0 auto; }
@@ -606,6 +654,10 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 }
 
 @media (max-width: 430px) {
+  .hero { min-height: 315px; background-position: 70% center; }
+  .hero-copy { width: 86%; }
+  .hero-status small { font-size: 9px; }
+  .settings-label { display: none; }
   .day-head { align-items: start; }
   .day-head a, .day-map-button { max-width: 78px; text-align: right; }
   .day-weather { grid-template-columns: auto; justify-items: center; text-align: center; }
@@ -614,7 +666,7 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
   .current-weather-grid, .trip-weather-grid { grid-template-columns: 1fr; }
   .access-screen { padding: 14px; }
   .access-box { padding: 30px 22px; }
-  .toolbar > .button { font-size: 11px; }
+  .settings-menu > summary { min-width: 44px; justify-content: center; padding-inline: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
