@@ -3,7 +3,7 @@ import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("ships the protected shared family calendar", async () => {
-  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText, imageManifestText] = await Promise.all([
+  const [page, calendar, map, store, tripApi, statusApi, hosting, audit, baseline, seedText, imageManifestText, cardGuides] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/TripCalendar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/OpenTripMap.tsx", import.meta.url), "utf8"),
@@ -15,11 +15,13 @@ test("ships the protected shared family calendar", async () => {
     readFile(new URL("../data/cloud-baseline.json", import.meta.url), "utf8"),
     readFile(new URL("../data/seed.json", import.meta.url), "utf8"),
     readFile(new URL("../data/image-manifest.json", import.meta.url), "utf8"),
+    readFile(new URL("../data/card-guides.ts", import.meta.url), "utf8"),
   ]);
   const mergeAudit = JSON.parse(audit);
   const seed = JSON.parse(seedText);
   const attractions = seed.filter((item) => item.category === "attraction");
   const hotels = seed.filter((item) => item.category === "hotel");
+  const transports = seed.filter((item) => item.category === "transport");
   const imageManifest = JSON.parse(imageManifestText);
   const geocodeApi = await readFile(new URL("../app/api/geocode/route.ts", import.meta.url), "utf8");
 
@@ -37,6 +39,10 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /Pre-departure bookings/);
   assert.match(calendar, /Confirm before departure/);
   assert.match(calendar, /Completed/);
+  assert.match(calendar, /Tap for secrets, food & local tips/);
+  assert.match(calendar, /Tap for booking, seats & views/);
+  assert.match(calendar, /More nearby/);
+  assert.match(calendar, /Best seats & views/);
 
   const byId = new Map(seed.map((item) => [item.id, item]));
   assert.equal(byId.get("a9")?.time, "12:30 target · allow 2h");
@@ -84,6 +90,11 @@ test("ships the protected shared family calendar", async () => {
   assert.ok(attractions.every((item) => item.imageUrl && item.imageSource && item.imageCredit));
   assert.ok(attractions.every((item) => imageManifest[item.id]?.imageUrl));
   assert.ok(hotels.every((item) => imageManifest[item.id]?.imageUrl));
+  const areaMappings = cardGuides.slice(cardGuides.indexOf("export const areaByItem"), cardGuides.indexOf("export const transportGuides"));
+  const transportMappings = cardGuides.slice(cardGuides.indexOf("export const transportGuideByItem"));
+  const mapped = (block, id) => new RegExp(`(?:^|[,{\\s])(?:"${id}"|${id.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")})\\s*:`).test(block);
+  assert.ok([...attractions, ...hotels].every((item) => mapped(areaMappings, item.id)), "every attraction and hotel needs a nearby-area guide");
+  assert.ok(transports.every((item) => mapped(transportMappings, item.id)), "every transport card needs booking and seat guidance");
   await Promise.all(attractions.map((item) => access(new URL(`../public${item.imageUrl}`, import.meta.url))));
   assert.match(hosting, /"d1":\s*"DB"/);
   assert.doesNotMatch(page, /Your site is taking shape/);

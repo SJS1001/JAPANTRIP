@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { areaByItem, areaGuides, transportGuideByItem, transportGuides } from "../../data/card-guides";
 import lockedImageManifest from "../../data/image-manifest.json";
 import { OpenTripMap, type MapPoint } from "./OpenTripMap";
 
@@ -173,6 +174,10 @@ function distanceLabel(distance: number) {
 
 function directionsUrl(origin: string, destination: string, mode = "transit") {
   return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=${mode}`;
+}
+
+function mapsSearchUrl(query: string) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
 function newItem(): TripItem {
@@ -716,8 +721,11 @@ export function TripCalendar() {
                     const isFlipped = flipped === item.id;
                     const next = nextFrom(item);
                     const photo = itemImage(item);
+                    const areaGuide = areaGuides[areaByItem[item.id]];
+                    const transportGuide = transportGuides[transportGuideByItem[item.id]] || (item.category === "transport" ? transportGuides.metro : undefined);
+                    const canFlip = ["attraction", "hotel", "transport"].includes(item.category);
                     return (
-                      <div className={`item-card ${isFlipped ? "flipped" : ""} ${dragging === item.id ? "dragging" : ""}`} data-category={item.category} key={item.id} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); const rect = event.currentTarget.getBoundingClientRect(); event.currentTarget.dataset.dropEdge = event.clientY < rect.top + rect.height / 2 ? "before" : "after"; }} onDragLeave={(event) => { delete event.currentTarget.dataset.dropEdge; }} onDrop={(event) => { event.preventDefault(); event.stopPropagation(); const before = event.currentTarget.dataset.dropEdge !== "after"; delete event.currentTarget.dataset.dropEdge; dropOnItem(item, before); }} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (item.category === "attraction") setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
+                      <div className={`item-card ${isFlipped ? "flipped" : ""} ${dragging === item.id ? "dragging" : ""}`} data-category={item.category} key={item.id} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); const rect = event.currentTarget.getBoundingClientRect(); event.currentTarget.dataset.dropEdge = event.clientY < rect.top + rect.height / 2 ? "before" : "after"; }} onDragLeave={(event) => { delete event.currentTarget.dataset.dropEdge; }} onDrop={(event) => { event.preventDefault(); event.stopPropagation(); const before = event.currentTarget.dataset.dropEdge !== "after"; delete event.currentTarget.dataset.dropEdge; dropOnItem(item, before); }} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (canFlip) setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
                         {["attraction", "hotel"].includes(item.category) && photo && <figure className="card-photo">
                           {/* Local trip photos must bypass the unavailable hosted image optimizer. */}
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -730,11 +738,26 @@ export function TripCalendar() {
                           <div className="location">{item.location}</div>
                           {item.notes && <p>{item.notes}</p>}
                           <div className={`status ${item.ticketStatus || "not-needed"}`}><i />{item.ticketStatus === "booked" ? "Booked" : item.ticketStatus === "to-buy" ? "To buy / confirm" : "No advance ticket / conditional"}{item.quantity ? ` · ${item.quantity}` : ""}{item.cost ? ` · ${item.cost}` : ""}</div>
+                          {canFlip && <div className="flip-hint">{item.category === "transport" ? "Tap for booking, seats & views ↻" : "Tap for secrets, food & local tips ↻"}</div>}
                         </> : <>
-                          <div className="back-label">What you are seeing</div><h3>{item.title}</h3>
-                          <p>{descriptions[item.title] || (item.notes && !item.notes.startsWith("Click for") ? item.notes : `A planned stop in ${item.location || "Japan"}. Use the official link for the latest admission and visitor information.`)}</p>
-                          <div className="next-stop"><div className="back-label">Transport from this attraction</div><strong>{next ? next.title : `Return to ${dayHotel(date)}`}</strong><span>{next ? `${next.time || "Next"} · ${next.location || ""}` : "End of the planned route"}</span><a href={directionsUrl(`${item.title} ${item.location}`, next ? `${next.title} ${next.location}` : dayHotel(date))} target="_blank" rel="noreferrer">Open directions ↗</a></div>
+                          <div className="back-label">{item.category === "transport" ? "Booking intelligence" : item.category === "hotel" ? "Around your hotel" : "What you are seeing"}</div><h3>{item.title}</h3>
+                          {item.category !== "transport" && <p>{descriptions[item.title] || (item.notes && !item.notes.startsWith("Click for") ? item.notes : `A planned stop in ${item.location || "Japan"}. Use the official link for the latest admission and visitor information.`)}</p>}
+                          {areaGuide && <>
+                            <div className="local-tip"><div className="back-label">Insider move</div><p>{areaGuide.tip}</p></div>
+                            <div className="local-picks">
+                              {areaGuide.picks.slice(0, 2).map((pick) => <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">Find on Google Maps ↗</a></article>)}
+                              {areaGuide.picks.length > 2 && <details className="more-nearby"><summary>More nearby ({areaGuide.picks.length - 2})</summary>{areaGuide.picks.slice(2).map((pick) => <article className="local-pick" key={`${item.id}-${pick.kind}-${pick.name}`}><div><span>{pick.kind}{pick.when ? ` · ${pick.when}` : ""}</span><b>{pick.walk}</b></div><strong>{pick.name}</strong><p>{pick.detail}</p><a href={mapsSearchUrl(pick.query)} target="_blank" rel="noreferrer">Find on Google Maps ↗</a></article>)}</details>}
+                            </div>
+                          </>}
+                          {transportGuide && <div className="transport-guide">
+                            <article><div className="back-label">Booking & class</div><p>{transportGuide.booking}</p></article>
+                            <article><div className="back-label">Best seats & views</div><p>{transportGuide.seats}</p></article>
+                            <article><div className="back-label">Bags</div><p>{transportGuide.luggage}</p></article>
+                            <article><div className="back-label">If plans slip</div><p>{transportGuide.fallback}</p></article>
+                          </div>}
+                          {item.category === "attraction" && <div className="next-stop"><div className="back-label">Transport from this attraction</div><strong>{next ? next.title : `Return to ${dayHotel(date)}`}</strong><span>{next ? `${next.time || "Next"} · ${next.location || ""}` : "End of the planned route"}</span><a href={directionsUrl(`${item.title} ${item.location}`, next ? `${next.title} ${next.location}` : dayHotel(date))} target="_blank" rel="noreferrer">Open directions ↗</a></div>}
                           {item.link && <a className="official" href={item.link} target="_blank" rel="noreferrer">Official information ↗</a>}
+                          <button type="button" className="flip-back" onClick={() => setFlipped(null)}>Back to itinerary ↻</button>
                         </>}
                       </div>
                     );
