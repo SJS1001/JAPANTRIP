@@ -723,7 +723,7 @@ export function TripCalendar() {
                     const photo = itemImage(item);
                     const areaGuide = areaGuides[areaByItem[item.id]];
                     const transportGuide = transportGuides[transportGuideByItem[item.id]] || (item.category === "transport" ? transportGuides.metro : undefined);
-                    const canFlip = ["attraction", "hotel", "transport"].includes(item.category);
+                    const canFlip = ["attraction", "hotel", "transport", "meal"].includes(item.category);
                     return (
                       <div className={`item-card ${isFlipped ? "flipped" : ""} ${dragging === item.id ? "dragging" : ""}`} data-category={item.category} key={item.id} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); const rect = event.currentTarget.getBoundingClientRect(); event.currentTarget.dataset.dropEdge = event.clientY < rect.top + rect.height / 2 ? "before" : "after"; }} onDragLeave={(event) => { delete event.currentTarget.dataset.dropEdge; }} onDrop={(event) => { event.preventDefault(); event.stopPropagation(); const before = event.currentTarget.dataset.dropEdge !== "after"; delete event.currentTarget.dataset.dropEdge; dropOnItem(item, before); }} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (canFlip) setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
                         {["attraction", "hotel"].includes(item.category) && photo && <figure className="card-photo">
@@ -738,9 +738,9 @@ export function TripCalendar() {
                           <div className="location">{item.location}</div>
                           {item.notes && <p>{item.notes}</p>}
                           <div className={`status ${item.ticketStatus || "not-needed"}`}><i />{item.ticketStatus === "booked" ? "Booked" : item.ticketStatus === "to-buy" ? "To buy / confirm" : "No advance ticket / conditional"}{item.quantity ? ` · ${item.quantity}` : ""}{item.cost ? ` · ${item.cost}` : ""}</div>
-                          {canFlip && <div className="flip-hint">{item.category === "transport" ? "Tap for booking, seats & views ↻" : "Tap for secrets, food & local tips ↻"}</div>}
+                          {canFlip && <div className="flip-hint">{item.category === "transport" ? "Tap for booking, seats & views ↻" : item.category === "meal" ? "Tap for nearby restaurant choices ↻" : "Tap for secrets, food & local tips ↻"}</div>}
                         </> : <>
-                          <div className="back-label">{item.category === "transport" ? "Booking intelligence" : item.category === "hotel" ? "Around your hotel" : "What you are seeing"}</div><h3>{item.title}</h3>
+                          <div className="back-label">{item.category === "transport" ? "Booking intelligence" : item.category === "hotel" ? "Around your hotel" : item.category === "meal" ? "Eat nearby" : "What you are seeing"}</div><h3>{item.title}</h3>
                           {item.category !== "transport" && <p>{descriptions[item.title] || (item.notes && !item.notes.startsWith("Click for") ? item.notes : `A planned stop in ${item.location || "Japan"}. Use the official link for the latest admission and visitor information.`)}</p>}
                           {areaGuide && <>
                             <div className="local-tip"><div className="back-label">Insider move</div><p>{areaGuide.tip}</p></div>

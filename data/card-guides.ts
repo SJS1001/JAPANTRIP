@@ -147,6 +147,14 @@ export const areaGuides: Record<string, AreaGuide> = {
       { kind: "Top restaurant", name: "Owakudani Station Restaurant", detail: "Curry and simple hot meals; use only if the locked 14:40 departure remains safe.", walk: "At station", query: "Owakudani Station restaurant", when: "Late lunch" },
     ],
   },
+  odawara: {
+    tip: "Keep this buffer inside or immediately beside Odawara Station. Buy the train meal first, then use any remaining time for a local specialty—never trade away the Hikari 653 boarding margin.",
+    picks: [
+      { kind: "Top restaurant", name: "Odawara Oden Main Store", detail: "Local fish-cake oden in a calm setting; only suitable if the mountain route returns well ahead of schedule.", walk: "10–15 min", query: "Odawara Oden Main Store", when: "Early dinner" },
+      { kind: "Viral food", name: "Odawara fish-cake and ekiben shops", detail: "The safe option inside the station: choose kamaboko snacks or an ekiben before locating the Shinkansen platform.", walk: "Inside station", query: "Odawara Station ekiben kamaboko", when: "Dinner for train" },
+      { kind: "Coffee/sweets", name: "Minaka Odawara", detail: "Station-side food hall and terrace; use only after dinner and train supplies are secured.", walk: "2–4 min", query: "Minaka Odawara", when: "Snack" },
+    ],
+  },
   namba: {
     tip: "Hozenji’s moss-covered statue and narrow Ukiyo-kōji are the quiet counterpoint to Dotonbori’s neon.",
     picks: [
@@ -437,6 +445,16 @@ export const areaByItem: Record<string, string> = {
   h5: "shinjuku", a51: "shinjuku", a51b: "shinjuku", a52: "shinjuku", "tok-west-hanazono": "shinjuku",
   "tok-west-animate": "ikebukuro", "tok-west-sunshine": "ikebukuro", "tok-west-nakano": "nakano", "tok-west-koenji": "koenji",
   a56: "tsukiji", a57: "shiodome", a58: "ginza", "tok-imperial": "marunouchi", a59: "marunouchi",
+  m06: "shiomi", m07a: "asakusa", m07b: "akihabara", m07lunch: "skytree",
+  m08a: "harajuku", m08b: "shibuya", m08c: "shibuya", "tok-shibuya-dinner": "shibuya",
+  m09a: "shiomi", m09b: "roppongi", m09c: "toyosu",
+  m10a: "marunouchi", m10b: "hakone_museum", m10c: "odawara", m10d: "namba",
+  m11: "namba", m11b: "namba", m12a: "tenjinbashi", m12b: "tenjinbashi", m12c: "umeda",
+  m13a: "naramachi", m13b: "nara_park", "hr-lunch": "peace_park", "hr-dinner": "central_hiroshima",
+  m15a: "central_hiroshima", "miy-food": "miyajima", "miy-cool": "miyajima", "miy-dinner": "central_hiroshima",
+  m16a: "nijo", m16b: "nishiki", m17a: "fushimi", m17b: "higashiyama", m17c: "gion",
+  m18: "arashiyama", m18b: "nijo", m19a: "shinjuku", m19b: "shinjuku",
+  "tok-west-lunch": "ikebukuro", m21a: "azabudai", m21b: "shinjuku", m22: "shinjuku",
 };
 
 export const transportGuides: Record<string, TransportGuide> = {
