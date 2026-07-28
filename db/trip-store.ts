@@ -6,11 +6,20 @@ import seedItems from "../data/seed.json";
 type TripRecord = Record<string, unknown> & { id: string };
 const AUDITED_RESTORE_ID = "post-1am-open-map-restore-2026-07-22-v3-images";
 const TOKYO_TEAMLAB_REPLAN_ID = "tokyo-teamlab-replan-2026-07-27-v1";
+const TOKYO_HEAT_ROUTE_REPLAN_ID = "tokyo-heat-route-replan-2026-07-27-v1";
 const TOKYO_TEAMLAB_REPLAN_ITEMS = new Set([
   "t09start", "m09a", "a12", "a10", "t09a", "a9", "m09c", "t09b",
   "a09c", "m09b", "a09d", "ticket-tokyo-tower", "tk2", "a09b", "tk3",
   "t21borderless", "m21a", "a58", "a59", "tok-imperial", "a59b", "m21b",
 ]);
+const TOKYO_HEAT_ROUTE_REPLAN_ITEMS = new Set([
+  "a1b", "a4", "m07a", "a1c", "a1d", "a2", "tok-ueno-park", "tok-ameyoko", "a55", "a61",
+  "m08b", "m08c", "tok-shibuya-dinner", "a8", "a8b",
+  "a51", "a51b", "a52",
+  "tok-west-sunshine", "tok-west-lunch", "tok-west-to-nakano", "tok-west-nakano", "tok-west-to-koenji", "tok-west-koenji",
+  "a59", "tok-imperial",
+]);
+const TOKYO_HEAT_ROUTE_REMOVED_ITEMS = new Set(["t20start", "m20", "m20b", "a59b"]);
 
 type D1Result<T = unknown> = {
   results?: T[];
@@ -349,6 +358,67 @@ async function applyTokyoTeamlabReplan(row: StateRow) {
   );
 }
 
+async function applyTokyoHeatRouteReplan(row: StateRow) {
+  const db = database();
+  const applied = await db
+    .prepare("SELECT id FROM trip_migrations WHERE id = ?")
+    .bind(TOKYO_HEAT_ROUTE_REPLAN_ID)
+    .first<{ id: string }>();
+  if (applied) return row;
+
+  const currentItems = JSON.parse(row.payload) as TripRecord[];
+  const current = new Map(currentItems.map((item) => [item.id, item]));
+  const canonical = new Map((seedItems as TripRecord[]).map((item) => [item.id, item]));
+  const preservedBookingFields = ["ticketStatus", "confirmed", "confirmation", "cost", "quantity", "fareDetails"];
+
+  for (const id of TOKYO_HEAT_ROUTE_REPLAN_ITEMS) {
+    const planned = canonical.get(id);
+    if (!planned) continue;
+    const live = current.get(id);
+    if (!live) {
+      current.set(id, planned);
+      continue;
+    }
+    const merged: TripRecord = { ...live, ...planned, id };
+    for (const field of preservedBookingFields) {
+      if (live[field] !== undefined) merged[field] = live[field];
+    }
+    delete merged.order;
+    current.set(id, merged);
+  }
+
+  for (const id of TOKYO_HEAT_ROUTE_REMOVED_ITEMS) current.delete(id);
+  for (const item of current.values()) {
+    if (["2026-08-07", "2026-08-08", "2026-08-19", "2026-08-20", "2026-08-21"].includes(String(item.date))) {
+      delete item.order;
+    }
+  }
+
+  const replannedItems = [...current.values()];
+  const nextVersion = row.version + 1;
+  const update = await db
+    .prepare(
+      "UPDATE trip_state SET payload = ?, version = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND version = ?",
+    )
+    .bind(JSON.stringify(replannedItems), nextVersion, "Trip planner", "family-trip", row.version)
+    .run();
+
+  if (update.meta?.changes) {
+    await db.batch([
+      db.prepare("INSERT OR IGNORE INTO trip_migrations (id) VALUES (?)").bind(TOKYO_HEAT_ROUTE_REPLAN_ID),
+      db.prepare("INSERT INTO trip_history (version, action, changed_by) VALUES (?, ?, ?)")
+        .bind(nextVersion, "Reordered Tokyo days for heat, route efficiency and Shibuya Bon Odori", "Trip planner"),
+    ]);
+  }
+
+  return (
+    (await db
+      .prepare("SELECT payload, version, updated_by, updated_at FROM trip_state WHERE id = ?")
+      .bind("family-trip")
+      .first<StateRow>()) ?? row
+  );
+}
+
 export async function readTrip() {
   await ensureTripSchema();
   const db = database();
@@ -378,6 +448,7 @@ export async function readTrip() {
   if (!row) throw new Error("The trip could not be initialized.");
   row = await restoreAuditedBackups(row);
   row = await applyTokyoTeamlabReplan(row);
+  row = await applyTokyoHeatRouteReplan(row);
   return {
     items: JSON.parse(row.payload),
     version: row.version,
