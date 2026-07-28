@@ -523,10 +523,10 @@ export const transportGuides: Record<string, TransportGuide> = {
     fallback: "Have GO and Uber Taxi installed, plus the hotel front desk as backup. Leave 10–15 minutes of dispatch buffer.",
   },
   forwarding: {
-    booking: "Arrange at the hotel desk before the stated cutoff and write the next hotel’s full Japanese address, guest name and check-in date.",
+    booking: "Arrange at the hotel desk before the stated cutoff. For a hotel delivery, Yamato says to send before the cutoff at least two days before check-in. Prepay and write the receiving hotel’s full address and telephone number, exact reservation name and check-in date; APA does not accept cash-on-delivery.",
     seats: "Not applicable—this service protects your train and sightseeing comfort.",
-    luggage: "Photograph every waybill and keep medication, one change of clothes and valuables in the overnight bag.",
-    fallback: "If next-day delivery is not guaranteed during Obon, send one day earlier or use station lockers/limited bags instead.",
+    luggage: "Photograph every waybill and tracking number. Keep passports, medication, electronics, valuables, chargers and enough clothing through delivery in the overnight bag.",
+    fallback: "If the hotel cannot guarantee the requested arrival during Obon, send earlier or travel with only the affected bag. Never risk the fixed Hakone Shinkansen connection for luggage handling.",
   },
 };
 
@@ -538,6 +538,6 @@ export const transportGuideByItem: Record<string, string> = {
   t10b: "hakone_local", t10c: "hakone_local", t10d: "hakone_local", t10e: "hakone_local", t10f: "hakone_local",
   t6b: "miyajima", t6c: "miyajima",
   t07start: "taxi", t08start: "taxi", t10a: "taxi", t5b: "taxi", t6: "taxi", t7a: "taxi", t7c: "taxi", t17a: "taxi", t18a: "taxi", t8a: "taxi", t9a: "taxi",
-  lug2: "forwarding",
+  "hk-luggage": "forwarding", lug2: "forwarding",
   t1b: "metro", t09start: "metro", t09a: "metro", t09b: "metro", t10g: "metro", t11start: "metro", t12start: "metro", t13start: "metro", t4walk: "metro", t14start: "metro", t15walk: "metro", t7b: "metro", t7d: "metro", t7e: "metro", t17return: "metro", t18b: "metro", t18c: "metro", t8b: "metro", "tok-west-to-ike": "metro", "tok-west-to-nakano": "metro", "tok-west-to-koenji": "metro", "tok-west-return": "metro", t21start: "metro", t21borderless: "taxi",
 };

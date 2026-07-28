@@ -92,8 +92,8 @@ function itemImage(item: TripItem): LockedImage | null {
 
 const categories: Category[] = ["hotel", "transport", "attraction", "meal", "ticket", "note"];
 const preDepartureNow = new Set(["tkrail", "tk1", "tk2", "tk3", "ticket-tokyo-tower", "pass-hakone", "tk-oam", "pass-kansai", "tk-nijo", "t9"]);
-const preDepartureConfirm = new Set(["t07start", "t08start", "t10a", "lug2", "t6", "tk-miyajima-ropeway", "m16b", "t17a", "t18a", "m21b"]);
-const transportPlanIds = ["t1", "t2", "t3", "t4", "t4b", "t5", "t6b", "t6c", "t7", "t7b", "t8", "t9"];
+const preDepartureConfirm = new Set(["t07start", "t08start", "hk-luggage", "t10a", "lug2", "t6", "tk-miyajima-ropeway", "m16b", "t17a", "t18a", "m21b"]);
+const transportPlanIds = ["t1", "hk-luggage", "t2", "t3", "t4", "t4b", "t5", "t6b", "t6c", "t7", "t7b", "t8", "t9"];
 const days = Array.from({ length: 17 }, (_, index) => {
   const date = new Date("2026-08-06T12:00:00Z");
   date.setUTCDate(date.getUTCDate() + index);
@@ -1063,6 +1063,7 @@ function TransportPanel({ items, onEdit }: { items: TripItem[]; onEdit: (item: T
   const byId = new Map(items.map((item) => [item.id, item]));
   const plan = transportPlanIds.map((id) => byId.get(id)).filter((item): item is TripItem => Boolean(item));
   const bookingChannel = (id: string) => {
+    if (id === "hk-luggage") return "Arrange at Shiomi Prince desk";
     if (["t2", "t3", "t8"].includes(id)) return "Book in SmartEX";
     if (["t5", "t7"].includes(id)) return "Reserve in JR West with pass";
     if (id === "t9") return "Book in JR East / station office";

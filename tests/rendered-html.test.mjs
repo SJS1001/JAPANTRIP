@@ -69,7 +69,9 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /Best seats & views/);
   assert.match(seedText, /07:09–08:36 verified/);
   assert.match(seedText, /10:09–11:27 verified/);
+  assert.match(calendar, /Arrange at Shiomi Prince desk/);
   assert.match(store, /VERIFIED_TRANSPORT_PLAN_ID/);
+  assert.match(store, /tokyo-osaka-luggage-forwarding-2026-07-28-v1/);
   assert.match(calendar, /Weather & heat plan/);
   assert.match(calendar, /Current conditions refresh automatically every 30 minutes/);
   assert.match(calendar, /japanTripWeatherCache/);
@@ -97,6 +99,10 @@ test("ships the protected shared family calendar", async () => {
   assert.doesNotMatch(weatherApi, /apikey|apiKey|API_KEY/);
 
   const byId = new Map(seed.map((item) => [item.id, item]));
+  assert.equal(byId.get("hk-luggage")?.date, "2026-08-08");
+  assert.equal(byId.get("hk-luggage")?.category, "transport");
+  assert.match(byId.get("hk-luggage")?.fareDetails || "", /Size 160 \/ ≤25 kg ¥2,630/);
+  assert.match(byId.get("hk-luggage")?.notes || "", /at least two days/);
   assert.equal(byId.get("a9")?.time, "12:30 target · allow 2h");
   assert.equal(byId.get("a09b")?.date, "2026-08-21");
   assert.equal(byId.get("a09b")?.time, "11:30 target · allow 2h");
