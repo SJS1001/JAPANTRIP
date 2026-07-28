@@ -1088,9 +1088,10 @@ function TransportPanel({ items, onEdit }: { items: TripItem[]; onEdit: (item: T
     <div className="transport-timeline">
       {plan.map((item) => {
         const guide = transportGuides[transportGuideByItem[item.id]] || transportGuides.metro;
+        const booked = item.ticketStatus === "booked";
         const bookable = item.ticketStatus === "to-buy";
         return <article className="transport-plan-card" key={item.id}>
-          <div className="transport-plan-time"><small>{dateLabel(item.date)}</small><strong>{item.time}</strong><span className={bookable ? "book" : "ride"}>{bookingChannel(item.id)}</span></div>
+          <div className="transport-plan-time"><small>{dateLabel(item.date)}</small><strong>{item.time}</strong><span className={booked ? "booked" : bookable ? "book" : "ride"}>{booked ? "Booked" : bookingChannel(item.id)}</span></div>
           <div className="transport-plan-main"><h3>{item.title}</h3><p>{item.notes}</p>{item.fareDetails && <strong className="seat-summary">{item.fareDetails}</strong>}
             <details><summary>Seats, luggage & backup</summary><dl><div><dt>Best seats</dt><dd>{guide.seats}</dd></div><div><dt>Luggage</dt><dd>{guide.luggage}</dd></div><div><dt>If delayed</dt><dd>{guide.fallback}</dd></div></dl></details>
           </div>
