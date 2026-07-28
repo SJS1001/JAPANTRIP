@@ -492,6 +492,12 @@ export const transportGuides: Record<string, TransportGuide> = {
     luggage: "Overnight bags fit overhead. Keep the Kyoto forwarding receipt accessible in case the main luggage has not arrived.",
     fallback: "Use the 07:18 service if the target is unavailable; keep enough Shin-Osaka transfer time for a frequent Special Rapid.",
   },
+  kyoto_special_rapid: {
+    booking: "Nothing to reserve. After Nozomi 2 arrives at 08:28, exit the Shinkansen area, follow JR Lines / JR Kyoto Line, and look for 新快速 (Special Rapid) 3422M: Shin-Osaka 08:49 → Kyoto 09:14, normally from platform 5. It is included with the Kansai–Hiroshima Area Pass.",
+    seats: "This is an ordinary non-reserved commuter train. Board promptly and take any four available seats; sitting together is not guaranteed during Obon. The destination display reads 近江今津 (Omi-Imazu).",
+    luggage: "Keep overnight bags together and move directly to the conventional-line platform. Main luggage should already have been forwarded to Kyoto.",
+    fallback: "If 08:49 is missed, take the next JR Kyoto Line Special Rapid shown as 新快速. Do not substitute Nozomi 80 at 08:45: the Tokaido Shinkansen Shin-Osaka–Kyoto segment is outside the pass and costs extra.",
+  },
   kintetsu: {
     booking: "The planned semi-express/rapid trains are ordinary commuter services—no reservation or class choice. Tap an IC card for each traveller.",
     seats: "Board at Osaka-Namba early and take any four seats together. There is no meaningful best-view side; comfort matters before the long Nara day.",
@@ -546,5 +552,6 @@ export const transportGuideByItem: Record<string, string> = {
   "jr-pass-pickup": "jr_pass_pickup",
   t07start: "taxi", t08start: "taxi", t10a: "taxi", t5b: "taxi", t6: "taxi", t7a: "taxi", t7c: "taxi", t17a: "taxi", t18a: "taxi", t8a: "taxi", t9a: "taxi",
   "hk-luggage": "forwarding", lug2: "forwarding",
-  t1b: "metro", t09start: "metro", t09a: "metro", t09b: "metro", t10g: "metro", t11start: "metro", t12start: "metro", t13start: "metro", t4walk: "metro", t14start: "metro", t15walk: "metro", t7b: "metro", t7d: "metro", t7e: "metro", t17return: "metro", t18b: "metro", t18c: "metro", t8b: "metro", "tok-west-to-ike": "metro", "tok-west-to-nakano": "metro", "tok-west-to-koenji": "metro", "tok-west-return": "metro", t21start: "metro", t21borderless: "taxi",
+  t7b: "kyoto_special_rapid",
+  t1b: "metro", t09start: "metro", t09a: "metro", t09b: "metro", t10g: "metro", t11start: "metro", t12start: "metro", t13start: "metro", t4walk: "metro", t14start: "metro", t15walk: "metro", t7d: "metro", t7e: "metro", t17return: "metro", t18b: "metro", t18c: "metro", t8b: "metro", "tok-west-to-ike": "metro", "tok-west-to-nakano": "metro", "tok-west-to-koenji": "metro", "tok-west-return": "metro", t21start: "metro", t21borderless: "taxi",
 };

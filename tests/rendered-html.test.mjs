@@ -110,6 +110,12 @@ test("ships the protected shared family calendar", async () => {
   assert.equal(byId.get("m09b")?.title, "Dinner after Tokyo Tower");
   assert.equal(byId.get("hr-lunch")?.location, "Caffè Ponte, Hiroshima");
   assert.match(byId.get("hr-lunch")?.notes || "", /Nagata-ya.*closed/);
+  assert.equal(byId.get("t7b")?.time, "08:49–09:14 verified");
+  assert.match(byId.get("t7b")?.notes || "", /新快速 \(Special Rapid\).*platform 5.*近江今津/s);
+  assert.match(byId.get("t7b")?.notes || "", /will not appear in the JR West Shinkansen reservation screen/);
+  assert.match(byId.get("t7b")?.link || "", /train-timetable\/173531\?date=20260816/);
+  assert.match(cardGuides, /kyoto_special_rapid/);
+  assert.match(store, /shin-osaka-kyoto-special-rapid-2026-07-28-v1/);
   assert.match(calendar, /card-photo/);
   assert.match(calendar, /imageCredit/);
   assert.match(calendar, /<img src=\{photo\.imageUrl\}/);
