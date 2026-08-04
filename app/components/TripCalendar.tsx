@@ -91,6 +91,7 @@ function itemImage(item: TripItem): LockedImage | null {
 }
 
 const categories: Category[] = ["hotel", "transport", "attraction", "meal", "ticket", "note"];
+const categoryLongPressMs = 500;
 const preDepartureNow = new Set(["tkrail", "tk1", "tk2", "tk3", "ticket-tokyo-tower", "pass-hakone", "tk-oam", "pass-kansai", "tk-nijo", "t9"]);
 const preDepartureConfirm = new Set(["t07start", "t08start", "hk-luggage", "t10a", "lug2", "t6", "tk-miyajima-ropeway", "m16b", "t17a", "t18a", "m21b"]);
 const transportPlanIds = ["t1", "hk-luggage", "t2", "t3", "t4", "t4b", "t5", "t6b", "t6c", "t7", "t7b", "t8", "t9"];
@@ -98,6 +99,15 @@ const days = Array.from({ length: 17 }, (_, index) => {
   const date = new Date("2026-08-06T12:00:00Z");
   date.setUTCDate(date.getUTCDate() + index);
   return date.toISOString().slice(0, 10);
+});
+const japanDateTimeFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Tokyo",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
 });
 
 const hotelSchedule = [
@@ -107,6 +117,109 @@ const hotelSchedule = [
   ["2026-08-16", "KOKO Kyoto Nijo Castle", "h4"],
   ["2026-08-19", "Cava House Shinjuku", "h5"],
 ] as const;
+
+function japanDateTime(now = new Date()) {
+  const parts = japanDateTimeFormatter.formatToParts(now);
+  const value = (type: "year" | "month" | "day" | "hour" | "minute") => parts.find((part) => part.type === type)?.value || "";
+  return {
+    date: `${value("year")}-${value("month")}-${value("day")}`,
+    minutes: Number(value("hour")) * 60 + Number(value("minute")),
+  };
+}
+
+function itemStartMinutes(time?: string) {
+  const match = time?.match(/\b([01]\d|2[0-3]):([0-5]\d)\b/);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+}
+
+function currentCalendarFocus(items: TripItem[], now = new Date()) {
+  const japanNow = japanDateTime(now);
+  const firstDay = days[0];
+  const lastDay = days[days.length - 1];
+  const date = japanNow.date < firstDay ? firstDay : japanNow.date > lastDay ? lastDay : japanNow.date;
+  const isToday = date === japanNow.date;
+  if (!isToday) return { date, isToday, itemId: undefined as string | undefined };
+
+  let currentItem: TripItem | undefined;
+  let latestStart = -1;
+  for (const item of items) {
+    if (item.date !== date || !item.location?.trim() || ["ticket", "note"].includes(item.category)) continue;
+    const start = itemStartMinutes(item.time);
+    if (start !== null && start <= japanNow.minutes && start >= latestStart) {
+      currentItem = item;
+      latestStart = start;
+    }
+  }
+  return { date, isToday, itemId: currentItem?.id };
+}
+
+function CategoryFilterButton({
+  category,
+  active,
+  exclusive,
+  onToggle,
+  onExclusive,
+}: {
+  category: Category;
+  active: boolean;
+  exclusive: boolean;
+  onToggle: () => void;
+  onExclusive: () => void;
+}) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startRef = useRef({ x: 0, y: 0 });
+  const suppressClickRef = useRef(false);
+  const cancelLongPress = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
+  }, []);
+
+  useEffect(() => cancelLongPress, [cancelLongPress]);
+
+  return <button
+    type="button"
+    className={`${active ? "active" : ""} ${exclusive ? "exclusive" : ""}`.trim()}
+    aria-pressed={active}
+    aria-label={`${category}: tap to toggle, press and hold to show only ${category}`}
+    title={`Tap to toggle · press and hold to show only ${category}`}
+    onPointerDown={(event) => {
+      if (!event.isPrimary || event.button !== 0) return;
+      cancelLongPress();
+      suppressClickRef.current = false;
+      startRef.current = { x: event.clientX, y: event.clientY };
+      timerRef.current = setTimeout(() => {
+        suppressClickRef.current = true;
+        onExclusive();
+        timerRef.current = null;
+      }, categoryLongPressMs);
+    }}
+    onPointerMove={(event) => {
+      if (Math.hypot(event.clientX - startRef.current.x, event.clientY - startRef.current.y) > 10) cancelLongPress();
+    }}
+    onPointerUp={cancelLongPress}
+    onPointerCancel={cancelLongPress}
+    onPointerLeave={cancelLongPress}
+    onContextMenu={(event) => {
+      event.preventDefault();
+      cancelLongPress();
+      onExclusive();
+    }}
+    onKeyDown={(event) => {
+      if (event.shiftKey && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        onExclusive();
+      }
+    }}
+    onClick={(event) => {
+      if (suppressClickRef.current) {
+        suppressClickRef.current = false;
+        return;
+      }
+      if (event.shiftKey) onExclusive();
+      else onToggle();
+    }}
+  >{category}</button>;
+}
 
 const descriptions: Record<string, string> = {
   "Senso-ji Temple & Nakamise": "Tokyo’s oldest temple district: the Kaminarimon gate, incense-filled main hall and traditional Nakamise shopping street.",
@@ -363,7 +476,7 @@ export function TripCalendar() {
   const [activeTab, setActiveTab] = useState<"calendar" | "transport" | "tickets" | "weather" | "route" | "history">("calendar");
   const [mapDate, setMapDate] = useState(days[0]);
   const [mapMode, setMapMode] = useState<"day" | "master">("day");
-  const [visible, setVisible] = useState<Set<Category>>(new Set(categories));
+  const [visible, setVisible] = useState<Set<Category>>(() => new Set(categories));
   const [flipped, setFlipped] = useState<string | null>(null);
   const [draft, setDraft] = useState<TripItem | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
@@ -381,6 +494,11 @@ export function TripCalendar() {
   const locatingRef = useRef(false);
   const saveChain = useRef(Promise.resolve());
   const importRef = useRef<HTMLInputElement>(null);
+  const dayRefs = useRef<Map<string, HTMLElement> | null>(null);
+  const itemRefs = useRef<Map<string, HTMLDivElement> | null>(null);
+  const shouldFocusCalendarRef = useRef(true);
+  dayRefs.current ??= new Map();
+  itemRefs.current ??= new Map();
 
   const loadWeather = useCallback(async () => {
     setWeatherLoading(true);
@@ -850,6 +968,24 @@ export function TripCalendar() {
     });
     return forecast;
   }, [weather]);
+  const calendarFocus = currentCalendarFocus(items);
+
+  useEffect(() => {
+    if (activeTab !== "calendar") {
+      shouldFocusCalendarRef.current = true;
+      return;
+    }
+    if (phase !== "ready" || !items.length || !shouldFocusCalendarRef.current) return;
+    shouldFocusCalendarRef.current = false;
+    const frame = requestAnimationFrame(() => {
+      const focus = currentCalendarFocus(items);
+      const target = (focus.itemId ? itemRefs.current?.get(focus.itemId) : null) || dayRefs.current?.get(focus.date);
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      target?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start", inline: "nearest" });
+      setMapDate(focus.date);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [activeTab, items, phase]);
 
   if (phase === "loading") {
     return <main className="access-screen"><div className="access-box"><div className="kicker">日本 · Family itinerary</div><h1>Opening the family calendar…</h1><p>Loading the latest shared copy.</p></div></main>;
@@ -896,8 +1032,18 @@ export function TripCalendar() {
       </nav>
 
       <section className="toolbar">
-        <div className="filters" aria-label="Show categories">
-          {categories.map((category) => <button key={category} className={visible.has(category) ? "active" : ""} onClick={() => setVisible((current) => { const next = new Set(current); if (next.has(category)) next.delete(category); else next.add(category); return next; })}>{category}</button>)}
+        <div className="filter-control">
+          <div className="filters" aria-label="Show categories">
+            {categories.map((category) => <CategoryFilterButton
+              key={category}
+              category={category}
+              active={visible.has(category)}
+              exclusive={visible.size === 1 && visible.has(category)}
+              onToggle={() => setVisible((current) => { const next = new Set(current); if (next.has(category)) next.delete(category); else next.add(category); return next; })}
+              onExclusive={() => setVisible(new Set([category]))}
+            />)}
+          </div>
+          <small className="filter-hint">Tap to toggle · press and hold to show only one</small>
         </div>
         <div className="spacer" />
         <details className="settings-menu">
@@ -908,7 +1054,7 @@ export function TripCalendar() {
             <button className="button primary" onClick={() => setDraft(newItem())}>＋ Add item</button>
             <button className="button" onClick={exportBackup}>Export backup</button>
             <button className="button" onClick={() => importRef.current?.click()}>Import backup</button>
-            <input ref={importRef} className="sr-only" type="file" accept="application/json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.target.value = ""; }} />
+            <input ref={importRef} className="sr-only" type="file" accept="application/json" aria-label="Choose itinerary backup to import" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.target.value = ""; }} />
           </div>
         </details>
       </section>
@@ -919,9 +1065,17 @@ export function TripCalendar() {
             const dayItems = sortItems(items.filter((item) => item.date === date && visible.has(item.category)));
             const dayWeather = weatherByDate.get(date);
             const condition = weatherCondition(dayWeather?.weatherCode ?? null);
+            const isFocusedDay = calendarFocus.date === date;
             return (
-              <article className="day" key={date} onDragOver={(event) => event.preventDefault()} onDrop={() => dropOnDay(date)}>
-                <header className="day-head"><div><small>{dateLabel(date).split(",")[0]}</small><h2>{dateLabel(date).replace(/^[^,]+,\s*/, "")}</h2><span>{dayHotel(date)}</span></div><div className="day-head-actions">{dayWeather && <button className="day-weather" onClick={() => setActiveTab("weather")} aria-label={`Open weather for ${dateLabel(date)}`}><span aria-hidden="true">{condition.icon}</span><strong>{weatherNumber(dayWeather.temperatureMax)}</strong><small>{dayWeather.cityName} · rain {weatherNumber(dayWeather.precipitationProbability, "%")}</small></button>}<button className="day-map-button" onClick={() => { setMapDate(date); setMapMode("day"); setActiveTab("route"); }}>Open map ↗</button></div></header>
+              <article
+                className={`day ${isFocusedDay ? "focused-day" : ""}`}
+                key={date}
+                ref={(element) => { if (element) dayRefs.current?.set(date, element); else dayRefs.current?.delete(date); }}
+                aria-current={calendarFocus.isToday && isFocusedDay ? "date" : undefined}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={() => dropOnDay(date)}
+              >
+                <header className="day-head"><div><small>{dateLabel(date).split(",")[0]}{isFocusedDay && <b className="day-focus-badge">{calendarFocus.isToday ? "Today" : calendarFocus.date === days[0] ? "Trip starts here" : "Last trip day"}</b>}</small><h2>{dateLabel(date).replace(/^[^,]+,\s*/, "")}</h2><span>{dayHotel(date)}</span></div><div className="day-head-actions">{dayWeather && <button className="day-weather" onClick={() => setActiveTab("weather")} aria-label={`Open weather for ${dateLabel(date)}`}><span aria-hidden="true">{condition.icon}</span><strong>{weatherNumber(dayWeather.temperatureMax)}</strong><small>{dayWeather.cityName} · rain {weatherNumber(dayWeather.precipitationProbability, "%")}</small></button>}<button className="day-map-button" onClick={() => { setMapDate(date); setMapMode("day"); setActiveTab("route"); }}>Open map ↗</button></div></header>
                 <div className="day-items">
                   {!dayItems.length && <div className="empty">No visible items</div>}
                   {dayItems.map((item) => {
@@ -934,7 +1088,8 @@ export function TripCalendar() {
                     const transportGuide = transportGuides[transportGuideByItem[item.id]] || (item.category === "transport" ? transportGuides.metro : undefined);
                     const canFlip = ["attraction", "hotel", "transport", "meal"].includes(item.category);
                     return (
-                      <div className={`item-card ${isFlipped ? "flipped" : ""} ${dragging === item.id ? "dragging" : ""}`} data-category={item.category} key={item.id} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); const rect = event.currentTarget.getBoundingClientRect(); event.currentTarget.dataset.dropEdge = event.clientY < rect.top + rect.height / 2 ? "before" : "after"; }} onDragLeave={(event) => { delete event.currentTarget.dataset.dropEdge; }} onDrop={(event) => { event.preventDefault(); event.stopPropagation(); const before = event.currentTarget.dataset.dropEdge !== "after"; delete event.currentTarget.dataset.dropEdge; dropOnItem(item, before); }} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (canFlip) setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
+                      <div className={`item-card ${isFlipped ? "flipped" : ""} ${dragging === item.id ? "dragging" : ""} ${calendarFocus.itemId === item.id ? "current-stop" : ""}`} data-category={item.category} key={item.id} ref={(element) => { if (element) itemRefs.current?.set(item.id, element); else itemRefs.current?.delete(item.id); }} aria-current={calendarFocus.itemId === item.id ? "location" : undefined} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); const rect = event.currentTarget.getBoundingClientRect(); event.currentTarget.dataset.dropEdge = event.clientY < rect.top + rect.height / 2 ? "before" : "after"; }} onDragLeave={(event) => { delete event.currentTarget.dataset.dropEdge; }} onDrop={(event) => { event.preventDefault(); event.stopPropagation(); const before = event.currentTarget.dataset.dropEdge !== "after"; delete event.currentTarget.dataset.dropEdge; dropOnItem(item, before); }} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (canFlip) setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
+                        {calendarFocus.itemId === item.id && <div className="current-stop-label">Current planned location</div>}
                         {["attraction", "hotel"].includes(item.category) && photo && <figure className="card-photo">
                           {/* Local trip photos must bypass the unavailable hosted image optimizer. */}
                           {/* eslint-disable-next-line @next/next/no-img-element */}

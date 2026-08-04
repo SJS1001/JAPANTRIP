@@ -36,6 +36,12 @@ test("ships the protected shared family calendar", async () => {
   assert.doesNotMatch(calendar, /Japan, day by day/);
   assert.doesNotMatch(calendar, /One protected calendar for the whole family/);
   assert.match(calendar, /Open calendar settings/);
+  assert.match(calendar, /scrollIntoView/);
+  assert.match(calendar, /timeZone: "Asia\/Tokyo"/);
+  assert.match(calendar, /Current planned location/);
+  assert.match(calendar, /press and hold to show only one/);
+  assert.match(calendar, /new Set\(\[category\]\)/);
+  assert.match(calendar, /aria-current=.*"location"/);
   assert.match(calendar, /Family member name/);
   assert.match(calendar, /Export backup/);
   assert.match(calendar, /Import backup/);
