@@ -1,10 +1,13 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { areaByItem, areaGuides, transportGuideByItem, transportGuides } from "../../data/card-guides";
 import lockedImageManifest from "../../data/image-manifest.json";
 import rankedRestaurantGuides from "../../data/restaurant-guides.json";
 import { OpenTripMap, type MapPoint } from "./OpenTripMap";
+import MyDay from "./MyDay";
+import TripAssistant from "./TripAssistant";
 
 type Category = "hotel" | "transport" | "attraction" | "meal" | "ticket" | "note";
 type TicketStatus = "to-buy" | "booked" | "not-needed";
@@ -463,6 +466,9 @@ function newItem(): TripItem {
 
 export function TripCalendar() {
   const [phase, setPhase] = useState<"loading" | "locked" | "ready">("loading");
+  const [accessRole, setAccessRole] = useState<"viewer" | "editor" | null>(null);
+  const [viewMode, setViewMode] = useState<"full" | "my-day">("full");
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   const [accessError, setAccessError] = useState("");
   const [items, setItems] = useState<TripItem[]>([]);
@@ -499,6 +505,7 @@ export function TripCalendar() {
   const shouldFocusCalendarRef = useRef(true);
   dayRefs.current ??= new Map();
   itemRefs.current ??= new Map();
+  const isEditor = accessRole === "editor";
 
   const loadWeather = useCallback(async () => {
     setWeatherLoading(true);
@@ -527,6 +534,11 @@ export function TripCalendar() {
       }
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "The trip could not be loaded.");
+      const loadedRole: "viewer" | "editor" = data.role === "viewer" ? "viewer" : "editor";
+      setAccessRole(loadedRole);
+      localStorage.setItem("japanTripAccessRole", loadedRole);
+      const savedMode = localStorage.getItem("japanTripViewMode");
+      setViewMode(loadedRole === "viewer" ? "my-day" : savedMode === "my-day" ? "my-day" : "full");
       setItems(data.items);
       setVersion(data.version);
       versionRef.current = data.version;
@@ -538,7 +550,7 @@ export function TripCalendar() {
       setSync("saved");
       dirtyRef.current = false;
       const pending = localStorage.getItem("japanTripPending");
-      if (pending) {
+      if (pending && loadedRole === "editor") {
         try {
           const queued = JSON.parse(pending) as { items?: TripItem[]; action?: string; changedIds?: string[] };
           if (Array.isArray(queued.items)) {
@@ -566,7 +578,10 @@ export function TripCalendar() {
       }
     } catch (error) {
       const cache = localStorage.getItem("japanTripCloudCache");
-      if (cache) {
+      const savedRole = localStorage.getItem("japanTripAccessRole");
+      if (cache && (savedRole === "viewer" || savedRole === "editor")) {
+        setAccessRole(savedRole);
+        setViewMode(savedRole === "viewer" ? "my-day" : localStorage.getItem("japanTripViewMode") === "my-day" ? "my-day" : "full");
         setItems(JSON.parse(cache));
         setPhase("ready");
         setSync("offline");
@@ -683,6 +698,10 @@ export function TripCalendar() {
       setAccessError(data.error || "The access code did not work.");
       return;
     }
+    if (data.role === "viewer" || data.role === "editor") {
+      setAccessRole(data.role);
+      localStorage.setItem("japanTripAccessRole", data.role);
+    }
     setAccessCode("");
     setPhase("loading");
     await loadTrip();
@@ -695,6 +714,11 @@ export function TripCalendar() {
     changedIds: string[],
     canRetry = true,
   ) {
+    if (!isEditor) {
+      setSync("error");
+      setSyncMessage("My Day is read-only. An editor must make shared changes.");
+      return;
+    }
     if (!navigator.onLine) {
       setSync("offline");
       setSyncMessage("Changes are held on this device until you reconnect.");
@@ -763,6 +787,11 @@ export function TripCalendar() {
   }
 
   function commit(next: TripItem[], action: string) {
+    if (!isEditor) {
+      setSync("error");
+      setSyncMessage("My Day is read-only. An editor must make shared changes.");
+      return;
+    }
     const before = new Map(items.map((item) => [item.id, JSON.stringify(item)]));
     const after = new Map(next.map((item) => [item.id, JSON.stringify(item)]));
     const changedIds = [...new Set([...before.keys(), ...after.keys()])].filter(
@@ -987,6 +1016,19 @@ export function TripCalendar() {
     return () => cancelAnimationFrame(frame);
   }, [activeTab, items, phase]);
 
+  function chooseViewMode(mode: "full" | "my-day") {
+    if (mode === "full" && !isEditor) return;
+    setViewMode(mode);
+    localStorage.setItem("japanTripViewMode", mode);
+  }
+
+  async function lockCalendar() {
+    await fetch("/api/logout", { method: "POST" });
+    setAccessRole(null);
+    setAssistantOpen(false);
+    setPhase("locked");
+  }
+
   if (phase === "loading") {
     return <main className="access-screen"><div className="access-box"><div className="kicker">日本 · Family itinerary</div><h1>Opening the family calendar…</h1><p>Loading the latest shared copy.</p></div></main>;
   }
@@ -1003,8 +1045,35 @@ export function TripCalendar() {
           <input id="accessCode" type="password" value={accessCode} onChange={(event) => setAccessCode(event.target.value)} autoComplete="current-password" required autoFocus />
           {accessError && <p className="form-error" role="alert">{accessError}</p>}
           <button className="button primary" type="submit">Open calendar</button>
+          <Link className="button emergency-button" href="/emergency">Emergency help</Link>
           <small>The code stays in a protected browser cookie and is never placed in the URL.</small>
         </form>
+      </main>
+    );
+  }
+
+  if (viewMode === "my-day") {
+    return (
+      <main className="shell my-day-shell">
+        <header className="hero compact-hero">
+          <div className="hero-copy">
+            <div className="kicker">日本 · Shared family itinerary</div>
+            <h1>Japan 2026</h1>
+            <div className="hero-status">
+              <div className={`sync ${sync}`}><span />{sync === "saved" ? "Shared copy saved" : sync === "saving" ? "Saving…" : sync === "offline" ? "Saved offline copy" : "Needs attention"}</div>
+              <small>{accessRole === "viewer" ? "Kid Mode · Read only" : `Shared version ${version}`}</small>
+            </div>
+          </div>
+          <div className="mode-actions">
+            {isEditor && <button type="button" className="button" onClick={() => chooseViewMode("full")}>Full Plan</button>}
+            <button type="button" className="button active" aria-pressed="true">My Day</button>
+            <Link className="button emergency-button" href="/emergency">Emergency</Link>
+          </div>
+        </header>
+        {syncMessage && <div className={`notice ${sync}`}>{syncMessage}</div>}
+        <MyDay items={items} selectedDate={mapDate} onDateChange={setMapDate} onAskTrip={() => setAssistantOpen(true)} />
+        <footer><span>{accessRole === "viewer" ? "Viewer access · no editing" : `Shared family version ${version}`}</span><button onClick={() => void lockCalendar()}>Lock calendar</button></footer>
+        {assistantOpen && <TripAssistant items={items} role={isEditor ? "editor" : "viewer"} onClose={() => setAssistantOpen(false)} />}
       </main>
     );
   }
@@ -1019,6 +1088,12 @@ export function TripCalendar() {
             <div className={`sync ${sync}`}><span />{sync === "saved" ? "Shared copy saved" : sync === "saving" ? "Saving…" : sync === "offline" ? "Offline copy" : "Needs attention"}</div>
             <small>{updatedAt ? `Last saved by ${updatedBy} · ${new Date(updatedAt).toLocaleString()}` : `Shared version ${version}`}</small>
           </div>
+        </div>
+        <div className="mode-actions">
+          <button type="button" className="button active" aria-pressed="true">Full Plan</button>
+          <button type="button" className="button" onClick={() => chooseViewMode("my-day")}>My Day</button>
+          <button type="button" className="button" onClick={() => setAssistantOpen(true)}>Ask trip</button>
+          <Link className="button emergency-button" href="/emergency">Emergency</Link>
         </div>
       </header>
 
@@ -1046,7 +1121,7 @@ export function TripCalendar() {
           <small className="filter-hint">Tap to toggle · press and hold to show only one</small>
         </div>
         <div className="spacer" />
-        <details className="settings-menu">
+        {isEditor && <details className="settings-menu">
           <summary aria-label="Open calendar settings"><span aria-hidden="true">⚙</span><b className="settings-label">Settings</b></summary>
           <div className="settings-popover">
             <div><span className="kicker">Calendar controls</span><strong>Settings</strong></div>
@@ -1056,7 +1131,7 @@ export function TripCalendar() {
             <button className="button" onClick={() => importRef.current?.click()}>Import backup</button>
             <input ref={importRef} className="sr-only" type="file" accept="application/json" aria-label="Choose itinerary backup to import" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.target.value = ""; }} />
           </div>
-        </details>
+        </details>}
       </section>
 
       {activeTab === "calendar" && (
@@ -1088,7 +1163,7 @@ export function TripCalendar() {
                     const transportGuide = transportGuides[transportGuideByItem[item.id]] || (item.category === "transport" ? transportGuides.metro : undefined);
                     const canFlip = ["attraction", "hotel", "transport", "meal"].includes(item.category);
                     return (
-                      <div className={`item-card ${isFlipped ? "flipped" : ""} ${dragging === item.id ? "dragging" : ""} ${calendarFocus.itemId === item.id ? "current-stop" : ""}`} data-category={item.category} key={item.id} ref={(element) => { if (element) itemRefs.current?.set(item.id, element); else itemRefs.current?.delete(item.id); }} aria-current={calendarFocus.itemId === item.id ? "location" : undefined} draggable onDragStart={() => setDragging(item.id)} onDragEnd={() => setDragging(null)} onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); const rect = event.currentTarget.getBoundingClientRect(); event.currentTarget.dataset.dropEdge = event.clientY < rect.top + rect.height / 2 ? "before" : "after"; }} onDragLeave={(event) => { delete event.currentTarget.dataset.dropEdge; }} onDrop={(event) => { event.preventDefault(); event.stopPropagation(); const before = event.currentTarget.dataset.dropEdge !== "after"; delete event.currentTarget.dataset.dropEdge; dropOnItem(item, before); }} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (canFlip) setFlipped(isFlipped ? null : item.id); else setDraft({ ...item }); }}>
+                      <div id={`trip-item-${item.id}`} className={`item-card ${isFlipped ? "flipped" : ""} ${dragging === item.id ? "dragging" : ""} ${calendarFocus.itemId === item.id ? "current-stop" : ""}`} data-category={item.category} key={item.id} ref={(element) => { if (element) itemRefs.current?.set(item.id, element); else itemRefs.current?.delete(item.id); }} aria-current={calendarFocus.itemId === item.id ? "location" : undefined} draggable={isEditor} onDragStart={() => { if (isEditor) setDragging(item.id); }} onDragEnd={() => setDragging(null)} onDragOver={(event) => { if (!isEditor) return; event.preventDefault(); event.stopPropagation(); const rect = event.currentTarget.getBoundingClientRect(); event.currentTarget.dataset.dropEdge = event.clientY < rect.top + rect.height / 2 ? "before" : "after"; }} onDragLeave={(event) => { delete event.currentTarget.dataset.dropEdge; }} onDrop={(event) => { if (!isEditor) return; event.preventDefault(); event.stopPropagation(); const before = event.currentTarget.dataset.dropEdge !== "after"; delete event.currentTarget.dataset.dropEdge; dropOnItem(item, before); }} onClick={(event) => { if ((event.target as HTMLElement).closest("button,a")) return; if (canFlip) setFlipped(isFlipped ? null : item.id); else if (isEditor) setDraft({ ...item }); }}>
                         {calendarFocus.itemId === item.id && <div className="current-stop-label">Current planned location</div>}
                         {["attraction", "hotel"].includes(item.category) && photo && <figure className="card-photo">
                           {/* Local trip photos must bypass the unavailable hosted image optimizer. */}
@@ -1098,7 +1173,7 @@ export function TripCalendar() {
                         </figure>}
                         {!isFlipped ? <>
                           <div className="card-top"><span>{item.category}</span><time>{item.time}</time></div>
-                          <h3>{item.title}</h3><div className="card-actions"><button className="move-item" aria-label={`Move or reschedule ${item.title}`} onClick={() => setPendingMove({ itemId: item.id, date: item.date, time: item.time || "" })}>Move</button><button className="edit" aria-label={`Edit ${item.title}`} onClick={() => setDraft({ ...item })}>•••</button></div>
+                          <h3>{item.title}</h3>{isEditor && <div className="card-actions"><button className="move-item" aria-label={`Move or reschedule ${item.title}`} onClick={() => setPendingMove({ itemId: item.id, date: item.date, time: item.time || "" })}>Move</button><button className="edit" aria-label={`Edit ${item.title}`} onClick={() => setDraft({ ...item })}>•••</button></div>}
                           <div className="location">{item.location}</div>
                           {item.notes && <p>{item.notes}</p>}
                           <div className={`status ${item.ticketStatus || "not-needed"}`}><i />{item.ticketStatus === "booked" ? "Booked" : item.ticketStatus === "to-buy" ? "To buy / confirm" : "No advance ticket / conditional"}{item.quantity ? ` · ${item.quantity}` : ""}{item.cost ? ` · ${item.cost}` : ""}</div>
@@ -1140,10 +1215,11 @@ export function TripCalendar() {
       {activeTab === "route" && <RoutePanel items={items} selectedDate={mapDate} onDateChange={setMapDate} mode={mapMode} onModeChange={setMapMode} />}
       {activeTab === "history" && <HistoryPanel history={history} />}
 
-      <footer><span>Shared family version {version}</span><button onClick={async () => { await fetch("/api/logout", { method: "POST" }); setPhase("locked"); }}>Lock calendar</button></footer>
+      <footer><span>Shared family version {version}</span><button onClick={() => void lockCalendar()}>Lock calendar</button></footer>
 
-      {draft && <Editor item={draft} setItem={setDraft} onSave={saveDraft} onDelete={removeDraft} onClose={() => setDraft(null)} onReset={() => { if (confirm("Restore the verified complete itinerary for everyone?")) { setDraft(null); void resetDefaults(); } }} busy={locating} />}
-      {pendingMove && (() => {
+      {assistantOpen && <TripAssistant items={items} role="editor" onClose={() => setAssistantOpen(false)} />}
+      {isEditor && draft && <Editor item={draft} setItem={setDraft} onSave={saveDraft} onDelete={removeDraft} onClose={() => setDraft(null)} onReset={() => { if (confirm("Restore the verified complete itinerary for everyone?")) { setDraft(null); void resetDefaults(); } }} busy={locating} />}
+      {isEditor && pendingMove && (() => {
         const moved = items.find((item) => item.id === pendingMove.itemId);
         if (!moved) return null;
         return <MoveDialog item={moved} date={pendingMove.date} time={pendingMove.time} reordered={Boolean(pendingMove.beforeItemId) || moved.date === pendingMove.date} onDateChange={(date) => setPendingMove({ ...pendingMove, date, beforeItemId: date === pendingMove.date ? pendingMove.beforeItemId : undefined })} onTimeChange={(time) => setPendingMove({ ...pendingMove, time })} onConfirm={confirmMove} onCancel={() => setPendingMove(null)} />;

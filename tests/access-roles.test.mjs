@@ -157,7 +157,7 @@ test("a viewer access code creates a signed session that can read the trip", asy
     new Request("https://trip.test/api/trip", { headers: { cookie } }),
   );
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { items: [], version: 1, history: [] });
+  assert.deepEqual(await response.json(), { items: [], version: 1, history: [], role: "viewer" });
 });
 
 test("trip mutations return 403 for viewers, succeed for editors, and return 401 without a session", async () => {

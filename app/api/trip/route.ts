@@ -1,10 +1,11 @@
 import { role } from "@/lib/access";
-import { authorizeTripOperation, type TripOperation } from "@/lib/session-token";
+import { authorizeTripOperation, type AccessRole, type TripOperation } from "@/lib/session-token";
 import { readTrip, recentHistory, restoreVerifiedTrip, writeTrip } from "@/db/trip-store";
 
-async function accessFailure(request: Request, operation: TripOperation) {
-  const decision = authorizeTripOperation(await role(request), operation);
-  if (decision.allowed) return null;
+async function accessFor(request: Request, operation: TripOperation): Promise<AccessRole | Response> {
+  const accessRole = await role(request);
+  const decision = authorizeTripOperation(accessRole, operation);
+  if (decision.allowed) return decision.role;
   return Response.json(
     {
       error:
@@ -17,12 +18,12 @@ async function accessFailure(request: Request, operation: TripOperation) {
 }
 
 export async function GET(request: Request) {
-  const denied = await accessFailure(request, "read");
-  if (denied) return denied;
+  const access = await accessFor(request, "read");
+  if (access instanceof Response) return access;
   try {
     const [trip, history] = await Promise.all([readTrip(), recentHistory()]);
     return Response.json(
-      { ...trip, history },
+      { ...trip, history, role: access },
       { headers: { "cache-control": "private, no-store, max-age=0" } },
     );
   } catch (error) {
@@ -34,8 +35,8 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const denied = await accessFailure(request, "write");
-  if (denied) return denied;
+  const access = await accessFor(request, "write");
+  if (access instanceof Response) return access;
   try {
     const payload = (await request.json()) as {
       items?: unknown[];
@@ -75,8 +76,8 @@ export async function PUT(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const denied = await accessFailure(request, "write");
-  if (denied) return denied;
+  const access = await accessFor(request, "write");
+  if (access instanceof Response) return access;
   try {
     const payload = (await request.json()) as { baseVersion?: number; changedBy?: string };
     if (!Number.isInteger(payload.baseVersion) || Number(payload.baseVersion) < 1) {
