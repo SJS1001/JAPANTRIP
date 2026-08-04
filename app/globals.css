@@ -38,11 +38,59 @@
 .emergency-live-links a { display: grid; gap: 5px; min-height: 74px; padding: 15px; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: inherit; text-decoration: none; }
 .emergency-live-links a span { color: var(--muted); font-size: 14px; line-height: 1.4; }
 .emergency-verified { margin-top: 34px; color: var(--muted); font-size: 13px; }
+.personal-contacts-panel { padding: clamp(18px, 4vw, 28px); border: 1px solid #bdd3cb; border-radius: 22px; background: #f5fbf9; box-shadow: 0 10px 34px rgb(39 71 61 / 8%); }
+.personal-contacts-heading { display: flex; justify-content: space-between; gap: 24px; align-items: start; }
+.personal-contacts-heading h2 { margin: 3px 0 8px; font-family: var(--font-serif), serif; font-size: clamp(25px, 5vw, 35px); }
+.personal-contacts-heading p { max-width: 650px; margin: 0; line-height: 1.5; }
+.personal-contacts-role { flex: 0 0 auto; padding: 7px 10px; border: 1px solid #8eaaa0; border-radius: 999px; color: #35584d; background: #fff; font-size: 11px; font-weight: 800; }
+.personal-contacts-privacy { display: grid; gap: 3px; margin: 18px 0; padding: 13px 15px; border-left: 5px solid var(--indigo); border-radius: 10px; background: #e8eef5; }
+.personal-contacts-privacy span { color: #4e5d70; font-size: 13px; line-height: 1.45; }
+.personal-contacts-notice, .personal-contacts-form-error { margin: 12px 0; padding: 12px 14px; border-radius: 10px; line-height: 1.45; }
+.personal-contacts-notice { border: 1px solid #d8bc78; background: #fff4d8; }
+.personal-contacts-form-error { border: 1px solid #d9aaa2; background: #fff1ee; color: var(--vermillion-dark); font-weight: 700; }
+.personal-contacts-state, .personal-contacts-empty { padding: 22px 18px; border: 1px dashed #9eb7ae; border-radius: 15px; background: rgb(255 255 255 / 72%); }
+.personal-contacts-state p, .personal-contacts-empty p { margin: 7px 0 14px; color: var(--muted); line-height: 1.5; }
+.personal-contacts-state button, .personal-contacts-button, .personal-contacts-toolbar button, .personal-contact-actions button, .personal-contact-confirm button, .personal-contact-form button { min-height: 42px; padding: 8px 13px; border: 1px solid #9eb7ae; border-radius: 10px; background: #fff; color: var(--ink); cursor: pointer; font-weight: 750; }
+.personal-contacts-button { display: inline-flex; align-items: center; text-decoration: none; }
+.personal-contacts-panel button:disabled { cursor: not-allowed; opacity: .48; }
+.personal-contacts-error { border-color: #d9aaa2; background: #fff8f6; }
+.personal-contacts-toolbar { display: flex; justify-content: space-between; gap: 14px; align-items: center; margin: 4px 0 13px; }
+.personal-contacts-toolbar p { margin: 0; color: var(--muted); font-size: 13px; font-weight: 700; }
+.personal-contacts-toolbar button, .personal-contact-form .primary { border-color: #35584d; background: #35584d; color: #fff; }
+.personal-contacts-list { display: grid; gap: 10px; }
+.personal-contacts-list > article { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; padding: 16px; border: 1px solid #c8d8d2; border-radius: 15px; background: #fff; }
+.personal-contact-main { display: grid; justify-items: start; gap: 5px; min-width: 0; }
+.personal-contact-main h3 { margin: 0; font-size: 20px; }
+.personal-contact-main p { margin: 0; color: var(--muted); line-height: 1.4; }
+.personal-contact-main a { color: var(--indigo); font-size: 14px; font-weight: 750; overflow-wrap: anywhere; }
+.personal-contact-main .personal-contact-notes { width: 100%; margin-top: 5px; padding-top: 8px; border-top: 1px solid #e3e9e6; color: var(--ink); font-size: 13px; white-space: pre-wrap; }
+.personal-contact-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; align-content: start; }
+.personal-contact-actions > div { display: flex; gap: 4px; }
+.personal-contact-actions > div button { min-width: 42px; padding-inline: 8px; font-size: 18px; }
+.personal-contact-actions .danger, .personal-contact-confirm .danger { border-color: #d9aaa2; color: var(--vermillion-dark); background: #fff8f6; }
+.personal-contact-confirm { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 11px; background: #fff1ee; }
+.personal-contact-confirm p { margin: 0; font-weight: 700; }
+.personal-contact-confirm > div { display: flex; gap: 6px; }
+.personal-contact-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; padding: 18px; border: 1px solid #9eb7ae; border-radius: 15px; background: #fff; }
+.personal-contact-form > header, .personal-contact-form > footer, .personal-contact-form .wide { grid-column: 1 / -1; }
+.personal-contact-form > header h3 { margin: 0 0 4px; font-size: 21px; }
+.personal-contact-form > header p { margin: 0; color: var(--muted); font-size: 13px; }
+.personal-contact-form label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 750; }
+.personal-contact-form input, .personal-contact-form textarea { width: 100%; min-height: 44px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fffefa; color: var(--ink); }
+.personal-contact-form textarea { resize: vertical; }
+.personal-contact-form > footer { display: flex; justify-content: flex-end; gap: 8px; padding-top: 3px; }
 
 @media (max-width: 520px) {
   .emergency-page { width: min(100% - 20px, 960px); padding-top: 12px; }
   .emergency-hero { grid-template-columns: 1fr; gap: 12px; }
   .emergency-call > a { min-height: 68px; }
+  .personal-contacts-heading, .personal-contact-confirm { align-items: stretch; flex-direction: column; }
+  .personal-contacts-role { align-self: flex-start; }
+  .personal-contacts-list > article, .personal-contact-form { grid-template-columns: 1fr; }
+  .personal-contact-actions { justify-content: flex-start; }
+  .personal-contact-form > header, .personal-contact-form > footer, .personal-contact-form .wide { grid-column: auto; }
+  .personal-contact-form > footer, .personal-contact-confirm > div { display: grid; grid-template-columns: 1fr 1fr; }
+  .personal-contact-form button, .personal-contact-confirm button { width: 100%; }
 }
 
 * { box-sizing: border-box; }

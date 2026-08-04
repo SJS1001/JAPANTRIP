@@ -41,6 +41,20 @@ export const weatherRefreshLock = sqliteTable("weather_refresh_lock", {
   lastRequestAt: integer("last_request_at").notNull().default(0),
 });
 
+export const emergencyContacts = sqliteTable("emergency_contacts", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  relationship: text("relationship"),
+  phone: text("phone").notNull(),
+  alternatePhone: text("alternate_phone"),
+  email: text("email"),
+  notes: text("notes"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+  deletedAt: text("deleted_at"),
+});
+
 export const tripAttachments = sqliteTable(
   "trip_attachments",
   {

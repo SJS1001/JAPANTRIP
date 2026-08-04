@@ -4,6 +4,7 @@ import type {
   FamilyEmergencyContext,
 } from "@/lib/emergency";
 import Link from "next/link";
+import EmergencyContacts from "@/app/components/EmergencyContacts";
 
 type EmergencyPageProps = {
   calls: readonly EmergencyCall[];
@@ -70,6 +71,8 @@ export default function EmergencyPage({ calls, liveLinks, family }: EmergencyPag
           </div>
         </section>
       )}
+
+      <EmergencyContacts />
 
       <section aria-labelledby="live-help-title">
         <h2 id="live-help-title">Live official information</h2>
