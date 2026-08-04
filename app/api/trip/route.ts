@@ -1,12 +1,24 @@
-import { isAuthorized } from "@/lib/access";
+import { role } from "@/lib/access";
+import { authorizeTripOperation, type TripOperation } from "@/lib/session-token";
 import { readTrip, recentHistory, restoreVerifiedTrip, writeTrip } from "@/db/trip-store";
 
-function unauthorized() {
-  return Response.json({ error: "Family access is required." }, { status: 401 });
+async function accessFailure(request: Request, operation: TripOperation) {
+  const decision = authorizeTripOperation(await role(request), operation);
+  if (decision.allowed) return null;
+  return Response.json(
+    {
+      error:
+        decision.status === 401
+          ? "Family access is required."
+          : "Editor access is required.",
+    },
+    { status: decision.status },
+  );
 }
 
 export async function GET(request: Request) {
-  if (!(await isAuthorized(request))) return unauthorized();
+  const denied = await accessFailure(request, "read");
+  if (denied) return denied;
   try {
     const [trip, history] = await Promise.all([readTrip(), recentHistory()]);
     return Response.json(
@@ -22,7 +34,8 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (!(await isAuthorized(request))) return unauthorized();
+  const denied = await accessFailure(request, "write");
+  if (denied) return denied;
   try {
     const payload = (await request.json()) as {
       items?: unknown[];
@@ -62,7 +75,8 @@ export async function PUT(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!(await isAuthorized(request))) return unauthorized();
+  const denied = await accessFailure(request, "write");
+  if (denied) return denied;
   try {
     const payload = (await request.json()) as { baseVersion?: number; changedBy?: string };
     if (!Number.isInteger(payload.baseVersion) || Number(payload.baseVersion) < 1) {
