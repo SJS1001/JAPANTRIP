@@ -850,6 +850,28 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .trip-assistant > form input { min-width: 0; min-height: 48px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; }
 .trip-assistant > form button { min-height: 48px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--vermillion); color: #fff; font-weight: 800; }
 .trip-assistant > small { color: var(--muted); line-height: 1.4; }
+.editor-stack { width: min(100%, 790px); max-height: calc(100dvh - 36px); overflow: auto; background: var(--card); box-shadow: 0 25px 90px rgb(0 0 0 / 35%); }
+.editor-stack .editor { width: 100%; max-height: none; overflow: visible; box-shadow: none; }
+.attachment-save-first { margin: 0; padding: 17px 24px; border-top: 1px solid var(--line); color: var(--muted); background: #f4f0e7; }
+.attachment-manager { display: grid; gap: 14px; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: #fffefa; }
+.editor-stack > .attachment-manager { border-width: 1px 0 0; border-radius: 0; }
+.attachment-manager > header h3 { margin: 3px 0 5px; font-family: var(--font-serif), serif; font-size: 23px; }
+.attachment-manager > header p { margin: 0; color: var(--muted); font-size: 13px; }
+.attachment-manager > form { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(130px, .45fr); gap: 10px; align-items: end; }
+.attachment-manager > form label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 800; }
+.attachment-manager > form label:has(input[type="checkbox"]) { grid-column: 1 / -1; display: flex; align-items: center; }
+.attachment-manager input[type="file"], .attachment-manager select { width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.attachment-manager > form small { align-self: center; color: var(--muted); }
+.attachment-manager ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.attachment-manager li { display: flex; justify-content: space-between; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }
+.attachment-manager li > div { display: grid; gap: 5px; min-width: 0; }
+.attachment-manager li > div:last-child { display: flex; flex-wrap: wrap; justify-content: flex-end; }
+.attachment-manager li a { overflow-wrap: anywhere; color: var(--indigo); font-weight: 800; }
+.attachment-manager li small { color: var(--muted); text-transform: capitalize; }
+.my-day-files { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 10px; }
+.my-day-files > summary { cursor: pointer; color: var(--indigo); font-size: 12px; font-weight: 850; }
+.my-day-files > .attachment-manager { margin-top: 10px; padding: 13px; box-shadow: none; }
+.my-day-files .attachment-manager > header p, .my-day-files .attachment-manager > header .kicker { display: none; }
 
 @media (max-width: 700px) {
   .mode-actions { position: static; justify-content: flex-start; max-width: none; width: 100%; margin-top: 18px; }
@@ -861,4 +883,8 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
   .my-day-card { grid-template-columns: 1fr auto; }
   .my-day-time { grid-column: 1 / -1; }
   .trip-assistant { inset: 8px; width: auto; max-height: none; border-radius: 16px; }
+  .attachment-manager > form { grid-template-columns: 1fr; }
+  .attachment-manager > form label:has(input[type="checkbox"]) { grid-column: auto; }
+  .attachment-manager li { align-items: flex-start; flex-direction: column; }
+  .attachment-manager li > div:last-child { justify-content: flex-start; }
 }

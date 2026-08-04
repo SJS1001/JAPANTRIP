@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { projectKidDay, type KidDayInputItem } from "@/lib/kid-day";
+import AttachmentManager from "./AttachmentManager";
 
 type MyDayProps = {
   items: readonly KidDayInputItem[];
@@ -94,6 +95,10 @@ export default function MyDay({ items, selectedDate, onDateChange, onAskTrip }: 
                 >
                   {done.has(item.id) ? "Done ✓" : "Mark done"}
                 </button>
+                <details className="my-day-files">
+                  <summary>Tickets &amp; documents</summary>
+                  <AttachmentManager tripItemId={item.id} role="viewer" title="Approved files" />
+                </details>
               </article>
             ))}
           </section>
