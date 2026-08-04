@@ -16,6 +16,35 @@
   --shadow: 0 18px 60px rgb(45 39 27 / 10%);
 }
 
+.emergency-page { width: min(960px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 56px; color: var(--ink); }
+.emergency-hero { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; margin-bottom: 26px; }
+.emergency-hero h1 { margin: 2px 0 8px; font-family: var(--font-serif), serif; font-size: clamp(36px, 8vw, 64px); line-height: .95; }
+.emergency-hero p { max-width: 680px; }
+.emergency-back { display: inline-flex; min-height: 44px; align-items: center; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: inherit; text-decoration: none; font-weight: 800; }
+.emergency-page section { margin-top: 30px; }
+.emergency-page section > h2 { margin: 0 0 14px; font-family: var(--font-serif), serif; font-size: clamp(24px, 5vw, 34px); }
+.emergency-call-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; }
+.emergency-call { display: grid; gap: 14px; padding: 18px; border: 2px solid #d8cfc2; border-radius: 20px; background: #fffefa; box-shadow: 0 8px 28px rgb(53 43 32 / 7%); }
+.emergency-call h3 { margin: 0 0 5px; font-size: 21px; }
+.emergency-call p, .emergency-call small { margin: 0; line-height: 1.45; }
+.emergency-call > a { display: flex; min-height: 62px; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; border-radius: 14px; background: #a8271d; color: #fff; text-decoration: none; }
+.emergency-call > a span { font-weight: 800; }
+.emergency-call > a strong { font-size: 24px; letter-spacing: .02em; }
+.emergency-call-visitor-hotline > a, .emergency-call-canada-consular > a { background: #234b63; }
+.emergency-note, .emergency-online-warning { margin-top: 14px; padding: 14px 16px; border-left: 5px solid #db982c; border-radius: 10px; background: #fff4d8; }
+.emergency-note p, .emergency-online-warning { line-height: 1.5; }
+.emergency-family { padding: 18px; border-radius: 20px; background: #e9f5f1; }
+.emergency-contacts, .emergency-live-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 10px; }
+.emergency-live-links a { display: grid; gap: 5px; min-height: 74px; padding: 15px; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: inherit; text-decoration: none; }
+.emergency-live-links a span { color: var(--muted); font-size: 14px; line-height: 1.4; }
+.emergency-verified { margin-top: 34px; color: var(--muted); font-size: 13px; }
+
+@media (max-width: 520px) {
+  .emergency-page { width: min(100% - 20px, 960px); padding-top: 12px; }
+  .emergency-hero { grid-template-columns: 1fr; gap: 12px; }
+  .emergency-call > a { min-height: 68px; }
+}
+
 * { box-sizing: border-box; }
 
 html {
