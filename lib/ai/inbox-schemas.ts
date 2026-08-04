@@ -112,6 +112,15 @@ export class InboxPermissionError extends Error {
   }
 }
 
+export class InboxDecisionStateError extends Error {
+  readonly status = 409;
+
+  constructor() {
+    super("This Inbox proposal already has a terminal decision.");
+    this.name = "InboxDecisionStateError";
+  }
+}
+
 export function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }

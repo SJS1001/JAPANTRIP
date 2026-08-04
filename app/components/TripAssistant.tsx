@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   answerOfflineTripQuestion,
@@ -25,13 +25,22 @@ const starters = [
 ];
 
 export default function TripAssistant({ items, role, onClose }: TripAssistantProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [question, setQuestion] = useState("");
-  const [answers, setAnswers] = useState<Array<{ question: string; answer: GroundedTripAnswer }>>([]);
+  const [answers, setAnswers] = useState<Array<{ id: string; question: string; answer: GroundedTripAnswer }>>([]);
   const [busy, setBusy] = useState(false);
   const context = useMemo(
     () => projectTripQuestionContext({ role, now: new Date(), items }),
     [items, role],
   );
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (dialog && !dialog.open) dialog.showModal();
+    return () => {
+      if (dialog?.open) dialog.close();
+    };
+  }, []);
 
   async function ask(value: string) {
     const trimmed = value.trim();
@@ -48,14 +57,22 @@ export default function TripAssistant({ items, role, onClose }: TripAssistantPro
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ question: trimmed }),
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "The Trip Assistant is unavailable.");
-        answer = data.answer as GroundedTripAnswer;
+        if (!response.ok) {
+          const failure = await response.json().catch(() => ({})) as { error?: string };
+          throw new Error(failure.error || "The Trip Assistant is unavailable.");
+        }
+        const data = await response.json() as { answer: GroundedTripAnswer };
+        answer = data.answer;
       }
-      setAnswers((current) => [...current, { question: trimmed, answer }]);
+      setAnswers((current) => [...current, {
+        id: crypto.randomUUID(),
+        question: trimmed,
+        answer,
+      }]);
     } catch (error) {
       const offlineAnswer = answerOfflineTripQuestion(trimmed, context);
       setAnswers((current) => [...current, {
+        id: crypto.randomUUID(),
         question: trimmed,
         answer: offlineAnswer.citations.length || offlineAnswer.showEmergency
           ? offlineAnswer
@@ -77,7 +94,7 @@ export default function TripAssistant({ items, role, onClose }: TripAssistantPro
   }
 
   return (
-    <aside className="trip-assistant" role="dialog" aria-modal="true" aria-labelledby="trip-assistant-title">
+    <dialog ref={dialogRef} className="trip-assistant" aria-labelledby="trip-assistant-title" onClose={onClose}>
       <header>
         <div>
           <p className="kicker">Grounded in our trip</p>
@@ -93,8 +110,8 @@ export default function TripAssistant({ items, role, onClose }: TripAssistantPro
       )}
 
       <div className="assistant-answers" aria-live="polite">
-        {answers.map((entry, index) => (
-          <article key={`${entry.question}-${index}`}>
+        {answers.map((entry) => (
+          <article key={entry.id}>
             <p className="assistant-question">{entry.question}</p>
             <p>{entry.answer.text}</p>
             {entry.answer.showEmergency && <Link className="button emergency-button" href="/emergency">Open Emergency page</Link>}
@@ -116,6 +133,6 @@ export default function TripAssistant({ items, role, onClose }: TripAssistantPro
         <button type="submit" className="primary" disabled={busy || !question.trim()}>Ask</button>
       </form>
       <small>{role === "viewer" ? "Kid Mode is read-only. Questions cannot change the trip." : "Requested changes still require review and approval."}</small>
-    </aside>
+    </dialog>
   );
 }

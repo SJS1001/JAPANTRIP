@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const tripState = sqliteTable("trip_state", {
   id: text("id").primaryKey(),
@@ -78,4 +78,69 @@ export const tripAttachments = sqliteTable(
     index("trip_attachments_uploaded_at_idx").on(table.uploadedAt),
     index("trip_attachments_deleted_at_idx").on(table.deletedAt),
   ],
+);
+
+export const inboxDocuments = sqliteTable(
+  "inbox_documents",
+  {
+    id: text("id").primaryKey(),
+    objectKey: text("object_key").notNull().unique(),
+    filename: text("filename").notNull(),
+    mediaType: text("media_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    contentSha256: text("content_sha256").notNull(),
+    uploadedBy: text("uploaded_by").notNull(),
+    uploadedRole: text("uploaded_role").notNull(),
+    baseTripVersion: integer("base_trip_version").notNull(),
+    status: text("status").notNull().default("staged"),
+    failureReason: text("failure_reason"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("inbox_documents_status_created_idx").on(table.status, table.createdAt)],
+);
+
+export const inboxProposals = sqliteTable(
+  "inbox_proposals",
+  {
+    id: text("id").notNull(),
+    revision: integer("revision").notNull().default(1),
+    documentId: text("document_id")
+      .notNull()
+      .references(() => inboxDocuments.id, { onDelete: "cascade" }),
+    schemaVersion: integer("schema_version").notNull().default(1),
+    kind: text("kind").notNull(),
+    baseTripVersion: integer("base_trip_version").notNull(),
+    candidateEventIdsJson: text("candidate_event_ids_json").notNull(),
+    evidenceJson: text("evidence_json").notNull(),
+    outcomeJson: text("outcome_json").notNull(),
+    integritySha256: text("integrity_sha256"),
+    status: text("status").notNull().default("pending"),
+    decidedBy: text("decided_by"),
+    decidedAt: text("decided_at"),
+    appliedTripVersion: integer("applied_trip_version"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    primaryKey({ columns: [table.id, table.revision] }),
+    index("inbox_proposals_document_status_idx").on(
+      table.documentId,
+      table.status,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const inboxProposalApplications = sqliteTable(
+  "inbox_proposal_applications",
+  {
+    proposalId: text("proposal_id").notNull(),
+    proposalRevision: integer("proposal_revision").notNull(),
+    integritySha256: text("integrity_sha256").notNull(),
+    baseTripVersion: integer("base_trip_version").notNull(),
+    appliedTripVersion: integer("applied_trip_version").notNull(),
+    approvedBy: text("approved_by").notNull(),
+    appliedAt: text("applied_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [primaryKey({ columns: [table.proposalId, table.proposalRevision] })],
 );

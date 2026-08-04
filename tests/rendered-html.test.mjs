@@ -133,13 +133,14 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /\["attraction", "hotel"\]/);
   assert.doesNotMatch(calendar, /from "next\/image"/);
 
-  const cacheRegistration = await readFile(new URL("../app/components/PhotoCacheRegistration.tsx", import.meta.url), "utf8");
-  const photoWorker = await readFile(new URL("../public/attraction-photo-cache.js", import.meta.url), "utf8");
-  assert.match(cacheRegistration, /serviceWorker\.register\("\/attraction-photo-cache\.js"/);
-  assert.match(photoWorker, /japan-trip-attraction-photos/);
-  assert.match(photoWorker, /japan-watercolor-pokemon\.jpg/);
-  assert.match(photoWorker, /cache\.match\(request, \{ ignoreSearch: true \}\)/);
-  assert.match(photoWorker, /cache\.put\(request, response\.clone\(\)\)/);
+  const offlineRegistration = await readFile(new URL("../app/components/OfflineRegistration.tsx", import.meta.url), "utf8");
+  const offlineWorker = await readFile(new URL("../public/japan-trip-sw.js", import.meta.url), "utf8");
+  assert.match(offlineRegistration, /serviceWorker\.register\("\/japan-trip-sw\.js"/);
+  assert.doesNotMatch(offlineRegistration, /attraction-photo-cache/);
+  assert.match(offlineWorker, /images\/attractions/);
+  assert.match(offlineWorker, /japan-watercolor-pokemon\.jpg/);
+  assert.match(offlineWorker, /cache\.match\(request, \{ ignoreSearch: true \}\)/);
+  assert.match(offlineWorker, /cache\.put\(request, response\.clone\(\)\)/);
 
   assert.doesNotMatch(calendar, /@\/data\/seed/);
   assert.match(map, /tile\.openstreetmap\.org/);

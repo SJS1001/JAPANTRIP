@@ -67,5 +67,7 @@ CREATE TABLE IF NOT EXISTS inbox_proposal_applications (
   PRIMARY KEY (proposal_id, proposal_revision),
   FOREIGN KEY (proposal_id, proposal_revision)
     REFERENCES inbox_proposals(id, revision) ON DELETE RESTRICT,
-  CHECK (applied_trip_version = base_trip_version + 1)
+  -- Attaching a document does not alter trip_state; create/update proposals
+  -- advance the version by one.
+  CHECK (applied_trip_version >= base_trip_version)
 );

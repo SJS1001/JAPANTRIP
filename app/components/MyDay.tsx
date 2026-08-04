@@ -13,13 +13,15 @@ type MyDayProps = {
   onAskTrip: () => void;
 };
 
+const DAY_LABEL_FORMATTER = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "UTC",
+  weekday: "long",
+  month: "long",
+  day: "numeric",
+});
+
 function dateLabel(date: string) {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "UTC",
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  }).format(new Date(`${date}T12:00:00Z`));
+  return DAY_LABEL_FORMATTER.format(new Date(`${date}T12:00:00Z`));
 }
 
 export default function MyDay({ items, selectedDate, onDateChange, onAskTrip }: MyDayProps) {
@@ -42,13 +44,11 @@ export default function MyDay({ items, selectedDate, onDateChange, onAskTrip }: 
   }, [selectedDate]);
 
   function toggleDone(itemId: string) {
-    setDone((current) => {
-      const next = new Set(current);
-      if (next.has(itemId)) next.delete(itemId);
-      else next.add(itemId);
-      localStorage.setItem(`japanTripMyDayDone:${selectedDate}`, JSON.stringify([...next]));
-      return next;
-    });
+    const next = new Set(done);
+    if (next.has(itemId)) next.delete(itemId);
+    else next.add(itemId);
+    localStorage.setItem(`japanTripMyDayDone:${selectedDate}`, JSON.stringify([...next]));
+    setDone(next);
   }
 
   return (

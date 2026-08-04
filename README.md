@@ -1,98 +1,56 @@
-# vinext-starter
+# Japan Family Trip
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+A private, shared itinerary for the Smith family’s August 2026 Japan trip. The app includes the full editable calendar, a read-only **My Day** view for kids, offline trip access, private tickets and reservation files, an approval-gated AI document Inbox, a trip assistant, and an emergency directory.
 
-## Prerequisites
+## Local development
 
-- Node.js `>=22.13.0`
-
-## Quick Start
+Requires Node.js 22.13 or newer.
 
 ```bash
 npm install
 npm run dev
+```
+
+Useful checks:
+
+```bash
+npm test
+npm run lint
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+## Required configuration
 
-## Included Shape
+Set secrets in the hosting environment (or an ignored local `.env` file):
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+- `FAMILY_EDITOR_ACCESS_CODE`: full calendar and write access.
+- `FAMILY_VIEWER_ACCESS_CODE`: read-only My Day access.
+- `FAMILY_SESSION_SECRET`: a separate high-entropy secret used to sign 30-day role sessions.
+- `OPENAI_API_KEY`: optional; enables model-backed Inbox analysis and trip answers. Without it, both features use safe local fallbacks.
+- `OPENAI_TRIP_MODEL`: optional model override; defaults to `gpt-5.6-terra`.
 
-## Workspace Auth Headers
+`FAMILY_ACCESS_CODE` remains a legacy editor-code fallback. New deployments should configure the separate editor and viewer codes plus a distinct session secret.
 
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
+The hosting configuration declares:
 
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+- D1 binding `DB` for trip state, attachments, Inbox drafts, and personal emergency contacts.
+- Private R2 binding `ATTACHMENTS` for uploaded files. Objects are served only through authenticated application routes; no public bucket URLs are exposed.
 
-Treat the full name as optional and fall back to email when it is absent:
+The runtime creates its required tables and indexes defensively. SQL definitions also live in `db/migrations/` and `db/schema.ts`.
 
-```tsx
-import { headers } from "next/headers";
+## Access and data boundaries
 
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
+- Viewers are read-only and are directed to My Day. They cannot edit the itinerary, approve Inbox drafts, upload files, or change emergency contacts.
+- Editors can change the calendar, manage files and contacts, and explicitly approve or reject AI Inbox drafts.
+- AI analysis never receives mutation tools. A suggestion is stored as an immutable review draft and cannot change the trip until an editor confirms the exact proposed diff.
+- Uploaded files and protected APIs use private, no-store responses. A file is hidden from viewers until an editor separately marks it as viewer-approved.
+- Offline mode stores an explicitly requested trip copy in the browser. Protected API responses and personal emergency contacts are never placed in the service-worker cache. Offline editor changes are queued and stop on a version conflict instead of overwriting newer shared data.
+- Official emergency numbers and public safety/news links remain available from the offline shell. Live information still requires a connection.
 
-  const displayName = fullName ?? email;
-  // ...
-}
-```
+## Agenda protection
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+The canonical seed itinerary is guarded by `tests/agenda-integrity.test.mjs`, including its expected SHA-256 digest, item count, unique IDs, dates, and trip range. Run `npm test` before merging any calendar or storage change.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+## Deployment note
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+This branch contains application code and binding declarations only. It does not create or modify production D1/R2 resources and has not been deployed. Configure real bindings and secrets, apply the migrations if your deployment process requires them, and run the complete test suite before release.

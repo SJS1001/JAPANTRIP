@@ -16,6 +16,36 @@
   --shadow: 0 18px 60px rgb(45 39 27 / 10%);
 }
 
+.inbox-page { width: min(960px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 60px; color: var(--ink); }
+.inbox-hero { display: flex; justify-content: space-between; gap: 28px; align-items: start; padding: clamp(22px, 5vw, 42px); border-top: 4px solid var(--vermillion); border-bottom: 1px solid var(--line); background: #fbfaf6; box-shadow: var(--shadow); }
+.inbox-hero > div { max-width: 700px; }
+.inbox-hero h1 { margin: 7px 0 12px; font-family: var(--font-serif), Georgia, serif; font-size: clamp(36px, 8vw, 58px); font-weight: 500; line-height: 1; }
+.inbox-hero p { line-height: 1.55; }
+.inbox-eyebrow { margin: 0; color: var(--vermillion); font-size: 11px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; overflow-wrap: anywhere; }
+.inbox-back { display: inline-flex; flex: 0 0 auto; min-height: 44px; align-items: center; padding: 0 14px; border: 1px solid var(--line); background: #fff; text-decoration: none; font-weight: 800; }
+.inbox-panel { margin-top: 22px; padding: clamp(20px, 4vw, 30px); border: 1px solid var(--line); background: #fbfaf6; box-shadow: 0 10px 34px rgb(45 39 27 / 7%); }
+.inbox-panel > h2 { margin: 0 0 16px; font-family: var(--font-serif), Georgia, serif; font-size: clamp(25px, 5vw, 34px); font-weight: 500; }
+.inbox-panel form, .inbox-panel label { display: grid; gap: 8px; }
+.inbox-panel form { gap: 16px; }
+.inbox-panel label { color: var(--muted); font-size: 13px; font-weight: 750; }
+.inbox-panel button { min-height: 44px; padding: 10px 15px; border: 1px solid var(--indigo); background: var(--indigo); color: #fff; cursor: pointer; font-weight: 800; }
+.inbox-panel button:disabled { cursor: not-allowed; opacity: .5; }
+.inbox-review-card { margin-top: 14px; padding: 18px; border: 1px solid var(--line); background: #fff; }
+.inbox-review-card h3 { margin: 8px 0 16px; font-size: 21px; }
+.inbox-review-card h4 { margin: 18px 0 8px; }
+.inbox-review-card pre { max-height: 320px; overflow: auto; padding: 14px; border: 1px solid #d7ddd8; background: #f4f7f5; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.inbox-review-card li, .inbox-question p { line-height: 1.5; }
+.inbox-question { padding: 13px 15px; border-left: 5px solid var(--gold); background: #fff4d8; }
+.inbox-question a { font-weight: 800; }
+.inbox-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.inbox-actions button:last-child { border-color: var(--line); background: #fff; color: var(--ink); }
+
+@media (max-width: 560px) {
+  .inbox-page { width: min(100% - 20px, 960px); padding-top: 10px; }
+  .inbox-hero { flex-direction: column-reverse; gap: 18px; }
+  .inbox-actions { display: grid; grid-template-columns: 1fr 1fr; }
+}
+
 .emergency-page { width: min(960px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 56px; color: var(--ink); }
 .emergency-hero { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; margin-bottom: 26px; }
 .emergency-hero h1 { margin: 2px 0 8px; font-family: var(--font-serif), serif; font-size: clamp(36px, 8vw, 64px); line-height: .95; }
@@ -834,7 +864,8 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .my-day-done { min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
 .my-day-hotel { margin-top: 28px; padding: 20px; border: 1px solid #b9cfc5; border-radius: 18px; background: #e9f5f1; }
 .my-day-hotel h3 { margin: 5px 0 7px; font-size: 24px; }
-.trip-assistant { position: fixed; z-index: 90; right: 18px; bottom: 18px; width: min(440px, calc(100vw - 28px)); max-height: min(760px, calc(100dvh - 36px)); display: grid; grid-template-rows: auto auto minmax(80px, 1fr) auto auto; gap: 13px; overflow: hidden; padding: 18px; border: 1px solid var(--line); border-radius: 22px; background: #fffefa; box-shadow: 0 24px 90px rgb(31 27 21 / 25%); }
+.trip-assistant { position: fixed; z-index: 90; right: 18px; bottom: 18px; width: min(440px, calc(100vw - 28px)); max-height: min(760px, calc(100dvh - 36px)); display: grid; grid-template-rows: auto auto minmax(80px, 1fr) auto auto; gap: 13px; overflow: hidden; margin: 0; padding: 18px; border: 1px solid var(--line); border-radius: 22px; background: #fffefa; color: var(--ink); box-shadow: 0 24px 90px rgb(31 27 21 / 25%); }
+.trip-assistant::backdrop { background: rgb(31 27 21 / 28%); backdrop-filter: blur(2px); }
 .trip-assistant > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .trip-assistant h2 { margin: 3px 0 0; font-family: var(--font-serif), serif; font-size: 27px; }
 .trip-assistant > header > button { width: 44px; min-height: 44px; border: 1px solid var(--line); border-radius: 50%; background: #fff; font-size: 24px; }

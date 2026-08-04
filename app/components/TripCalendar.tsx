@@ -97,6 +97,7 @@ function itemImage(item: TripItem): LockedImage | null {
 }
 
 const categories: Category[] = ["hotel", "transport", "attraction", "meal", "ticket", "note"];
+const CLOUD_CACHE_KEY = "japanTripCloudCache:v1";
 const categoryLongPressMs = 500;
 const preDepartureNow = new Set(["tkrail", "tk1", "tk2", "tk3", "ticket-tokyo-tower", "pass-hakone", "tk-oam", "pass-kansai", "tk-nijo", "t9"]);
 const preDepartureConfirm = new Set(["t07start", "t08start", "hk-luggage", "t10a", "lug2", "t6", "tk-miyajima-ropeway", "m16b", "t17a", "t18a", "m21b"]);
@@ -598,19 +599,26 @@ export function TripCalendar() {
                 action: `${mutation.action} · synced from offline`,
               }),
             });
-            const result = await upload.json();
-            if (upload.status === 409 && Array.isArray(result.items)) {
-              return {
-                kind: "conflict",
-                serverSnapshot: {
-                  version: Number(result.version),
-                  savedAt: new Date().toISOString(),
-                  items: result.items as TripItem[],
-                },
-                conflictingItemIds: mutation.changedIds,
+            if (!upload.ok) {
+              const failure = await upload.json().catch(() => ({})) as {
+                error?: string;
+                items?: TripItem[];
+                version?: number;
               };
+              if (upload.status === 409 && Array.isArray(failure.items)) {
+                return {
+                  kind: "conflict",
+                  serverSnapshot: {
+                    version: Number(failure.version),
+                    savedAt: new Date().toISOString(),
+                    items: failure.items,
+                  },
+                  conflictingItemIds: mutation.changedIds,
+                };
+              }
+              throw new Error(failure.error || "Offline changes could not be synchronized.");
             }
-            if (!upload.ok) throw new Error(result.error || "Offline changes could not be synchronized.");
+            const result = await upload.json() as { version: number };
             serverVersion = Number(result.version);
             return { kind: "applied", version: serverVersion };
           });
@@ -643,7 +651,7 @@ export function TripCalendar() {
       setHistory(data.history ?? []);
       setUpdatedBy(data.updatedBy ?? "Trip planner");
       setUpdatedAt(data.updatedAt ?? "");
-      localStorage.setItem("japanTripCloudCache", JSON.stringify(loadedItems));
+      localStorage.setItem(CLOUD_CACHE_KEY, JSON.stringify(loadedItems));
       setPhase("ready");
       if (!offlineConflict) setSync("saved");
       dirtyRef.current = false;
@@ -675,7 +683,7 @@ export function TripCalendar() {
         }
       }
     } catch (error) {
-      const cache = localStorage.getItem("japanTripCloudCache");
+      const cache = localStorage.getItem(CLOUD_CACHE_KEY);
       const savedRole = localStorage.getItem("japanTripAccessRole");
       let durableSnapshot: { items: TripItem[]; version: number } | null = null;
       if (savedRole === "viewer" || savedRole === "editor") {
@@ -754,7 +762,7 @@ export function TripCalendar() {
         setHistory(data.history ?? []);
         setUpdatedBy(data.updatedBy ?? "Family member");
         setUpdatedAt(data.updatedAt ?? "");
-        localStorage.setItem("japanTripCloudCache", JSON.stringify(data.items));
+        localStorage.setItem(CLOUD_CACHE_KEY, JSON.stringify(data.items));
         if (accessRole === "viewer" || accessRole === "editor") {
           try {
             const offline = offlineTripFor(accessRole);
@@ -914,7 +922,7 @@ export function TripCalendar() {
       versionRef.current = data.version;
       setVersion(data.version);
       setItems(merged);
-      localStorage.setItem("japanTripCloudCache", JSON.stringify(merged));
+      localStorage.setItem(CLOUD_CACHE_KEY, JSON.stringify(merged));
       return sendSave(merged, `${action} · merged with family changes`, revision, changedIds, false);
     }
     if (!response.ok) {
@@ -930,7 +938,7 @@ export function TripCalendar() {
       { id: Date.now(), version: data.version, action, changedBy: name, changedAt: new Date().toISOString() },
       ...current,
     ].slice(0, 30));
-    localStorage.setItem("japanTripCloudCache", JSON.stringify(snapshot));
+    localStorage.setItem(CLOUD_CACHE_KEY, JSON.stringify(snapshot));
     localStorage.removeItem("japanTripPending");
     try {
       const offline = offlineTripFor("editor");
@@ -962,7 +970,7 @@ export function TripCalendar() {
     const revision = ++editRevisionRef.current;
     dirtyRef.current = true;
     setItems(next);
-    localStorage.setItem("japanTripCloudCache", JSON.stringify(next));
+    localStorage.setItem(CLOUD_CACHE_KEY, JSON.stringify(next));
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       saveTimer.current = null;
@@ -1212,7 +1220,7 @@ export function TripCalendar() {
         : false;
       if (status.pendingCount > 0 && !discardPending) return;
       await offline.clear({ confirmation: "REMOVE_OFFLINE_COPY", discardPending });
-      localStorage.removeItem("japanTripCloudCache");
+      localStorage.removeItem(CLOUD_CACHE_KEY);
       localStorage.removeItem("japanTripPending");
       setOfflineReady(false);
       setOfflinePendingCount(0);
@@ -1224,7 +1232,14 @@ export function TripCalendar() {
   }
 
   async function lockCalendar() {
-    await fetch("/api/logout", { method: "POST" });
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } catch {
+      // Local locking must still work while the device is offline.
+    }
+    localStorage.removeItem("japanTripAccessRole");
+    offlineTripRef.current = null;
+    offlineRoleRef.current = null;
     setAccessRole(null);
     setAssistantOpen(false);
     setPhase("locked");
@@ -1295,6 +1310,7 @@ export function TripCalendar() {
           <button type="button" className="button active" aria-pressed="true">Full Plan</button>
           <button type="button" className="button" onClick={() => chooseViewMode("my-day")}>My Day</button>
           <button type="button" className="button" onClick={() => setAssistantOpen(true)}>Ask trip</button>
+          <Link className="button" href="/inbox">Document Inbox</Link>
           <Link className="button emergency-button" href="/emergency">Emergency</Link>
         </div>
       </header>
