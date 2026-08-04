@@ -8,6 +8,8 @@ import rankedRestaurantGuides from "../../data/restaurant-guides.json";
 import { OpenTripMap, type MapPoint } from "./OpenTripMap";
 import MyDay from "./MyDay";
 import TripAssistant from "./TripAssistant";
+import { createOfflineTrip, type OfflineTrip } from "@/lib/client/offline-trip";
+import { IndexedDbTripAdapter } from "@/lib/client/indexeddb-trip-adapter";
 
 type Category = "hotel" | "transport" | "attraction" | "meal" | "ticket" | "note";
 type TicketStatus = "to-buy" | "booked" | "not-needed";
@@ -469,6 +471,8 @@ export function TripCalendar() {
   const [accessRole, setAccessRole] = useState<"viewer" | "editor" | null>(null);
   const [viewMode, setViewMode] = useState<"full" | "my-day">("full");
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [offlineReady, setOfflineReady] = useState(false);
+  const [offlinePendingCount, setOfflinePendingCount] = useState(0);
   const [accessCode, setAccessCode] = useState("");
   const [accessError, setAccessError] = useState("");
   const [items, setItems] = useState<TripItem[]>([]);
@@ -503,9 +507,29 @@ export function TripCalendar() {
   const dayRefs = useRef<Map<string, HTMLElement> | null>(null);
   const itemRefs = useRef<Map<string, HTMLDivElement> | null>(null);
   const shouldFocusCalendarRef = useRef(true);
+  const offlineTripRef = useRef<OfflineTrip<TripItem> | null>(null);
+  const offlineRoleRef = useRef<"viewer" | "editor" | null>(null);
   dayRefs.current ??= new Map();
   itemRefs.current ??= new Map();
   const isEditor = accessRole === "editor";
+
+  function offlineTripFor(role: "viewer" | "editor") {
+    if (!offlineTripRef.current || offlineRoleRef.current !== role) {
+      offlineTripRef.current = createOfflineTrip<TripItem>({
+        adapter: new IndexedDbTripAdapter<TripItem>(),
+        role,
+      });
+      offlineRoleRef.current = role;
+    }
+    return offlineTripRef.current;
+  }
+
+  async function refreshOfflineStatus(offline: OfflineTrip<TripItem>) {
+    const status = await offline.status();
+    setOfflineReady(status.hasSnapshot);
+    setOfflinePendingCount(status.pendingCount);
+    return status;
+  }
 
   const loadWeather = useCallback(async () => {
     setWeatherLoading(true);
@@ -539,15 +563,88 @@ export function TripCalendar() {
       localStorage.setItem("japanTripAccessRole", loadedRole);
       const savedMode = localStorage.getItem("japanTripViewMode");
       setViewMode(loadedRole === "viewer" ? "my-day" : savedMode === "my-day" ? "my-day" : "full");
-      setItems(data.items);
-      setVersion(data.version);
-      versionRef.current = data.version;
+      let loadedItems = data.items as TripItem[];
+      let loadedVersion = Number(data.version);
+      let offlineConflict = false;
+      try {
+        const offline = offlineTripFor(loadedRole);
+        const offlineStatus = await refreshOfflineStatus(offline);
+        if (loadedRole === "editor" && offlineStatus.pendingCount > 0) {
+          setSync("saving");
+          setSyncMessage("Checking offline changes against the latest family version…");
+          let serverVersion = loadedVersion;
+          let firstMutation = true;
+          const syncStatus = await offline.sync(async (mutation) => {
+            if (firstMutation && mutation.baseVersion !== serverVersion) {
+              return {
+                kind: "conflict",
+                serverSnapshot: {
+                  version: serverVersion,
+                  savedAt: new Date().toISOString(),
+                  items: loadedItems,
+                },
+                conflictingItemIds: mutation.changedIds,
+              };
+            }
+            firstMutation = false;
+            const upload = await fetch("/api/trip", {
+              method: "PUT",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                items: mutation.items,
+                baseVersion: serverVersion,
+                changedBy: localStorage.getItem("japanTripFamilyName") || "Family member",
+                action: `${mutation.action} · synced from offline`,
+              }),
+            });
+            const result = await upload.json();
+            if (upload.status === 409 && Array.isArray(result.items)) {
+              return {
+                kind: "conflict",
+                serverSnapshot: {
+                  version: Number(result.version),
+                  savedAt: new Date().toISOString(),
+                  items: result.items as TripItem[],
+                },
+                conflictingItemIds: mutation.changedIds,
+              };
+            }
+            if (!upload.ok) throw new Error(result.error || "Offline changes could not be synchronized.");
+            serverVersion = Number(result.version);
+            return { kind: "applied", version: serverVersion };
+          });
+          if (syncStatus.state === "conflict") {
+            offlineConflict = true;
+            setSync("error");
+            setSyncMessage("The family plan changed while this device was offline. The shared agenda was kept unchanged; review or discard the offline draft in Settings.");
+          } else {
+            const saved = await offline.load();
+            if (saved && saved.version >= loadedVersion) {
+              loadedItems = saved.items;
+              loadedVersion = saved.version;
+            }
+          }
+          await refreshOfflineStatus(offline);
+        } else {
+          await offline.save({
+            version: loadedVersion,
+            savedAt: new Date().toISOString(),
+            items: loadedItems,
+          });
+          await refreshOfflineStatus(offline);
+        }
+      } catch {
+        setOfflineReady(false);
+      }
+      setItems(loadedItems);
+      setVersion(loadedVersion);
+      versionRef.current = loadedVersion;
       setHistory(data.history ?? []);
       setUpdatedBy(data.updatedBy ?? "Trip planner");
       setUpdatedAt(data.updatedAt ?? "");
-      localStorage.setItem("japanTripCloudCache", JSON.stringify(data.items));
+      localStorage.setItem("japanTripCloudCache", JSON.stringify(loadedItems));
       setPhase("ready");
-      setSync("saved");
+      if (!offlineConflict) setSync("saved");
       dirtyRef.current = false;
       const pending = localStorage.getItem("japanTripPending");
       if (pending && loadedRole === "editor") {
@@ -579,13 +676,30 @@ export function TripCalendar() {
     } catch (error) {
       const cache = localStorage.getItem("japanTripCloudCache");
       const savedRole = localStorage.getItem("japanTripAccessRole");
-      if (cache && (savedRole === "viewer" || savedRole === "editor")) {
+      let durableSnapshot: { items: TripItem[]; version: number } | null = null;
+      if (savedRole === "viewer" || savedRole === "editor") {
+        try {
+          const offline = offlineTripFor(savedRole);
+          durableSnapshot = await offline.load();
+          await refreshOfflineStatus(offline);
+        } catch {
+          durableSnapshot = null;
+        }
+      }
+      if ((durableSnapshot || cache) && (savedRole === "viewer" || savedRole === "editor")) {
         setAccessRole(savedRole);
         setViewMode(savedRole === "viewer" ? "my-day" : localStorage.getItem("japanTripViewMode") === "my-day" ? "my-day" : "full");
-        setItems(JSON.parse(cache));
+        const savedItems = durableSnapshot?.items ?? JSON.parse(cache as string);
+        setItems(savedItems);
+        if (durableSnapshot) {
+          setVersion(durableSnapshot.version);
+          versionRef.current = durableSnapshot.version;
+        }
         setPhase("ready");
         setSync("offline");
-        setSyncMessage("Showing the last saved device copy. Reconnect before editing.");
+        setSyncMessage(savedRole === "editor"
+          ? "Showing the last saved device copy. Edits will be queued and checked before they can change the shared agenda."
+          : "Showing the last saved read-only device copy.");
       } else {
         setPhase("locked");
         setAccessError(error instanceof Error ? error.message : "The trip is unavailable.");
@@ -640,6 +754,19 @@ export function TripCalendar() {
         setUpdatedBy(data.updatedBy ?? "Family member");
         setUpdatedAt(data.updatedAt ?? "");
         localStorage.setItem("japanTripCloudCache", JSON.stringify(data.items));
+        if (accessRole === "viewer" || accessRole === "editor") {
+          try {
+            const offline = offlineTripFor(accessRole);
+            await offline.save({
+              version: data.version,
+              savedAt: new Date().toISOString(),
+              items: data.items,
+            });
+            await refreshOfflineStatus(offline);
+          } catch {
+            // The live shared copy remains usable when device storage is unavailable.
+          }
+        }
         setSync("saved");
         setSyncMessage(`Updated automatically from ${data.updatedBy || "another family member"}.`);
         if (messageTimer) clearTimeout(messageTimer);
@@ -662,7 +789,7 @@ export function TripCalendar() {
       window.removeEventListener("focus", checkWhenVisible);
       document.removeEventListener("visibilitychange", checkWhenVisible);
     };
-  }, [phase]);
+  }, [accessRole, phase]);
 
   useEffect(() => {
     if (phase !== "ready") return;
@@ -722,10 +849,33 @@ export function TripCalendar() {
     if (!navigator.onLine) {
       setSync("offline");
       setSyncMessage("Changes are held on this device until you reconnect.");
-      localStorage.setItem(
-        "japanTripPending",
-        JSON.stringify({ items: snapshot, action, changedIds }),
-      );
+      let queuedDurably = false;
+      try {
+        const offline = offlineTripFor("editor");
+        await offline.enqueue({
+          id: crypto.randomUUID(),
+          baseVersion: versionRef.current,
+          action,
+          changedIds,
+          items: snapshot,
+        });
+        await offline.save({
+          version: versionRef.current,
+          savedAt: new Date().toISOString(),
+          items: snapshot,
+        });
+        await refreshOfflineStatus(offline);
+        queuedDurably = true;
+        localStorage.removeItem("japanTripPending");
+      } catch {
+        // Keep the legacy single-draft fallback for browsers without IndexedDB.
+      }
+      if (!queuedDurably) {
+        localStorage.setItem(
+          "japanTripPending",
+          JSON.stringify({ items: snapshot, action, changedIds }),
+        );
+      }
       return;
     }
     setSync("saving");
@@ -781,6 +931,17 @@ export function TripCalendar() {
     ].slice(0, 30));
     localStorage.setItem("japanTripCloudCache", JSON.stringify(snapshot));
     localStorage.removeItem("japanTripPending");
+    try {
+      const offline = offlineTripFor("editor");
+      await offline.save({
+        version: data.version,
+        savedAt: new Date().toISOString(),
+        items: snapshot,
+      });
+      await refreshOfflineStatus(offline);
+    } catch {
+      // A successful cloud save remains authoritative if device storage is unavailable.
+    }
     if (revision === editRevisionRef.current) dirtyRef.current = false;
     setSync("saved");
     setSyncMessage("");
@@ -1022,6 +1183,45 @@ export function TripCalendar() {
     localStorage.setItem("japanTripViewMode", mode);
   }
 
+  async function makeTripAvailableOffline() {
+    if (!accessRole) return;
+    try {
+      const offline = offlineTripFor(accessRole);
+      await offline.save({
+        version: versionRef.current,
+        savedAt: new Date().toISOString(),
+        items,
+      });
+      await refreshOfflineStatus(offline);
+      if ("serviceWorker" in navigator) await navigator.serviceWorker.ready;
+      setSyncMessage("This device now has a saved trip copy. Emergency information also remains available offline.");
+    } catch (error) {
+      setSync("error");
+      setSyncMessage(error instanceof Error ? error.message : "This device could not save an offline copy.");
+    }
+  }
+
+  async function removeOfflineCopy() {
+    if (!accessRole || !confirm("Remove the saved trip copy from this device? The shared family agenda will not be changed.")) return;
+    try {
+      const offline = offlineTripFor(accessRole);
+      const status = await offline.status();
+      const discardPending = status.pendingCount > 0
+        ? confirm(`This device has ${status.pendingCount} unsynced change${status.pendingCount === 1 ? "" : "s"}. Discard those offline drafts too?`)
+        : false;
+      if (status.pendingCount > 0 && !discardPending) return;
+      await offline.clear({ confirmation: "REMOVE_OFFLINE_COPY", discardPending });
+      localStorage.removeItem("japanTripCloudCache");
+      localStorage.removeItem("japanTripPending");
+      setOfflineReady(false);
+      setOfflinePendingCount(0);
+      setSyncMessage("The saved trip copy and any selected offline drafts were removed from this device. The shared agenda was not changed.");
+    } catch (error) {
+      setSync("error");
+      setSyncMessage(error instanceof Error ? error.message : "The offline copy could not be removed.");
+    }
+  }
+
   async function lockCalendar() {
     await fetch("/api/logout", { method: "POST" });
     setAccessRole(null);
@@ -1067,6 +1267,7 @@ export function TripCalendar() {
           <div className="mode-actions">
             {isEditor && <button type="button" className="button" onClick={() => chooseViewMode("full")}>Full Plan</button>}
             <button type="button" className="button active" aria-pressed="true">My Day</button>
+            <button type="button" className="button" onClick={() => void makeTripAvailableOffline()}>{offlineReady ? "Offline saved" : "Save offline"}</button>
             <Link className="button emergency-button" href="/emergency">Emergency</Link>
           </div>
         </header>
@@ -1129,6 +1330,8 @@ export function TripCalendar() {
             <button className="button primary" onClick={() => setDraft(newItem())}>＋ Add item</button>
             <button className="button" onClick={exportBackup}>Export backup</button>
             <button className="button" onClick={() => importRef.current?.click()}>Import backup</button>
+            <button className="button" onClick={() => void makeTripAvailableOffline()}>{offlineReady ? "Refresh offline copy" : "Make trip available offline"}</button>
+            {offlineReady && <button className="button danger" onClick={() => void removeOfflineCopy()}>Remove offline copy{offlinePendingCount ? ` (${offlinePendingCount} pending)` : ""}</button>}
             <input ref={importRef} className="sr-only" type="file" accept="application/json" aria-label="Choose itinerary backup to import" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.target.value = ""; }} />
           </div>
         </details>}
