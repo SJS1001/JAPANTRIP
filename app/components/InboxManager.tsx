@@ -76,6 +76,7 @@ export default function InboxManager() {
 
   async function upload(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
     setBusy("upload");
     setMessage("Uploading privately…");
     try {
@@ -100,6 +101,7 @@ export default function InboxManager() {
   }
 
   async function decide(review: Review, action: "approve" | "reject") {
+    if (busy) return;
     if (
       action === "approve" &&
       !window.confirm("Approve this exact draft and apply it to the trip?")
