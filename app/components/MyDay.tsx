@@ -30,6 +30,7 @@ export default function MyDay({ items, selectedDate, onDateChange, onAskTrip }: 
     [items, selectedDate],
   );
   const [done, setDone] = useState<Set<string>>(new Set());
+  const [openFiles, setOpenFiles] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     try {
@@ -95,9 +96,15 @@ export default function MyDay({ items, selectedDate, onDateChange, onAskTrip }: 
                 >
                   {done.has(item.id) ? "Done ✓" : "Mark done"}
                 </button>
-                <details className="my-day-files">
+                <details
+                  className="my-day-files"
+                  onToggle={(event) => {
+                    if (!event.currentTarget.open) return;
+                    setOpenFiles((current) => new Set(current).add(item.id));
+                  }}
+                >
                   <summary>Tickets &amp; documents</summary>
-                  <AttachmentManager tripItemId={item.id} role="viewer" title="Approved files" />
+                  {openFiles.has(item.id) && <AttachmentManager tripItemId={item.id} role="viewer" title="Approved files" />}
                 </details>
               </article>
             ))}
