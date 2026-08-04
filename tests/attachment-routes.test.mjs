@@ -47,6 +47,7 @@ class MemoryD1Statement {
     }
     if (this.query.startsWith("CREATE INDEX IF NOT EXISTS trip_attachments_")) {
       if (!this.database.tableReady) throw new Error("cannot index a missing table");
+      this.database.indexes.add(this.query.split(" ")[5]);
       return { success: true, meta: { changes: 0 } };
     }
     if (!this.database.tableReady) throw new Error("trip_attachments is not initialized");
@@ -101,6 +102,7 @@ class MemoryD1Statement {
 class MemoryD1 {
   rows = new Map();
   tableReady = false;
+  indexes = new Set();
 
   prepare(query) {
     return new MemoryD1Statement(this, query);
@@ -175,6 +177,7 @@ async function request(url, { method = "GET", role, body, headers = {} } = {}) {
 
 test("attachment collection reads allow viewers and editors but deny anonymous callers", async () => {
   database.tableReady = false;
+  database.indexes.clear();
   for (const role of ["viewer", "editor"]) {
     const response = await collectionRoute.GET(
       await request("https://trip.test/api/attachments?tripItemId=osaka-hotel", { role }),
@@ -191,6 +194,11 @@ test("attachment collection reads allow viewers and editors but deny anonymous c
   );
   assert.equal(anonymous.status, 401);
   assert.equal(database.tableReady, true);
+  assert.deepEqual([...database.indexes].sort(), [
+    "trip_attachments_deleted_at_idx",
+    "trip_attachments_item_idx",
+    "trip_attachments_uploaded_at_idx",
+  ]);
 });
 
 test("malformed identifiers do not let anonymous callers probe attachment validation", async () => {
