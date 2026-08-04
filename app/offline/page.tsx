@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export const metadata = {
   title: "Offline · Japan Trip",
 };
@@ -11,7 +13,7 @@ export default function OfflinePage() {
         <h1 id="offline-title">You’re offline</h1>
         <p>The saved trip will open here after this device has completed <strong>Make trip available offline</strong>.</p>
         <p>Emergency numbers remain available from the saved emergency page.</p>
-        <p><a href="/">Try the trip again</a> · <a href="/emergency">Emergency help</a></p>
+        <p><Link href="/">Try the trip again</Link> · <Link href="/emergency">Emergency help</Link></p>
       </section>
     </main>
   );

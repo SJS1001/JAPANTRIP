@@ -3,6 +3,7 @@ import type {
   EmergencyLiveLink,
   FamilyEmergencyContext,
 } from "@/lib/emergency";
+import Link from "next/link";
 
 type EmergencyPageProps = {
   calls: readonly EmergencyCall[];
@@ -14,7 +15,7 @@ export default function EmergencyPage({ calls, liveLinks, family }: EmergencyPag
   return (
     <main className="emergency-page">
       <header className="emergency-hero">
-        <a href="/" className="emergency-back">← Trip</a>
+        <Link href="/" className="emergency-back">← Trip</Link>
         <div>
           <p className="kicker">Emergency help · Japan</p>
           <h1>Get help now</h1>
