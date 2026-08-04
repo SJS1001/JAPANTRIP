@@ -11,6 +11,8 @@ globalThis.__japanTripAssistantTestEnv = {
   FAMILY_VIEWER_ACCESS_CODE: "kid-code",
   FAMILY_SESSION_SECRET: SESSION_SECRET,
   OPENAI_API_KEY: "test-openai-key",
+  OPENAI_TRIP_MODEL: "gpt-test-legacy",
+  OPENAI_ASSISTANT_MODEL: "gpt-test-assistant",
 };
 globalThis.__japanTripAssistantTestStore = {
   async readTrip() {
@@ -128,6 +130,8 @@ test("viewer assistant context excludes editor-only agenda fields and validates 
   }));
 
   assert.equal(response.status, 200);
+  assert.equal(requestBody.model, "gpt-test-assistant");
+  assert.deepEqual(requestBody.reasoning, { effort: "low" });
   assert.doesNotMatch(JSON.stringify(requestBody), /Parent-only|SECRET-123/);
   assert.match(JSON.stringify(requestBody), /Visit the castle/);
   assert.match(JSON.stringify(requestBody), /Castle ticket\.pdf/);

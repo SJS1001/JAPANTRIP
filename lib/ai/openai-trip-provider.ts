@@ -3,6 +3,7 @@ import type {
   TripAnswerProviderResult,
   TripQuestionContext,
 } from "@/lib/ai/trip-assistant";
+import { DEFAULT_OPENAI_MODELS } from "@/lib/ai/openai-models";
 
 type OpenAiResponsesPayload = {
   status?: string;
@@ -71,7 +72,7 @@ export function createOpenAiTripProvider(options: {
           "content-type": "application/json",
         },
         body: JSON.stringify({
-          model: options.model || "gpt-5.6-terra",
+          model: options.model || DEFAULT_OPENAI_MODELS.assistant,
           store: false,
           reasoning: { effort: "low" },
           max_output_tokens: 600,

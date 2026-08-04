@@ -27,7 +27,10 @@ Set secrets in the hosting environment (or an ignored local `.env` file):
 - `FAMILY_VIEWER_ACCESS_CODE`: read-only My Day access.
 - `FAMILY_SESSION_SECRET`: a separate high-entropy secret used to sign 30-day role sessions.
 - `OPENAI_API_KEY`: optional; enables model-backed Inbox analysis and trip answers. Without it, both features use safe local fallbacks.
-- `OPENAI_TRIP_MODEL`: optional model override; defaults to `gpt-5.6-terra`.
+- `OPENAI_ASSISTANT_MODEL`: optional trip-question model; defaults to `gpt-5.6-luna` with low reasoning.
+- `OPENAI_DOCUMENT_MODEL`: optional ticket, image, and PDF text-extraction model; defaults to `gpt-5.6-luna` with reasoning disabled.
+- `OPENAI_INBOX_MODEL`: optional document-to-event review model; defaults to `gpt-5.6-terra` with low reasoning.
+- `OPENAI_TRIP_MODEL`: legacy override for all three AI tasks. Task-specific settings take precedence; omit this setting to use the efficient defaults above.
 
 `FAMILY_ACCESS_CODE` remains a legacy editor-code fallback. New deployments should configure the separate editor and viewer codes plus a distinct session secret.
 

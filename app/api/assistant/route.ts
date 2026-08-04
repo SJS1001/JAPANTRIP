@@ -6,6 +6,7 @@ import { attachmentExtractedText } from "@/db/attachment-text-store";
 import { consumeRequestLimit } from "@/db/request-rate-limit-store";
 import { readFamilyAiEnabled } from "@/db/ai-settings-store";
 import { AccessDeniedError, requireViewer } from "@/lib/access";
+import { resolveOpenAiModel, type OpenAiModelEnvironment } from "@/lib/ai/openai-models";
 import { createOpenAiTripProvider } from "@/lib/ai/openai-trip-provider";
 import {
   answerOfflineTripQuestion,
@@ -16,9 +17,8 @@ import {
 } from "@/lib/ai/trip-assistant";
 import { readBoundedJson, RequestBodyTooLargeError } from "@/lib/http-body";
 
-type AssistantEnvironment = {
+type AssistantEnvironment = OpenAiModelEnvironment & {
   OPENAI_API_KEY?: string;
-  OPENAI_TRIP_MODEL?: string;
 };
 
 function offlineProvider(): TripAnswerProvider {
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
     const provider = configured.OPENAI_API_KEY && aiEnabled
       ? createOpenAiTripProvider({
           apiKey: configured.OPENAI_API_KEY,
-          model: configured.OPENAI_TRIP_MODEL,
+          model: resolveOpenAiModel(configured, "assistant"),
         })
       : offlineProvider();
     const answer = await askTripQuestion(question, context, provider);

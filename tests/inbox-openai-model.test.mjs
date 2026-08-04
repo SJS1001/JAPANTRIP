@@ -4,7 +4,9 @@ import test from "node:test";
 
 globalThis.__inboxOpenAiEnv = {
   OPENAI_API_KEY: "test-api-key",
-  OPENAI_TRIP_MODEL: "gpt-test-inbox",
+  OPENAI_TRIP_MODEL: "gpt-test-legacy",
+  OPENAI_INBOX_MODEL: "gpt-test-inbox",
+  OPENAI_DOCUMENT_MODEL: "gpt-test-document",
 };
 
 registerHooks({
@@ -54,6 +56,8 @@ test("configured extractor sends a private PDF as a non-stored Responses file in
   assert.equal(text, "Reservation for Osaka Hotel");
   assert.equal(request.url, "https://api.openai.com/v1/responses");
   assert.equal(request.body.store, false);
+  assert.equal(request.body.model, "gpt-test-document");
+  assert.deepEqual(request.body.reasoning, { effort: "none" });
   assert.deepEqual(request.body.tools, []);
   assert.deepEqual(request.body.input[0].content[0], {
     type: "input_file",
@@ -142,6 +146,7 @@ test("configured OpenAI analyzer requests a non-stored closed draft with untrust
   assert.equal(request.init.headers.authorization, "Bearer test-api-key");
   assert.equal(request.body.model, "gpt-test-inbox");
   assert.equal(request.body.store, false);
+  assert.deepEqual(request.body.reasoning, { effort: "low" });
   assert.deepEqual(request.body.tools, []);
   assert.equal(request.body.text.format.type, "json_schema");
   assert.equal(request.body.text.format.strict, true);

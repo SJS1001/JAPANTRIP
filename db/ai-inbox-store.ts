@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 
 import { ensureAttachmentSchema } from "@/db/attachment-store";
+import { resolveOpenAiModel, type OpenAiModelEnvironment } from "@/lib/ai/openai-models";
 
 import type {
   InboxAnalysisOutcome,
@@ -46,12 +47,11 @@ type R2Bucket = {
   delete(key: string): Promise<void>;
 };
 
-type InboxEnvironment = {
+type InboxEnvironment = OpenAiModelEnvironment & {
   DB?: D1Database;
   ATTACHMENTS?: R2Bucket;
   AI_INBOX_MODEL?: InboxAnalyzerModel;
   OPENAI_API_KEY?: string;
-  OPENAI_TRIP_MODEL?: string;
 };
 
 type DocumentRow = {
@@ -762,6 +762,7 @@ class OpenAIResponsesInboxModel implements InboxAnalyzerModel {
         body: JSON.stringify({
           model: this.model,
           store: false,
+          reasoning: { effort: "low" },
           tools: [],
           tool_choice: "none",
           instructions:
@@ -839,6 +840,7 @@ class OpenAIResponsesDocumentTextExtractor implements InboxDocumentTextExtractor
         body: JSON.stringify({
           model: this.model,
           store: false,
+          reasoning: { effort: "none" },
           tools: [],
           tool_choice: "none",
           instructions:
@@ -1110,7 +1112,7 @@ export function inboxAnalyzerModel(): InboxAnalyzerModel {
   return configured.OPENAI_API_KEY
     ? new OpenAIResponsesInboxModel(
         configured.OPENAI_API_KEY,
-        configured.OPENAI_TRIP_MODEL || "gpt-5.6-terra",
+        resolveOpenAiModel(configured, "inbox"),
         fallback,
       )
     : fallback;
@@ -1121,7 +1123,7 @@ export function inboxDocumentTextExtractor(): InboxDocumentTextExtractor {
   return configured.OPENAI_API_KEY
     ? new OpenAIResponsesDocumentTextExtractor(
         configured.OPENAI_API_KEY,
-        configured.OPENAI_TRIP_MODEL || "gpt-5.6-terra",
+        resolveOpenAiModel(configured, "document"),
       )
     : { async extract() { return ""; } };
 }
