@@ -11,6 +11,7 @@ import TripAssistant from "./TripAssistant";
 import AttachmentManager from "./AttachmentManager";
 import { createOfflineTrip, type OfflineTrip } from "@/lib/client/offline-trip";
 import { IndexedDbTripAdapter } from "@/lib/client/indexeddb-trip-adapter";
+import { openAgendaPdfBackup } from "@/lib/agenda-pdf-backup";
 
 type Category = "hotel" | "transport" | "attraction" | "meal" | "ticket" | "note";
 type TicketStatus = "to-buy" | "booked" | "not-needed";
@@ -1135,6 +1136,16 @@ export function TripCalendar() {
     setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   }
 
+  function createPdfBackup() {
+    try {
+      openAgendaPdfBackup({ items, version });
+      setSyncMessage("PDF backup opened. Choose Save as PDF in the print dialog.");
+    } catch (error) {
+      setSync("error");
+      setSyncMessage(error instanceof Error ? error.message : "The PDF backup could not be opened.");
+    }
+  }
+
   async function resetDefaults() {
     const response = await fetch("/api/trip", {
       method: "POST",
@@ -1346,6 +1357,7 @@ export function TripCalendar() {
             <label>Family member name<input value={name} onChange={(event) => { setName(event.target.value); localStorage.setItem("japanTripFamilyName", event.target.value); }} maxLength={60} /></label>
             <button className="button primary" onClick={() => setDraft(newItem())}>＋ Add item</button>
             <button className="button" onClick={exportBackup}>Export backup</button>
+            <button className="button" onClick={createPdfBackup}>Create PDF backup</button>
             <button className="button" onClick={() => importRef.current?.click()}>Import backup</button>
             <button className="button" onClick={() => void makeTripAvailableOffline()}>{offlineReady ? "Refresh offline copy" : "Make trip available offline"}</button>
             {offlineReady && <button className="button danger" onClick={() => void removeOfflineCopy()}>Remove offline copy{offlinePendingCount ? ` (${offlinePendingCount} pending)` : ""}</button>}

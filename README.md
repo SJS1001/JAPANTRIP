@@ -1,6 +1,6 @@
 # Japan Family Trip
 
-A private, shared itinerary for the Smith family’s August 2026 Japan trip. The app includes the full editable calendar, a read-only **My Day** view for kids, offline trip access, private tickets and reservation files, an approval-gated AI document Inbox, a trip assistant, and an emergency directory.
+A private, shared itinerary for the Smith family’s August 2026 Japan trip. The app includes the full editable calendar, JSON and printable PDF backups, a read-only **My Day** view for kids, offline trip access, private tickets and reservation files, an approval-gated AI document Inbox, a trip assistant, and an emergency directory.
 
 ## Local development
 

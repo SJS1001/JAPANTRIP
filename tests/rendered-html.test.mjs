@@ -44,6 +44,9 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /aria-current=.*"location"/);
   assert.match(calendar, /Family member name/);
   assert.match(calendar, /Export backup/);
+  assert.match(calendar, /Create PDF backup/);
+  assert.match(calendar, /openAgendaPdfBackup/);
+  assert.match(calendar, /PDF backup opened/);
   assert.match(calendar, /Import backup/);
   assert.match(calendar, /Passes & tickets/);
   assert.match(calendar, /Trains, passes & best seats/);
