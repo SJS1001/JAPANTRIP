@@ -30,12 +30,24 @@ globalThis.__japanTripAssistantTestStore = {
     };
   },
 };
+globalThis.__japanTripAssistantAttachmentStore = {
+  async list(actor) {
+    const records = [
+      { id: "approved-ticket", tripItemId: "castle", displayName: "Castle ticket.pdf", viewerApproved: true },
+      { id: "parent-receipt", tripItemId: "castle", displayName: "Private receipt.pdf", viewerApproved: false },
+    ];
+    return actor.role === "viewer" ? records.filter((record) => record.viewerApproved) : records;
+  },
+};
 
 const cloudflareEnvironment =
   "data:text/javascript,export const env=globalThis.__japanTripAssistantTestEnv";
 const tripStoreBoundary = `data:text/javascript,${encodeURIComponent(`
   const store = globalThis.__japanTripAssistantTestStore;
   export const readTrip = (...args) => store.readTrip(...args);
+`)}`;
+const attachmentStoreBoundary = `data:text/javascript,${encodeURIComponent(`
+  export const attachmentModule = () => globalThis.__japanTripAssistantAttachmentStore;
 `)}`;
 
 registerHooks({
@@ -45,6 +57,9 @@ registerHooks({
     }
     if (specifier === "@/db/trip-store") {
       return { url: tripStoreBoundary, shortCircuit: true };
+    }
+    if (specifier === "@/db/attachment-store") {
+      return { url: attachmentStoreBoundary, shortCircuit: true };
     }
     if (specifier.startsWith("@/")) {
       return {
@@ -106,6 +121,8 @@ test("viewer assistant context excludes editor-only agenda fields and validates 
   assert.equal(response.status, 200);
   assert.doesNotMatch(JSON.stringify(requestBody), /Parent-only|SECRET-123/);
   assert.match(JSON.stringify(requestBody), /Visit the castle/);
+  assert.match(JSON.stringify(requestBody), /Castle ticket\.pdf/);
+  assert.doesNotMatch(JSON.stringify(requestBody), /Private receipt\.pdf/);
   assert.deepEqual((await response.json()).answer.citations, [{
     kind: "event",
     id: "castle",
