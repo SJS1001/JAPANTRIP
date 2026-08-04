@@ -1,4 +1,8 @@
-import { aiInboxStore, inboxAnalyzerModel } from "@/db/ai-inbox-store";
+import {
+  aiInboxStore,
+  inboxAnalyzerModel,
+  inboxDocumentTextExtractor,
+} from "@/db/ai-inbox-store";
 import { readTrip } from "@/db/trip-store";
 import { analyze } from "@/lib/ai/inbox-analyzer";
 import type { InboxCandidateEvent } from "@/lib/ai/inbox-schemas";
@@ -38,29 +42,38 @@ function candidateEvents(items: unknown[]): InboxCandidateEvent[] {
 }
 
 export async function POST(request: Request, context: RouteContext) {
+  const store = aiInboxStore();
   try {
     const editor = await inboxEditor(request);
     const { id } = await context.params;
-    const document = await aiInboxStore().readDocumentForAnalysis(id);
+    const document = await store.readDocumentForAnalysis(id);
     if (!document) {
       return Response.json(
         { error: "Inbox document not found." },
         { status: 404, headers: INBOX_PRIVATE_HEADERS },
       );
     }
+    const existingText = document.text.trim();
+    const extractedText = existingText ||
+      (await inboxDocumentTextExtractor().extract(document)).trim().slice(0, 250_000);
+    if (!existingText && extractedText) {
+      await store.saveExtractedText(document.id, extractedText);
+    }
+    const documentText = extractedText ||
+      `Document ${document.filename} could not be read automatically. Ask the editor to enter its trip details.`;
     const trip = await readTrip();
     const outcome = await analyze(
       {
         id: document.id,
         filename: document.filename,
-        text: document.text,
+        text: documentText,
         role: editor.role,
         tripVersion: trip.version,
       },
       candidateEvents(Array.isArray(trip.items) ? trip.items : []),
       inboxAnalyzerModel(),
     );
-    const review = await aiInboxStore().saveOutcome(document.id, outcome);
+    const review = await store.saveOutcome(document.id, outcome);
     return Response.json(
       { review },
       { status: 201, headers: INBOX_PRIVATE_HEADERS },

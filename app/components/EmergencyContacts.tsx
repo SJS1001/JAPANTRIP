@@ -5,8 +5,11 @@ import {
   type FormEvent,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
+import { IndexedDbEmergencyContactsAdapter } from "@/lib/client/indexeddb-emergency-contacts-adapter";
+import { createOfflineEmergencyContacts } from "@/lib/client/offline-emergency-contacts";
 
 type AccessRole = "viewer" | "editor";
 
@@ -81,11 +84,39 @@ export default function EmergencyContacts() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ContactDraft>(EMPTY_DRAFT);
+  const [offlineSaved, setOfflineSaved] = useState(false);
+  const [offlineSavedAt, setOfflineSavedAt] = useState("");
+  const offlineRef = useRef<ReturnType<typeof createOfflineEmergencyContacts> | null>(null);
+
+  const offlineContacts = useCallback(() => {
+    if (!offlineRef.current) {
+      offlineRef.current = createOfflineEmergencyContacts(
+        new IndexedDbEmergencyContactsAdapter(),
+      );
+    }
+    return offlineRef.current;
+  }, []);
 
   const loadContacts = useCallback(async () => {
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       setOnline(false);
-      setLoadState((current) => (current === "ready" ? current : "offline"));
+      try {
+        const offline = offlineContacts();
+        const snapshot = await offline.load();
+        if (snapshot) {
+          setContacts(snapshot.contacts);
+          setRole("viewer");
+          setOfflineSaved(true);
+          setOfflineSavedAt(snapshot.savedAt);
+          setLoadState("ready");
+          return;
+        }
+      } catch {
+        // IndexedDB may be disabled. The public emergency information still works.
+      }
+      setContacts([]);
+      setRole(null);
+      setLoadState("offline");
       return;
     }
     setLoadState("loading");
@@ -104,8 +135,27 @@ export default function EmergencyContacts() {
       if (!response.ok) {
         throw new Error(payload.error || "Personal contacts could not be loaded.");
       }
-      setContacts(payload.contacts ?? []);
+      const nextContacts = payload.contacts ?? [];
+      setContacts(nextContacts);
       setRole(payload.role === "editor" ? "editor" : "viewer");
+      try {
+        const offline = offlineContacts();
+        const existingCopy = await offline.load();
+        if (existingCopy) {
+          const refreshedCopy = await offline.save(
+            nextContacts,
+            "KEEP_CONTACTS_ON_DEVICE",
+          );
+          setOfflineSaved(true);
+          setOfflineSavedAt(refreshedCopy.savedAt);
+        } else {
+          setOfflineSaved(false);
+          setOfflineSavedAt("");
+        }
+      } catch {
+        setOfflineSaved(false);
+        setOfflineSavedAt("");
+      }
       setLoadState("ready");
     } catch (error) {
       if (typeof navigator !== "undefined" && !navigator.onLine) {
@@ -119,14 +169,17 @@ export default function EmergencyContacts() {
         setLoadState("error");
       }
     }
-  }, []);
+  }, [offlineContacts]);
 
   useEffect(() => {
     const wentOnline = () => {
       setOnline(true);
       void loadContacts();
     };
-    const wentOffline = () => setOnline(false);
+    const wentOffline = () => {
+      setOnline(false);
+      void loadContacts();
+    };
     const initialLoad = window.setTimeout(() => void loadContacts(), 0);
     window.addEventListener("online", wentOnline);
     window.addEventListener("offline", wentOffline);
@@ -151,6 +204,62 @@ export default function EmergencyContacts() {
     setMessage("");
   }
 
+  async function keepContactsOffline() {
+    if (
+      !window.confirm(
+        "Keep these private contacts offline on this device? Anyone who can unlock this device may be able to read them.",
+      )
+    ) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const snapshot = await offlineContacts().save(
+        contacts,
+        "KEEP_CONTACTS_ON_DEVICE",
+      );
+      setOfflineSaved(true);
+      setOfflineSavedAt(snapshot.savedAt);
+    } catch {
+      setMessage("This browser could not save a private offline contact copy.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeOfflineContacts() {
+    if (
+      !window.confirm(
+        "Remove the private offline contact copy from this device? The shared online contacts will not be changed.",
+      )
+    ) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      await offlineContacts().clear("REMOVE_CONTACTS_FROM_DEVICE");
+      setOfflineSaved(false);
+      setOfflineSavedAt("");
+    } catch {
+      setMessage("This browser could not remove the private offline contact copy.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function refreshOfflineCopy(nextContacts: EmergencyContact[]) {
+    if (!offlineSaved) return;
+    try {
+      const snapshot = await offlineContacts().save(
+        nextContacts,
+        "KEEP_CONTACTS_ON_DEVICE",
+      );
+      setOfflineSavedAt(snapshot.savedAt);
+    } catch {
+      setOfflineSaved(false);
+      setOfflineSavedAt("");
+      setMessage("The shared change was saved, but the offline contact copy could not be refreshed.");
+    }
+  }
+
   async function saveContact(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (role !== "editor" || !editingId || busy || !online) return;
@@ -172,13 +281,13 @@ export default function EmergencyContacts() {
       if (!response.ok || !payload.contact) {
         throw new Error(payload.error || "The contact could not be saved.");
       }
-      setContacts((current) =>
-        creating
-          ? [...current, payload.contact!]
-          : current.map((contact) =>
-              contact.id === payload.contact!.id ? payload.contact! : contact,
-            ),
-      );
+      const nextContacts = creating
+        ? [...contacts, payload.contact]
+        : contacts.map((contact) =>
+            contact.id === payload.contact!.id ? payload.contact! : contact,
+          );
+      setContacts(nextContacts);
+      await refreshOfflineCopy(nextContacts);
       setEditingId(null);
       setDraft(EMPTY_DRAFT);
     } catch (error) {
@@ -215,6 +324,7 @@ export default function EmergencyContacts() {
         throw new Error(payload.error || "The contact order could not be saved.");
       }
       setContacts(normalizedOrder);
+      await refreshOfflineCopy(normalizedOrder);
     } catch (error) {
       setMessage(
         error instanceof Error
@@ -239,7 +349,9 @@ export default function EmergencyContacts() {
       if (!response.ok) {
         throw new Error(payload.error || "The contact could not be removed.");
       }
-      setContacts((current) => current.filter((contact) => contact.id !== id));
+      const nextContacts = contacts.filter((contact) => contact.id !== id);
+      setContacts(nextContacts);
+      await refreshOfflineCopy(nextContacts);
       setDeletingId(null);
     } catch (error) {
       setMessage(
@@ -280,8 +392,7 @@ export default function EmergencyContacts() {
 
       {!online && loadState === "ready" && (
         <p className="personal-contacts-notice" role="status">
-          Offline · showing contacts already loaded on this screen. Editing is paused
-          until the connection returns.
+          Offline device copy · editing is paused until the connection returns.
         </p>
       )}
 
@@ -319,6 +430,29 @@ export default function EmergencyContacts() {
 
       {loadState === "ready" && (
         <>
+          <div className="personal-contacts-device-copy" role="note">
+            <div>
+              <strong>{offlineSaved ? "Offline device copy" : "Optional offline access"}</strong>
+              <span>
+                {offlineSaved
+                  ? `Saved only in this browser${offlineSavedAt ? ` · refreshed ${new Date(offlineSavedAt).toLocaleString()}` : ""}.`
+                  : "Keep a private copy in this browser for emergencies without a connection."}
+                {" "}Anyone who can unlock this device may be able to read it.
+              </span>
+            </div>
+            {online && (
+              <button
+                type="button"
+                onClick={() => void (offlineSaved ? removeOfflineContacts() : keepContactsOffline())}
+                disabled={busy}
+              >
+                {offlineSaved
+                  ? "Remove offline contact copy"
+                  : "Keep contacts offline on this device"}
+              </button>
+            )}
+          </div>
+
           <div className="personal-contacts-toolbar">
             <p>
               {contacts.length

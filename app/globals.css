@@ -75,6 +75,11 @@
 .personal-contacts-role { flex: 0 0 auto; padding: 7px 10px; border: 1px solid #8eaaa0; border-radius: 999px; color: #35584d; background: #fff; font-size: 11px; font-weight: 800; }
 .personal-contacts-privacy { display: grid; gap: 3px; margin: 18px 0; padding: 13px 15px; border-left: 5px solid var(--indigo); border-radius: 10px; background: #e8eef5; }
 .personal-contacts-privacy span { color: #4e5d70; font-size: 13px; line-height: 1.45; }
+.personal-contacts-device-copy { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 14px; padding: 13px 15px; border: 1px solid #b7c8d9; border-radius: 10px; background: #f6f9fc; }
+.personal-contacts-device-copy div { display: grid; gap: 3px; }
+.personal-contacts-device-copy span { color: #4e5d70; font-size: 13px; line-height: 1.45; }
+.personal-contacts-device-copy button { flex: 0 0 auto; min-height: 42px; padding: 8px 13px; border: 1px solid #5d7187; border-radius: 10px; background: #fff; color: var(--ink); cursor: pointer; font-weight: 750; }
+.personal-contacts-device-copy button:disabled { cursor: not-allowed; opacity: .55; }
 .personal-contacts-notice, .personal-contacts-form-error { margin: 12px 0; padding: 12px 14px; border-radius: 10px; line-height: 1.45; }
 .personal-contacts-notice { border: 1px solid #d8bc78; background: #fff4d8; }
 .personal-contacts-form-error { border: 1px solid #d9aaa2; background: #fff1ee; color: var(--vermillion-dark); font-weight: 700; }
@@ -116,6 +121,7 @@
   .emergency-call > a { min-height: 68px; }
   .personal-contacts-heading, .personal-contact-confirm { align-items: stretch; flex-direction: column; }
   .personal-contacts-role { align-self: flex-start; }
+  .personal-contacts-device-copy { align-items: stretch; flex-direction: column; }
   .personal-contacts-list > article, .personal-contact-form { grid-template-columns: 1fr; }
   .personal-contact-actions { justify-content: flex-start; }
   .personal-contact-form > header, .personal-contact-form > footer, .personal-contact-form .wide { grid-column: auto; }

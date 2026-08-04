@@ -159,8 +159,8 @@ export default function InboxManager() {
               placeholder="Paste confirmation details or OCR text if available."
             />
             <small>
-              Paste key details for accurate matching. Scans, photos, PDFs, and DOCX files are
-              stored privately but are not automatically OCRed yet; without text, the assistant
+              The assistant reads supported files automatically when OpenAI is configured.
+              Paste key details here as a correction or fallback; if evidence is unclear, it
               will ask you to classify the file instead of guessing.
             </small>
           </label>

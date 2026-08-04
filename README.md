@@ -42,9 +42,9 @@ The runtime creates its required tables and indexes defensively. SQL definitions
 
 - Viewers are read-only and are directed to My Day. They cannot edit the itinerary, approve Inbox drafts, upload files, or change emergency contacts.
 - Editors can change the calendar, manage files and contacts, and explicitly approve or reject AI Inbox drafts.
-- AI analysis never receives mutation tools. A suggestion is stored as an immutable review draft and cannot change the trip until an editor confirms the exact proposed diff.
+- AI analysis never receives mutation tools. Supported PDFs, DOCX files, images, emails, and text files are read as untrusted evidence with OpenAI request storage disabled. A suggestion is stored as an immutable review draft and cannot change the trip until an editor confirms the exact proposed diff.
 - Uploaded files and protected APIs use private, no-store responses. A file is hidden from viewers until an editor separately marks it as viewer-approved.
-- Offline mode stores an explicitly requested trip copy in the browser. Protected API responses and personal emergency contacts are never placed in the service-worker cache. Offline editor changes are queued and stop on a version conflict instead of overwriting newer shared data.
+- Offline mode stores an explicitly requested trip copy in the browser. Protected API responses and personal emergency contacts are never placed in the service-worker cache. A family member can separately opt in to a device-only emergency-contact copy in IndexedDB after acknowledging that anyone who unlocks the device may read it; the copy is read-only offline and can be removed without changing shared contacts. Offline editor changes are queued and stop on a version conflict instead of overwriting newer shared data.
 - Official emergency numbers and public safety/news links remain available from the offline shell. Live information still requires a connection.
 
 ## Agenda protection

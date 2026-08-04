@@ -32,7 +32,62 @@ registerHooks({
   },
 });
 
-const { inboxAnalyzerModel } = await import("../db/ai-inbox-store.ts");
+const { inboxAnalyzerModel, inboxDocumentTextExtractor } = await import("../db/ai-inbox-store.ts");
+
+test("configured extractor sends a private PDF as a non-stored Responses file input", async (t) => {
+  const originalFetch = globalThis.fetch;
+  let request;
+  globalThis.fetch = async (url, init) => {
+    request = { url, init, body: JSON.parse(init.body) };
+    return Response.json({ output_text: "Reservation for Osaka Hotel" });
+  };
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const text = await inboxDocumentTextExtractor().extract({
+    id: "11111111-1111-4111-8111-111111111111",
+    filename: "hotel.pdf",
+    mediaType: "application/pdf",
+    text: "",
+    bytes: new TextEncoder().encode("%PDF-"),
+  });
+
+  assert.equal(text, "Reservation for Osaka Hotel");
+  assert.equal(request.url, "https://api.openai.com/v1/responses");
+  assert.equal(request.body.store, false);
+  assert.deepEqual(request.body.tools, []);
+  assert.deepEqual(request.body.input[0].content[0], {
+    type: "input_file",
+    filename: "hotel.pdf",
+    file_data: "data:application/pdf;base64,JVBERi0=",
+    detail: "high",
+  });
+  assert.match(request.body.input[0].content[1].text, /transcribe/i);
+});
+
+test("configured extractor uses original-detail vision for reservation images", async (t) => {
+  const originalFetch = globalThis.fetch;
+  let requestBody;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return Response.json({ output_text: "Shinkansen 14:30" });
+  };
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const text = await inboxDocumentTextExtractor().extract({
+    id: "22222222-2222-4222-8222-222222222222",
+    filename: "ticket.png",
+    mediaType: "image/png",
+    text: "",
+    bytes: Uint8Array.from([0x89, 0x50, 0x4e, 0x47]),
+  });
+
+  assert.equal(text, "Shinkansen 14:30");
+  assert.deepEqual(requestBody.input[0].content[0], {
+    type: "input_image",
+    image_url: "data:image/png;base64,iVBORw==",
+    detail: "original",
+  });
+});
 
 test("configured OpenAI analyzer requests a non-stored closed draft with untrusted document boundaries", async (t) => {
   const originalFetch = globalThis.fetch;

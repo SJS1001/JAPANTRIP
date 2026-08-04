@@ -38,9 +38,19 @@ globalThis.__inboxRouteHarness = {
     async readDocumentForAnalysis(id) {
       this.analysisReads = (this.analysisReads ?? 0) + 1;
       if (id !== DOCUMENT_ID) return null;
+      if (this.useBinaryDocument) {
+        return {
+          id,
+          filename: "osaka-hotel.pdf",
+          mediaType: "application/pdf",
+          text: "",
+          bytes: new TextEncoder().encode("%PDF-1.7 binary fixture"),
+        };
+      }
       return {
         id,
         filename: "osaka-hotel.txt",
+        mediaType: "text/plain",
         text: "Reservation for Osaka Hotel",
       };
     },
@@ -55,6 +65,10 @@ globalThis.__inboxRouteHarness = {
         outcome,
         createdAt: "2026-08-04T12:01:00.000Z",
       };
+    },
+    async saveExtractedText(documentId, text) {
+      this.extractedTextWrites = (this.extractedTextWrites ?? 0) + 1;
+      this.lastExtractedText = { documentId, text };
     },
     async getProposal(id) {
       this.proposalReads = (this.proposalReads ?? 0) + 1;
@@ -97,6 +111,14 @@ globalThis.__inboxRouteHarness = {
           documentId: DOCUMENT_ID,
         },
       };
+    },
+  },
+  extractor: {
+    calls: 0,
+    async extract(document) {
+      this.calls += 1;
+      this.lastDocument = document;
+      return "Reservation for Osaka Hotel";
     },
   },
   trip: {
@@ -161,6 +183,7 @@ globalThis.__inboxRouteHarness = {
 const inboxStoreBoundary = `data:text/javascript,${encodeURIComponent(`
   export const aiInboxStore = () => globalThis.__inboxRouteHarness.store;
   export const inboxAnalyzerModel = () => globalThis.__inboxRouteHarness.model;
+  export const inboxDocumentTextExtractor = () => globalThis.__inboxRouteHarness.extractor;
   export const inboxTripAdapter = () => globalThis.__inboxRouteHarness.trip;
 `)}`;
 const tripStoreBoundary = `data:text/javascript,${encodeURIComponent(`
@@ -368,6 +391,37 @@ test("analysis stores an evidenced draft and performs zero itinerary writes", as
   assert.equal(harness.tripSnapshot.reads, 1);
   assert.equal(harness.tripSnapshot.writes, 0);
   assert.doesNotMatch(JSON.stringify(harness.store.lastOutcome), /SECRET-123/);
+});
+
+test("analysis extracts text from a staged binary document before drafting", async () => {
+  const harness = globalThis.__inboxRouteHarness;
+  harness.store.useBinaryDocument = true;
+  harness.extractor.calls = 0;
+  harness.model.calls = 0;
+  harness.store.extractedTextWrites = 0;
+  try {
+    const response = await analyzeRoute.POST(
+      await request(`https://trip.test/api/inbox/${DOCUMENT_ID}/analyze`, {
+        method: "POST",
+        role: "editor",
+      }),
+      itemContext(DOCUMENT_ID),
+    );
+
+    assert.equal(response.status, 201);
+    assert.equal(harness.extractor.calls, 1);
+    assert.equal(harness.extractor.lastDocument.mediaType, "application/pdf");
+    assert.equal(harness.extractor.lastDocument.filename, "osaka-hotel.pdf");
+    assert.equal(harness.store.extractedTextWrites, 1);
+    assert.deepEqual(harness.store.lastExtractedText, {
+      documentId: DOCUMENT_ID,
+      text: "Reservation for Osaka Hotel",
+    });
+    assert.equal(harness.model.calls, 1);
+    assert.equal(harness.store.lastOutcome.evidence[0].quote, "Reservation for Osaka Hotel");
+  } finally {
+    harness.store.useBinaryDocument = false;
+  }
 });
 
 async function stageDraftProposal() {
