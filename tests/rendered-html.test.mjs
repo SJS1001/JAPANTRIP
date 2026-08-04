@@ -41,7 +41,7 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /Current planned location/);
   assert.match(calendar, /press and hold to show only one/);
   assert.match(calendar, /new Set\(\[category\]\)/);
-  assert.match(calendar, /aria-current=.*"location"/);
+  assert.match(calendar, /aria-current={[\s\S]*?"location"/);
   assert.match(calendar, /Family member name/);
   assert.match(calendar, /Export backup/);
   assert.match(calendar, /Create PDF backup/);
@@ -64,9 +64,9 @@ test("ships the protected shared family calendar", async () => {
   assert.match(calendar, /Pre-departure bookings/);
   assert.match(calendar, /Confirm before departure/);
   assert.match(calendar, /Completed/);
-  assert.match(calendar, /Tap for secrets, food & local tips/);
-  assert.match(calendar, /Tap for booking, seats & views/);
-  assert.match(calendar, /Tap for nearby restaurant choices/);
+  assert.match(calendar, /View details, food & local tips/);
+  assert.match(calendar, /View booking, seats & views/);
+  assert.match(calendar, /View nearby restaurant choices/);
   assert.match(calendar, /Restaurant \/ place/);
   assert.match(calendar, /Check tables \/ reserve/);
   assert.match(calendar, /Reservation recommended/);
@@ -131,9 +131,9 @@ test("ships the protected shared family calendar", async () => {
   assert.match(store, /shin-osaka-kyoto-special-rapid-2026-07-28-v1/);
   assert.match(calendar, /card-photo/);
   assert.match(calendar, /imageCredit/);
-  assert.match(calendar, /<img src=\{photo\.imageUrl\}/);
+  assert.match(calendar, /<img[\s\S]*?src=\{photo\.imageUrl\}/);
   assert.match(calendar, /lockedImageManifest/);
-  assert.match(calendar, /\["attraction", "hotel"\]/);
+  assert.match(calendar, /"attraction",[\s\S]*?"hotel"/);
   assert.doesNotMatch(calendar, /from "next\/image"/);
 
   const offlineRegistration = await readFile(new URL("../app/components/OfflineRegistration.tsx", import.meta.url), "utf8");

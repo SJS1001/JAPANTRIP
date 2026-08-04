@@ -182,6 +182,84 @@ export function answerOfflineTripQuestion(
     }
   }
 
+  const todayItems = context.items
+    .filter((item) => item.date === context.today)
+    .sort((left, right) => (startMinutes(left.time) ?? 24 * 60) - (startMinutes(right.time) ?? 24 * 60));
+
+  if (/\b(now|right now|currently)\b/i.test(question)) {
+    const current = todayItems
+      .map((item) => ({ item, minutes: startMinutes(item.time) }))
+      .filter((candidate): candidate is { item: TripQuestionContextItem; minutes: number } =>
+        candidate.minutes !== null && candidate.minutes <= context.nowMinutes)
+      .at(-1)?.item;
+    if (current) {
+      return {
+        text: `Right now in the saved plan: ${current.title}${current.time ? ` at ${current.time}` : ""}${current.location ? ` · ${current.location}` : ""}.`,
+        basis: "trip-plan",
+        citations: [{ kind: "event", id: current.id, label: current.title }],
+        showEmergency: false,
+      };
+    }
+  }
+
+  if (/\b(today|today's|doing today|plan for the day)\b/i.test(question)) {
+    if (todayItems.length) {
+      const visible = todayItems.slice(0, 6);
+      return {
+        text: `Today: ${visible.map((item) => `${item.time ? `${item.time} ` : ""}${item.title}`).join("; ")}${todayItems.length > visible.length ? "; and more in My Day" : ""}.`,
+        basis: "trip-plan",
+        citations: visible.map((item) => ({ kind: "event", id: item.id, label: item.title })),
+        showEmergency: false,
+      };
+    }
+  }
+
+  if (/\b(hotel|staying|sleeping)\b/i.test(question)) {
+    const hotel = context.items
+      .filter((item) => item.category === "hotel" && item.date <= context.today)
+      .sort((left, right) => left.date.localeCompare(right.date))
+      .at(-1);
+    if (hotel) {
+      return {
+        text: `Your hotel in the saved plan is ${hotel.title}${hotel.location ? ` · ${hotel.location}` : ""}.`,
+        basis: "trip-plan",
+        citations: [{ kind: "event", id: hotel.id, label: hotel.title }],
+        showEmergency: false,
+      };
+    }
+  }
+
+  if (/\b(ticket|pass|qr|bring)\b/i.test(question)) {
+    const candidates = context.items
+      .filter((item) => item.date >= context.today)
+      .sort((left, right) => left.date.localeCompare(right.date));
+    const withApprovedFile = candidates.find((item) =>
+      item.attachments.some((attachment) => /ticket|pass|qr|reservation/i.test(attachment.label)),
+    );
+    const ticketItem = withApprovedFile ?? candidates.find((item) => item.category === "ticket");
+    if (ticketItem) {
+      const attachment = ticketItem.attachments.find((file) =>
+        /ticket|pass|qr|reservation/i.test(file.label),
+      );
+      return {
+        text: `${/\bbring\b/i.test(question) ? "Bring water and comfortable shoes. " : ""}${attachment ? `Approved file to use: ${attachment.label}` : `Check ${ticketItem.title}`} for ${ticketItem.title}.`,
+        basis: attachment ? "approved-document" : "trip-plan",
+        citations: attachment
+          ? [{ kind: "attachment", id: attachment.id, label: attachment.label }]
+          : [{ kind: "event", id: ticketItem.id, label: ticketItem.title }],
+        showEmergency: false,
+      };
+    }
+    if (/\bbring\b/i.test(question)) {
+      return {
+        text: "Bring water, comfortable shoes, sun protection, and any approved tickets shown in My Day.",
+        basis: "trip-plan",
+        citations: [],
+        showEmergency: false,
+      };
+    }
+  }
+
   return {
     text: "That answer is not available in the saved trip. Connect to ask the Trip Assistant.",
     basis: "trip-plan",
@@ -207,7 +285,7 @@ export async function askTripQuestion(
   }
   if (intent === "proposal-required") {
     return {
-      text: "I can prepare a draft, but the exact change must be reviewed and approved before the trip is updated.",
+      text: "I cannot change the trip from this chat. Use the Calendar editor or Document Inbox, where you can review the exact change before saving it.",
       basis: "trip-plan",
       citations: [],
       showEmergency: false,
@@ -215,6 +293,14 @@ export async function askTripQuestion(
   }
 
   const result = await provider.answer({ question, context });
+  if (result.basis === "live-source" || result.basis === "mixed") {
+    return {
+      text: "I couldn’t verify that as live information here. Use the official links in Live trip context, then ask me about the saved agenda.",
+      basis: "trip-plan",
+      citations: [],
+      showEmergency: false,
+    };
+  }
   const sources = new Map<string, TripCitation>();
   for (const item of context.items) {
     sources.set(item.id, { kind: "event", id: item.id, label: item.title });

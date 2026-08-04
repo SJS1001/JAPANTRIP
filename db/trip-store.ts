@@ -874,8 +874,8 @@ export async function writeTrip(input: {
   const db = database();
   const nextVersion = input.baseVersion + 1;
   const payload = JSON.stringify(input.items);
-  const update = await db
-    .prepare(
+  const [update] = await db.batch([
+    db.prepare(
       "UPDATE trip_state SET payload = ?, version = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND version = ?",
     )
     .bind(
@@ -884,17 +884,13 @@ export async function writeTrip(input: {
       input.changedBy,
       "family-trip",
       input.baseVersion,
-    )
-    .run();
+    ),
+    db.prepare(
+      "INSERT INTO trip_history (version, action, changed_by) SELECT ?, ?, ? WHERE changes() = 1",
+    ).bind(nextVersion, input.action, input.changedBy),
+  ]);
 
   if (!update.meta?.changes) return { conflict: true as const };
-
-  await db
-    .prepare(
-      "INSERT INTO trip_history (version, action, changed_by) VALUES (?, ?, ?)",
-    )
-    .bind(nextVersion, input.action, input.changedBy)
-    .run();
 
   return { conflict: false as const, version: nextVersion };
 }

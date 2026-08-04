@@ -61,6 +61,50 @@ test("offline next question is answered from the Japan-time agenda with a citati
   });
 });
 
+test("offline assistant answers today, current stop, hotel, and approved ticket questions", () => {
+  const enriched = projectTripQuestionContext({
+    role: "viewer",
+    now: new Date("2026-08-11T01:30:00.000Z"),
+    items: [
+      {
+        id: "osaka-hotel",
+        date: "2026-08-10",
+        category: "hotel",
+        title: "Osaka hotel",
+        location: "Namba",
+      },
+      {
+        id: "morning-stop",
+        date: "2026-08-11",
+        time: "10:00",
+        category: "attraction",
+        title: "Osaka Castle",
+        location: "Osaka Castle Park",
+      },
+      {
+        id: "day-pass",
+        date: "2026-08-11",
+        time: "11:00",
+        category: "ticket",
+        title: "Metro ride",
+        attachments: [{ id: "approved-pass", label: "Metro pass QR", viewerVisible: true }],
+      },
+    ],
+  });
+  Object.assign(enriched, {
+    today: "2026-08-11",
+    nowMinutes: 10 * 60 + 30,
+  });
+
+  assert.match(answerOfflineTripQuestion("What are we doing today?", enriched).text, /Osaka Castle/);
+  assert.match(answerOfflineTripQuestion("Where are we right now?", enriched).text, /Osaka Castle/);
+  assert.match(answerOfflineTripQuestion("Where is our hotel?", enriched).text, /Osaka hotel/);
+  assert.deepEqual(
+    answerOfflineTripQuestion("Which ticket do I need?", enriched).citations,
+    [{ kind: "attachment", id: "approved-pass", label: "Metro pass QR" }],
+  );
+});
+
 test("emergency intent surfaces deterministic emergency actions", () => {
   const context = projectTripQuestionContext({ role: "viewer", now: new Date("2026-08-10T01:00:00Z"), items: [] });
   const answer = answerOfflineTripQuestion("We need an ambulance right now", context);

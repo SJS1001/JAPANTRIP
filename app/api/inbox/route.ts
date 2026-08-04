@@ -1,5 +1,6 @@
 import { aiInboxStore } from "@/db/ai-inbox-store";
 import { readTrip } from "@/db/trip-store";
+import { consumeRequestLimit } from "@/db/request-rate-limit-store";
 
 import {
   INBOX_PRIVATE_HEADERS,
@@ -9,6 +10,7 @@ import {
 
 const MAX_INBOX_BYTES = 10 * 1024 * 1024;
 const MAX_ANALYSIS_TEXT = 250_000;
+const MAX_MULTIPART_BYTES = MAX_INBOX_BYTES + MAX_ANALYSIS_TEXT + 128 * 1024;
 const SUPPORTED_MEDIA_TYPES = new Set([
   "application/pdf",
   "image/jpeg",
@@ -48,6 +50,32 @@ function bytesMatchMediaType(bytes: Uint8Array, mediaType: string) {
   }
 }
 
+async function readBoundedBody(request: Request, maximum: number) {
+  const declared = Number(request.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > maximum) return null;
+  if (!request.body) return new Uint8Array();
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    length += value.byteLength;
+    if (length > maximum) {
+      await reader.cancel("Inbox multipart body exceeds the configured limit.");
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
+}
+
 export async function GET(request: Request) {
   try {
     await inboxEditor(request);
@@ -62,13 +90,47 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const editor = await inboxEditor(request);
+    const rateLimit = await consumeRequestLimit(request, "inbox-upload", {
+      maximum: 10,
+      windowMs: 60 * 60_000,
+    });
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many document uploads. Wait before trying again." },
+        {
+          status: 429,
+          headers: { ...INBOX_PRIVATE_HEADERS, "retry-after": String(rateLimit.retryAfter) },
+        },
+      );
+    }
     if (!(request.headers.get("content-type") ?? "").toLowerCase().startsWith("multipart/form-data;")) {
       return Response.json(
         { error: "Use multipart form data to stage an Inbox document." },
         { status: 415, headers: INBOX_PRIVATE_HEADERS },
       );
     }
-    const form = await request.formData();
+    const requestBytes = await readBoundedBody(request, MAX_MULTIPART_BYTES);
+    if (!requestBytes) {
+      return Response.json(
+        { error: "The Inbox upload request is too large." },
+        { status: 413, headers: INBOX_PRIVATE_HEADERS },
+      );
+    }
+    const form = await new Request(request.url, {
+      method: "POST",
+      headers: request.headers,
+      body: requestBytes,
+    }).formData();
+    const allowedFields = new Set(["file", "analysisText"]);
+    if (
+      [...form.keys()].some((key) => !allowedFields.has(key)) ||
+      form.getAll("analysisText").length > 1
+    ) {
+      return Response.json(
+        { error: "The Inbox upload fields are not valid." },
+        { status: 400, headers: INBOX_PRIVATE_HEADERS },
+      );
+    }
     const files = form.getAll("file");
     const file = files[0];
     if (files.length !== 1 || !(file instanceof File)) {

@@ -1,7 +1,45 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { projectKidDay } from "../lib/kid-day.ts";
+import { japanTripDate, projectKidDay } from "../lib/kid-day.ts";
+
+test("Japan today follows the Tokyo date boundary", () => {
+  assert.equal(japanTripDate("2026-08-06T14:59:00.000Z"), "2026-08-06");
+  assert.equal(japanTripDate("2026-08-06T15:00:00.000Z"), "2026-08-07");
+});
+
+test("current-day sections roll over when the clock crosses an agenda boundary", () => {
+  const items = [
+    {
+      id: "first",
+      date: "2026-08-11",
+      time: "09:00",
+      category: "attraction",
+      title: "First stop",
+      location: "Namba",
+    },
+    {
+      id: "second",
+      date: "2026-08-11",
+      time: "10:00",
+      category: "attraction",
+      title: "Second stop",
+      location: "Osaka Castle",
+    },
+  ];
+  const before = projectKidDay(items, {
+    selectedDate: "2026-08-11",
+    now: "2026-08-11T00:59:00.000Z",
+  });
+  const after = projectKidDay(items, {
+    selectedDate: "2026-08-11",
+    now: "2026-08-11T01:00:00.000Z",
+  });
+
+  assert.equal(before.sections.find((section) => section.id === "next").items[0].id, "second");
+  assert.equal(after.sections.find((section) => section.id === "now").items[0].id, "second");
+  assert.equal(after.currentLocation.name, "Osaka Castle");
+});
 
 test("projects today's agenda into viewer-safe Now, Next, and Later sections without changing the source", () => {
   const items = [
@@ -63,6 +101,10 @@ test("projects today's agenda into viewer-safe Now, Next, and Later sections wit
     name: "Asakusa",
     status: "planned",
   });
+  assert.match(
+    day.sections.find((section) => section.id === "next").items[0].suggestion,
+    /station signs.*ticket or IC card/i,
+  );
   assert.deepEqual(day.hotel, {
     itemId: "hotel",
     name: "Tokyo Stay",

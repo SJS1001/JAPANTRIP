@@ -137,12 +137,25 @@ globalThis.__attachmentRouteEnv = {
   DB: database,
   ATTACHMENTS: bucket,
 };
+globalThis.__attachmentRouteTrip = {
+  items: [
+    { id: "osaka-castle", date: "2026-08-11", category: "attraction", title: "Osaka Castle" },
+    { id: "osaka-hotel", date: "2026-08-10", category: "hotel", title: "Osaka hotel" },
+  ],
+  version: 1,
+};
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier === "cloudflare:workers") {
       return {
         url: "data:text/javascript,export const env=globalThis.__attachmentRouteEnv",
+        shortCircuit: true,
+      };
+    }
+    if (specifier === "@/db/trip-store") {
+      return {
+        url: `data:text/javascript,${encodeURIComponent("export async function readTrip() { return globalThis.__attachmentRouteTrip; }")}`,
         shortCircuit: true,
       };
     }
@@ -283,6 +296,15 @@ test("multipart uploads reject invalid trip IDs, excess envelope size, and multi
     }),
   );
   assert.equal(invalidId.status, 400);
+
+  const orphan = await collectionRoute.POST(
+    await request("https://trip.test/api/attachments", {
+      method: "POST",
+      role: "editor",
+      body: pdfForm({ tripItemId: "missing-agenda-item" }),
+    }),
+  );
+  assert.equal(orphan.status, 404);
 
   const excessiveEnvelope = await collectionRoute.POST(
     await request("https://trip.test/api/attachments", {

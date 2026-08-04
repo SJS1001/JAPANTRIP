@@ -20,7 +20,19 @@ globalThis.__japanTripTestEnv = {
 };
 globalThis.__japanTripTestStore = {
   async readTrip() {
-    return { items: [], version: 1 };
+    return {
+      items: [{
+        id: "day-one-hotel",
+        date: "2026-08-06",
+        category: "hotel",
+        title: "Family hotel",
+        location: "Tokyo",
+        confirmation: "PRIVATE-123",
+        notes: "Parent-only note",
+        cost: "$500",
+      }],
+      version: 1,
+    };
   },
   async recentHistory() {
     return [];
@@ -32,6 +44,7 @@ globalThis.__japanTripTestStore = {
     return { conflict: false, version: 2 };
   },
 };
+globalThis.__japanTripAuthFailures = 0;
 
 const cloudflareEnvironment =
   "data:text/javascript,export const env=globalThis.__japanTripTestEnv";
@@ -42,6 +55,15 @@ const tripStoreBoundary = `data:text/javascript,${encodeURIComponent(`
   export const writeTrip = (...args) => store.writeTrip(...args);
   export const restoreVerifiedTrip = (...args) => store.restoreVerifiedTrip(...args);
 `)}`;
+const authLimitBoundary = `data:text/javascript,${encodeURIComponent(`
+  export async function consumeAuthAttempt() {
+    globalThis.__japanTripAuthFailures += 1;
+    return globalThis.__japanTripAuthFailures > 5
+      ? { allowed: false, retryAfter: 900 }
+      : { allowed: true, retryAfter: 0 };
+  }
+  export async function clearAuthFailures() { globalThis.__japanTripAuthFailures = 0; }
+`)}`;
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
@@ -50,6 +72,9 @@ registerHooks({
     }
     if (specifier === "@/db/trip-store") {
       return { url: tripStoreBoundary, shortCircuit: true };
+    }
+    if (specifier === "@/db/auth-rate-limit-store") {
+      return { url: authLimitBoundary, shortCircuit: true };
     }
     if (specifier.startsWith("@/")) {
       return {
@@ -157,7 +182,18 @@ test("a viewer access code creates a signed session that can read the trip", asy
     new Request("https://trip.test/api/trip", { headers: { cookie } }),
   );
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { items: [], version: 1, history: [], role: "viewer" });
+  assert.deepEqual(await response.json(), {
+    items: [{
+      id: "day-one-hotel",
+      date: "2026-08-06",
+      category: "hotel",
+      title: "Family hotel",
+      location: "Tokyo",
+    }],
+    version: 1,
+    history: [],
+    role: "viewer",
+  });
 });
 
 test("trip mutations return 403 for viewers, succeed for editors, and return 401 without a session", async () => {
@@ -167,7 +203,10 @@ test("trip mutations return 403 for viewers, succeed for editors, and return 401
     new Request("https://trip.test/api/trip", {
       method: "PUT",
       headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}) },
-      body: JSON.stringify({ items: [], baseVersion: 1 }),
+      body: JSON.stringify({
+        items: [{ id: "day-one-hotel", date: "2026-08-06", category: "hotel", title: "Family hotel" }],
+        baseVersion: 1,
+      }),
     });
   const restoreRequest = (cookie = "") =>
     new Request("https://trip.test/api/trip", {
@@ -202,4 +241,15 @@ test("the legacy family code remains an editor login and logout invalidates the 
   assert.match(cleared, /SameSite=Strict/);
   assert.match(cleared, /Max-Age=0/);
   assert.match(cleared, /Secure/);
+});
+
+test("authentication is blocked after five failed access-code attempts", async () => {
+  globalThis.__japanTripAuthFailures = 0;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    assert.equal((await signIn("wrong-code")).status, 401);
+  }
+  const blocked = await signIn("parent-code");
+  assert.equal(blocked.status, 429);
+  assert.equal(blocked.headers.get("retry-after"), "900");
+  globalThis.__japanTripAuthFailures = 0;
 });

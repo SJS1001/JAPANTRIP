@@ -56,3 +56,17 @@ test("service worker caches public same-origin attraction images", async () => {
   assert.equal((await response).status, 200);
   assert.equal(stored, 1);
 });
+
+test("service worker caches vinext JavaScript and CSS assets needed for offline hydration", async () => {
+  let stored = 0;
+  const { listeners } = await loadWorker({ cache: { put: async () => { stored += 1; } } });
+  for (const path of ["/assets/TripCalendar-test.js", "/assets/TripCalendar-test.css"]) {
+    let response;
+    listeners.get("fetch")({
+      request: new Request(`https://trip.test${path}`),
+      respondWith: (value) => { response = value; },
+    });
+    assert.equal((await response).status, 200);
+  }
+  assert.equal(stored, 2);
+});

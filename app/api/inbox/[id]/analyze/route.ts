@@ -4,6 +4,7 @@ import {
   inboxDocumentTextExtractor,
 } from "@/db/ai-inbox-store";
 import { readTrip } from "@/db/trip-store";
+import { consumeRequestLimit } from "@/db/request-rate-limit-store";
 import { analyze } from "@/lib/ai/inbox-analyzer";
 import type { InboxCandidateEvent } from "@/lib/ai/inbox-schemas";
 
@@ -45,6 +46,25 @@ export async function POST(request: Request, context: RouteContext) {
   const store = aiInboxStore();
   try {
     const editor = await inboxEditor(request);
+    if (request.headers.get("x-openai-analysis-consent") !== "yes") {
+      return Response.json(
+        { error: "Explicit OpenAI analysis consent is required for this document." },
+        { status: 428, headers: INBOX_PRIVATE_HEADERS },
+      );
+    }
+    const rateLimit = await consumeRequestLimit(request, "inbox-analysis", {
+      maximum: 20,
+      windowMs: 60 * 60_000,
+    });
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many document analyses. Wait before trying again." },
+        {
+          status: 429,
+          headers: { ...INBOX_PRIVATE_HEADERS, "retry-after": String(rateLimit.retryAfter) },
+        },
+      );
+    }
     const { id } = await context.params;
     const document = await store.readDocumentForAnalysis(id);
     if (!document) {
@@ -69,6 +89,7 @@ export async function POST(request: Request, context: RouteContext) {
         text: documentText,
         role: editor.role,
         tripVersion: trip.version,
+        mediaType: document.mediaType,
       },
       candidateEvents(Array.isArray(trip.items) ? trip.items : []),
       inboxAnalyzerModel(),

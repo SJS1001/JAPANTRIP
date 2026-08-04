@@ -1,0 +1,27 @@
+.panel { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--line); background: var(--card); }
+.header { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+.header h2, .header h3 { margin: 0; font-family: var(--font-serif), serif; font-weight: 500; }
+.muted { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.notice { margin: 0; padding: 10px; border-left: 3px solid var(--vermillion); background: rgb(183 65 45 / 7%); font-size: 12px; }
+.form { display: grid; gap: 9px; }
+.form label { display: grid; gap: 5px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.form textarea, .form input { width: 100%; padding: 10px; border: 1px solid var(--line); background: white; color: var(--ink); font: inherit; }
+.form textarea { min-height: 110px; resize: vertical; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.noteList, .ratingList { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.note { display: grid; gap: 9px; padding: 12px; border: 1px solid var(--line); background: rgb(251 250 246 / 70%); }
+.note p { margin: 0; white-space: pre-wrap; }
+.noteMeta { color: var(--muted); font-size: 10px; }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.shot { position: relative; min-height: 88px; border: 1px solid var(--line); overflow: hidden; background: #eee; }
+.shot img { width: 100%; height: 96px; object-fit: cover; display: block; }
+.shot button { position: absolute; top: 3px; right: 3px; min-width: 32px; min-height: 32px; border: 0; background: rgb(20 18 16 / 86%); color: white; cursor: pointer; }
+.stars { display: inline-flex; gap: 2px; align-items: center; }
+.star { min-width: 40px; min-height: 40px; padding: 4px; border: 0; background: transparent; color: #8b8176; font-size: 26px; cursor: pointer; }
+.starOn { color: #c48113; }
+.summary { display: flex; align-items: center; gap: 8px; }
+.summary strong { font-size: 18px; }
+.rating { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding-top: 8px; border-top: 1px solid var(--line); }
+.rating p { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 12px; }
+.pending { color: #8a5e13; font-size: 11px; font-weight: 700; }
+@media (max-width: 600px) { .panel { padding: 12px; } .actions > * { flex: 1 1 auto; } }

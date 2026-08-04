@@ -16,6 +16,7 @@ export type KidDayItem = {
   category: string;
   title: string;
   location?: string;
+  suggestion: string;
 };
 
 export type KidDaySection = {
@@ -78,6 +79,10 @@ function japanDateAndMinutes(now: Date) {
   };
 }
 
+export function japanTripDate(now: Date | string | number = Date.now()) {
+  return japanDateAndMinutes(new Date(now)).date;
+}
+
 function startMinutes(time?: string) {
   const match = time?.match(/\b([01]\d|2[0-3]):([0-5]\d)\b/);
   return match ? Number(match[1]) * 60 + Number(match[2]) : null;
@@ -96,6 +101,17 @@ function inferredStartMinutes(item: KidDayInputItem) {
 }
 
 function safeItem(item: KidDayInputItem): KidDayItem {
+  const suggestion = item.category === "transport"
+    ? "Stay with the family, follow station signs, and have your ticket or IC card ready."
+    : item.category === "attraction"
+      ? "Bring water and comfortable shoes; check the live heat and weather update before leaving."
+      : item.category === "meal"
+        ? "Tell an adult about allergies or dietary needs before ordering."
+        : item.category === "hotel"
+          ? "Use this as the family meeting point if anyone gets separated."
+          : item.category === "ticket"
+            ? "Open the approved ticket or pass before reaching the entrance."
+            : "Check this reminder with the family before moving on.";
   return {
     id: item.id,
     date: item.date,
@@ -103,6 +119,7 @@ function safeItem(item: KidDayInputItem): KidDayItem {
     category: item.category,
     title: item.title,
     ...(item.location?.trim() ? { location: item.location.trim() } : {}),
+    suggestion,
   };
 }
 

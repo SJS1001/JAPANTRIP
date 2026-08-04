@@ -1,4 +1,3 @@
-@import "leaflet/dist/leaflet.css";
 @import "tailwindcss";
 
 :root {
@@ -325,7 +324,7 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .filter-control { display: grid; gap: 5px; min-width: 0; }
 .filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .filters button {
-  min-height: 34px;
+  min-height: 44px;
   padding: 6px 10px;
   border: 1px solid var(--line);
   background: transparent;
@@ -336,6 +335,20 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
   text-transform: uppercase;
 }
 .filters button.active { border-color: var(--ink); background: var(--ink); color: white; }
+.attachment-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--vermillion);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  text-align: left;
+  text-decoration: underline;
+}
+.my-day-suggestion { color: var(--muted); line-height: 1.45; }
+.my-day-live-context { margin: 18px 0; border: 1px solid var(--line); padding: 14px; background: white; }
+.my-day-live-context > summary { min-height: 44px; cursor: pointer; font-weight: 800; }
 .filters button.exclusive { outline: 2px solid rgb(183 65 45 / 28%); outline-offset: 2px; }
 .filter-hint { color: var(--muted); font-size: 9px; }
 .spacer { flex: 1; }
@@ -466,7 +479,7 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .status i { width: 6px; height: 6px; border-radius: 50%; background: #aaa; }
 .status.booked i { background: var(--moss); }
 .status.to-buy i { background: var(--vermillion); }
-.flip-hint { margin-top: 11px; padding-top: 9px; border-top: 1px solid var(--line); color: var(--indigo); font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.flip-hint { width: 100%; min-height: 44px; margin-top: 11px; padding: 9px 0 0; border: 0; border-top: 1px solid var(--line); color: var(--indigo); background: transparent; text-align: left; cursor: pointer; font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .flipped h3 { margin-top: 6px; font-family: var(--font-serif), serif; font-size: 18px; }
 .flipped p { margin: 8px 0 16px; font-size: 12px; line-height: 1.65; }
 .local-tip { margin: 17px 0 10px; padding: 13px 14px 2px; border-left: 3px solid var(--gold); background: rgb(179 132 49 / 8%); }
@@ -868,6 +881,8 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
 .my-day-card h4 { margin: 3px 0 4px; font-family: var(--font-serif), serif; font-size: 21px; }
 .my-day-card p { margin: 0; color: var(--muted); }
 .my-day-done { min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
+.my-day-open-calendar { grid-column: 3; }
+.development-notes-dialog { width: min(100%, 920px); }
 .my-day-hotel { margin-top: 28px; padding: 20px; border: 1px solid #b9cfc5; border-radius: 18px; background: #e9f5f1; }
 .my-day-hotel h3 { margin: 5px 0 7px; font-size: 24px; }
 .trip-assistant { position: fixed; z-index: 90; right: 18px; bottom: 18px; width: min(440px, calc(100vw - 28px)); max-height: min(760px, calc(100dvh - 36px)); display: grid; grid-template-rows: auto auto minmax(80px, 1fr) auto auto; gap: 13px; overflow: hidden; margin: 0; padding: 18px; border: 1px solid var(--line); border-radius: 22px; background: #fffefa; color: var(--ink); box-shadow: 0 24px 90px rgb(31 27 21 / 25%); }
@@ -918,6 +933,7 @@ textarea { min-height: 112px; padding: 12px; resize: vertical; }
   .my-day-nav { grid-template-columns: 1fr 1fr; }
   .my-day-nav select { grid-column: 1 / -1; grid-row: 1; }
   .my-day-card { grid-template-columns: 1fr auto; }
+  .my-day-open-calendar { grid-column: 1 / -1; }
   .my-day-time { grid-column: 1 / -1; }
   .trip-assistant { inset: 8px; width: auto; max-height: none; border-radius: 16px; }
   .attachment-manager > form { grid-template-columns: 1fr; }

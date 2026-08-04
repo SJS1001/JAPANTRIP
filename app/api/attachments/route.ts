@@ -1,4 +1,5 @@
 import { attachmentModule } from "@/db/attachment-store";
+import { readTrip } from "@/db/trip-store";
 import { role } from "@/lib/access";
 import {
   AttachmentAccessError,
@@ -7,6 +8,7 @@ import {
   MAX_ATTACHMENT_BYTES,
   type AttachmentLabel,
 } from "@/lib/attachments";
+import { readBoundedFormData, RequestBodyTooLargeError } from "@/lib/http-body";
 
 const PRIVATE_HEADERS = {
   "cache-control": "private, no-store, max-age=0",
@@ -89,7 +91,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const form = await request.formData();
+    const form = await readBoundedFormData(request, MAX_MULTIPART_BYTES);
     const allowedFields = new Set(["tripItemId", "file", "label", "viewerApproved"]);
     if (
       [...form.keys()].some((key) => !allowedFields.has(key)) ||
@@ -123,6 +125,13 @@ export async function POST(request: Request) {
       return Response.json(
         { error: "The trip item ID is not valid." },
         { status: 400, headers: PRIVATE_HEADERS },
+      );
+    }
+    const trip = await readTrip();
+    if (!trip.items.some((item: { id?: string }) => item.id === tripItemId)) {
+      return Response.json(
+        { error: "That agenda item does not exist." },
+        { status: 404, headers: PRIVATE_HEADERS },
       );
     }
     const labelValue = form.get("label");
@@ -163,6 +172,9 @@ export async function POST(request: Request) {
       { status: 201, headers: PRIVATE_HEADERS },
     );
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return Response.json({ error: "The upload request is too large." }, { status: 413, headers: PRIVATE_HEADERS });
+    }
     return errorResponse(error);
   }
 }

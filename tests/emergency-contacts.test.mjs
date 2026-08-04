@@ -338,7 +338,7 @@ class FakeD1 {
   }
 }
 
-const SESSION_SECRET = "emergency-contacts-test-secret";
+const SESSION_SECRET = "emergency-contacts-test-secret-with-enough-entropy";
 const fakeD1 = new FakeD1();
 globalThis.__emergencyContactsTestEnv = {
   DB: fakeD1,

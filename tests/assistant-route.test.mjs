@@ -39,6 +39,7 @@ globalThis.__japanTripAssistantAttachmentStore = {
     return actor.role === "viewer" ? records.filter((record) => record.viewerApproved) : records;
   },
 };
+globalThis.__japanTripAssistantAiEnabled = true;
 
 const cloudflareEnvironment =
   "data:text/javascript,export const env=globalThis.__japanTripAssistantTestEnv";
@@ -49,6 +50,8 @@ const tripStoreBoundary = `data:text/javascript,${encodeURIComponent(`
 const attachmentStoreBoundary = `data:text/javascript,${encodeURIComponent(`
   export const attachmentModule = () => globalThis.__japanTripAssistantAttachmentStore;
 `)}`;
+const requestLimitBoundary = "data:text/javascript,export async function consumeRequestLimit(){return {allowed:true,remaining:29,retryAfter:0}}";
+const aiSettingsBoundary = "data:text/javascript,export async function readFamilyAiEnabled(){return globalThis.__japanTripAssistantAiEnabled}";
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
@@ -60,6 +63,12 @@ registerHooks({
     }
     if (specifier === "@/db/attachment-store") {
       return { url: attachmentStoreBoundary, shortCircuit: true };
+    }
+    if (specifier === "@/db/request-rate-limit-store") {
+      return { url: requestLimitBoundary, shortCircuit: true };
+    }
+    if (specifier === "@/db/ai-settings-store") {
+      return { url: aiSettingsBoundary, shortCircuit: true };
     }
     if (specifier.startsWith("@/")) {
       return {
@@ -170,4 +179,30 @@ test("assistant safely falls back when the API key is not configured", async () 
   } finally {
     globalThis.__japanTripAssistantTestEnv.OPENAI_API_KEY = currentKey;
   }
+});
+
+test("disabled family AI setting prevents any OpenAI request", async (t) => {
+  const originalFetch = globalThis.fetch;
+  let called = false;
+  globalThis.fetch = async () => {
+    called = true;
+    throw new Error("OpenAI must not be called while disabled");
+  };
+  globalThis.__japanTripAssistantAiEnabled = false;
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+    globalThis.__japanTripAssistantAiEnabled = true;
+  });
+
+  const response = await assistantRoute.POST(new Request("https://trip.test/api/assistant", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      cookie: await cookieFor("editor"),
+    },
+    body: JSON.stringify({ question: "Tell me something about our trip" }),
+  }));
+  assert.equal(response.status, 200);
+  assert.equal(called, false);
+  assert.equal((await response.json()).aiEnabled, false);
 });

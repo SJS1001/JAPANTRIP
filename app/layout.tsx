@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Noto_Serif_JP } from "next/font/google";
 import { headers } from "next/headers";
 import { OfflineRegistration } from "./components/OfflineRegistration";
+import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
 const sans = Geist({ variable: "--font-sans", subsets: ["latin"] });

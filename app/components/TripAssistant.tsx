@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import {
   answerOfflineTripQuestion,
@@ -10,11 +10,17 @@ import {
   type TripAssistantItem,
   type TripAssistantRole,
 } from "@/lib/ai/trip-assistant";
+import {
+  listOfflineAttachments,
+  type OfflineAttachment,
+} from "@/lib/client/offline-attachments";
 
 type TripAssistantProps = {
   items: TripAssistantItem[];
   role: TripAssistantRole;
+  aiEnabled: boolean;
   onClose: () => void;
+  onOpenEvent: (itemId: string) => void;
 };
 
 const starters = [
@@ -24,15 +30,12 @@ const starters = [
   "Which ticket do I need?",
 ];
 
-export default function TripAssistant({ items, role, onClose }: TripAssistantProps) {
+export default function TripAssistant({ items, role, aiEnabled, onClose, onOpenEvent }: TripAssistantProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState<Array<{ id: string; question: string; answer: GroundedTripAnswer }>>([]);
   const [busy, setBusy] = useState(false);
-  const context = useMemo(
-    () => projectTripQuestionContext({ role, now: new Date(), items }),
-    [items, role],
-  );
+  const offlineAttachmentsRef = useRef<OfflineAttachment[]>([]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -42,14 +45,41 @@ export default function TripAssistant({ items, role, onClose }: TripAssistantPro
     };
   }, []);
 
+  useEffect(() => {
+    void listOfflineAttachments()
+      .then((saved) => {
+        offlineAttachmentsRef.current = saved;
+      })
+      .catch(() => undefined);
+  }, []);
+
   async function ask(value: string) {
     const trimmed = value.trim();
     if (!trimmed || busy) return;
     setBusy(true);
     setQuestion("");
+    const enrichedItems = items.map((item) => ({
+      ...item,
+      attachments: offlineAttachmentsRef.current
+        .filter(
+          (attachment) =>
+            attachment.tripItemId === item.id &&
+            (role === "editor" || attachment.viewerApproved),
+        )
+        .map((attachment) => ({
+          id: attachment.id,
+          label: attachment.displayName || attachment.label || "Saved file",
+          viewerVisible: attachment.viewerApproved,
+        })),
+    }));
+    const context = projectTripQuestionContext({
+      role,
+      now: new Date(),
+      items: enrichedItems,
+    });
     try {
       let answer: GroundedTripAnswer;
-      if (!navigator.onLine) {
+      if (!navigator.onLine || !aiEnabled) {
         answer = answerOfflineTripQuestion(trimmed, context);
       } else {
         const response = await fetch("/api/assistant", {
@@ -93,6 +123,31 @@ export default function TripAssistant({ items, role, onClose }: TripAssistantPro
     void ask(question);
   }
 
+  async function openCitation(citation: GroundedTripAnswer["citations"][number]) {
+    if (citation.kind === "event") {
+      onClose();
+      onOpenEvent(citation.id);
+      return;
+    }
+    if (citation.kind === "attachment") {
+      const popup = window.open("about:blank", "_blank");
+      if (!popup) return;
+      popup.opener = null;
+      if (navigator.onLine) {
+        popup.location.href = `/api/attachments/${encodeURIComponent(citation.id)}`;
+        return;
+      }
+      const saved = offlineAttachmentsRef.current.find((attachment) => attachment.id === citation.id);
+      if (!saved) {
+        popup.close();
+        return;
+      }
+      const url = URL.createObjectURL(saved.blob);
+      popup.location.href = url;
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    }
+  }
+
   return (
     <dialog ref={dialogRef} className="trip-assistant" aria-labelledby="trip-assistant-title" onClose={onClose}>
       <header>
@@ -118,7 +173,7 @@ export default function TripAssistant({ items, role, onClose }: TripAssistantPro
             {!!entry.answer.citations.length && (
               <div className="assistant-citations" aria-label="Answer sources">
                 {entry.answer.citations.map((citation) => (
-                  <a key={`${citation.kind}-${citation.id}`} href={citation.kind === "event" ? `#trip-item-${citation.id}` : `#attachment-${citation.id}`}>{citation.label}</a>
+                  <button type="button" key={`${citation.kind}-${citation.id}`} onClick={() => void openCitation(citation)}>{citation.label}</button>
                 ))}
               </div>
             )}
@@ -132,7 +187,13 @@ export default function TripAssistant({ items, role, onClose }: TripAssistantPro
         <input id="trip-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask about today, tickets, trains or Japan…" maxLength={500} />
         <button type="submit" className="primary" disabled={busy || !question.trim()}>Ask</button>
       </form>
-      <small>{role === "viewer" ? "Kid Mode is read-only. Questions cannot change the trip." : "Requested changes still require review and approval."}</small>
+      <small>
+        {!aiEnabled
+          ? "OpenAI is disabled; only the private offline question set is used."
+          : role === "viewer"
+            ? "Kid Mode is read-only. Questions cannot change the trip."
+            : "Requested changes still require review and approval."}
+      </small>
     </dialog>
   );
 }

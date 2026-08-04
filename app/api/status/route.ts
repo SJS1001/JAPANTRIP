@@ -1,23 +1,21 @@
 import { readTrip } from "@/db/trip-store";
+import { AccessDeniedError, requireViewer } from "@/lib/access";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    await requireViewer(request);
     const trip = await readTrip();
-    const items = trip.items as Array<{ lat?: unknown; lng?: unknown }>;
     return Response.json(
       {
         ready: true,
         version: trip.version,
-        itemCount: items.length,
-        mappedItemCount: items.filter(
-          (item) =>
-            typeof item.lat === "number" && typeof item.lng === "number",
-        ).length,
-        updatedAt: trip.updatedAt,
       },
       { headers: { "cache-control": "no-store, max-age=0" } },
     );
   } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      return Response.json({ error: error.message }, { status: error.status });
+    }
     return Response.json(
       {
         ready: false,

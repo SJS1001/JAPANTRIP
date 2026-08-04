@@ -50,6 +50,13 @@ test("editor mutations retain their stable IDs, order, and base versions", async
     pendingMutationIds: ["mutation-a", "mutation-b"],
     conflict: null,
   });
+  assert.deepEqual(
+    (await trip.pending()).map(({ id, baseVersion }) => ({ id, baseVersion })),
+    [
+      { id: "mutation-a", baseVersion: 7 },
+      { id: "mutation-b", baseVersion: 8 },
+    ],
+  );
 });
 
 test("viewer sessions cannot enqueue itinerary mutations", async () => {

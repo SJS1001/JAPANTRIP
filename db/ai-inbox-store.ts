@@ -6,6 +6,7 @@ import type {
   InboxAnalysisOutcome,
   InboxAnalyzerModel,
   InboxAnalyzerModelInput,
+  InboxCandidateEvent,
   InboxProposal,
 } from "@/lib/ai/inbox-schemas";
 import { InboxDecisionStateError } from "@/lib/ai/inbox-schemas";
@@ -14,6 +15,8 @@ import type {
   AtomicProposalResult,
   TripProposalAdapter,
 } from "@/lib/ai/proposal-approval";
+import { projectCandidateEvents } from "@/lib/ai/event-matcher";
+import { validateTripItems } from "@/lib/trip-schema";
 
 type D1Result<T = unknown> = {
   results?: T[];
@@ -237,13 +240,22 @@ function reviewSummary(row: ProposalRow) {
 export class D1AiInboxStore {
   async listReviewQueue() {
     await ensureSchema();
-    const [documents, outcomes] = await Promise.all([
+    const [documents, outcomes, trip] = await Promise.all([
       database().prepare(`SELECT ${DOCUMENT_COLUMNS} FROM inbox_documents ORDER BY created_at DESC`).all<DocumentRow>(),
       database().prepare(`SELECT ${PROPOSAL_COLUMNS} FROM inbox_proposals ORDER BY created_at DESC`).all<ProposalRow>(),
+      database().prepare("SELECT payload, version FROM trip_state WHERE id = 'family-trip'").first<TripRow>(),
     ]);
+    let events: ReturnType<typeof projectCandidateEvents> = [];
+    try {
+      const items = trip ? JSON.parse(trip.payload) as InboxCandidateEvent[] : [];
+      events = projectCandidateEvents(items);
+    } catch {
+      events = [];
+    }
     return {
       documents: (documents.results ?? []).map(documentSummary),
       outcomes: (outcomes.results ?? []).map(reviewSummary),
+      events,
     };
   }
 
@@ -392,6 +404,67 @@ export class D1AiInboxStore {
     };
   }
 
+  async saveManualProposal(
+    sourceReviewId: string,
+    documentId: string,
+    outcome: InboxProposal,
+  ) {
+    await ensureSchema();
+    const createdAt = new Date().toISOString();
+    const results = await database().batch([
+      database()
+        .prepare(`INSERT INTO inbox_proposals (
+          id, revision, document_id, schema_version, kind, base_trip_version,
+          candidate_event_ids_json, evidence_json, outcome_json, integrity_sha256,
+          status, created_at
+        ) SELECT ?, 1, ?, 1, 'proposal', ?, ?, ?, ?, ?, 'pending', ?
+          WHERE EXISTS (SELECT 1 FROM inbox_proposals
+            WHERE id = ? AND revision = 1 AND document_id = ? AND status = 'pending'
+              AND kind IN ('question', 'unclassified'))`)
+        .bind(
+          outcome.proposalId,
+          documentId,
+          outcome.baseTripVersion,
+          JSON.stringify(outcome.candidateEventIds),
+          JSON.stringify(outcome.evidence),
+          JSON.stringify(outcome),
+          outcome.integrity,
+          createdAt,
+          sourceReviewId,
+          documentId,
+        ),
+      database()
+        .prepare(`UPDATE inbox_proposals
+          SET status = 'rejected', decided_by = ?, decided_at = ?
+          WHERE id = ? AND revision = 1 AND document_id = ? AND status = 'pending'
+            AND EXISTS (SELECT 1 FROM inbox_proposals
+              WHERE id = ? AND revision = 1 AND status = 'pending')`)
+        .bind(
+          `superseded-by:${outcome.proposalId}`,
+          createdAt,
+          sourceReviewId,
+          documentId,
+          outcome.proposalId,
+        ),
+      database()
+        .prepare("UPDATE inbox_documents SET status = 'review', updated_at = ? WHERE id = ?")
+        .bind(createdAt, documentId),
+    ]);
+    if (!results[0]?.meta?.changes || !results[1]?.meta?.changes) {
+      throw new InboxDecisionStateError();
+    }
+    return {
+      id: outcome.proposalId,
+      documentId,
+      status: "draft",
+      outcome,
+      decidedBy: null,
+      decidedAt: null,
+      appliedTripVersion: null,
+      createdAt,
+    };
+  }
+
   async getProposal(id: string): Promise<InboxProposal | null> {
     await ensureSchema();
     const row = await database()
@@ -401,6 +474,20 @@ export class D1AiInboxStore {
       .first<ProposalRow>();
     const outcome = row ? parseOutcome(row) : null;
     return outcome?.kind === "proposal" ? outcome : null;
+  }
+
+  async getManualReview(id: string) {
+    await ensureSchema();
+    const row = await database()
+      .prepare(`SELECT ${PROPOSAL_COLUMNS} FROM inbox_proposals
+        WHERE id = ? AND revision = 1 AND status = 'pending'
+          AND kind IN ('question', 'unclassified')`)
+      .bind(id)
+      .first<ProposalRow>();
+    const outcome = row ? parseOutcome(row) : null;
+    return outcome?.kind === "question" || outcome?.kind === "unclassified"
+      ? { id: row!.id, documentId: row!.document_id, outcome }
+      : null;
   }
 
   async markApproved(
@@ -478,7 +565,7 @@ class SafeLocalInboxModel implements InboxAnalyzerModel {
         words.filter((word) => normalized.includes(word)).length >= 2;
     });
     const quote = text.trim().slice(0, 180);
-    if (match) {
+    if (match && input.document.attachmentAllowed !== false) {
       return {
         kind: "proposal",
         candidateEventIds: [match.id],
@@ -552,7 +639,8 @@ const inboxOutcomeSchema = {
           type: "object",
           additionalProperties: false,
           properties: {
-            operation: { const: "create-event" },
+            operation: { const: "create-event-and-attach" },
+            documentId: { type: "string" },
             event: {
               type: "object",
               additionalProperties: false,
@@ -568,7 +656,7 @@ const inboxOutcomeSchema = {
               required: ["id", "date", "title", "category", "time", "location", "notes"],
             },
           },
-          required: ["operation", "event"],
+          required: ["operation", "event", "documentId"],
         },
       ],
     },
@@ -612,7 +700,11 @@ function normalizeOpenAiOutcome(value: unknown): unknown {
       diff: { ...diff, changes: removeNullFields(diff.changes as Record<string, unknown>) },
     };
   }
-  if (diff.operation === "create-event" && diff.event && typeof diff.event === "object") {
+  if (
+    diff.operation === "create-event-and-attach" &&
+    diff.event &&
+    typeof diff.event === "object"
+  ) {
     return {
       ...common,
       diff: { ...diff, event: removeNullFields(diff.event as Record<string, unknown>) },
@@ -780,11 +872,11 @@ function applyAgendaDiff(items: unknown[], command: AtomicProposalCommand) {
     records[index] = { ...records[index], ...diff.changes, id: records[index].id };
     return records;
   }
-  if (diff.operation === "create-event") {
+  if (diff.operation === "create-event-and-attach") {
     if (records.some((item) => item.id === diff.event.id)) {
       throw new Error("The proposed event ID is already in use.");
     }
-    return [...records, { ...diff.event }];
+    return validateTripItems([...records, { ...diff.event }]);
   }
   return records;
 }
@@ -809,7 +901,9 @@ export class D1InboxTripAdapter implements TripProposalAdapter {
       return { kind: "stale", currentVersion: Number(trip?.version ?? 0) };
     }
 
-    if (command.diff.operation === "attach-document") {
+    const attachesSource = command.diff.operation === "attach-document" ||
+      command.diff.operation === "create-event-and-attach";
+    if (attachesSource) {
       await ensureAttachmentSchema();
       const document = await db
         .prepare(`SELECT ${DOCUMENT_COLUMNS} FROM inbox_documents WHERE id = ?`)
@@ -818,6 +912,16 @@ export class D1InboxTripAdapter implements TripProposalAdapter {
       if (!document || !TRIP_ATTACHMENT_TYPES.has(document.media_type)) {
         throw new Error("Only a staged PDF or image can be attached to an itinerary event.");
       }
+      const existingAttachment = await db
+        .prepare("SELECT id FROM trip_attachments WHERE id = ? AND deleted_at IS NULL")
+        .bind(command.documentId)
+        .first<{ id: string }>();
+      if (existingAttachment) {
+        throw new Error("This source document is already attached to an itinerary event.");
+      }
+    }
+
+    if (command.diff.operation === "attach-document") {
       // Inbox document IDs are UUIDs, so the approved attachment remains
       // compatible with /api/attachments/:id validation and download.
       const attachmentId = command.documentId;
@@ -858,7 +962,7 @@ export class D1InboxTripAdapter implements TripProposalAdapter {
             command.approvedBy,
             decidedAt,
           ),
-        db.prepare(`INSERT OR IGNORE INTO trip_attachments (
+        db.prepare(`INSERT INTO trip_attachments (
           id, trip_item_id, object_key, display_name, media_type, size, sha256,
           label, viewer_approved, uploaded_by, uploaded_at, deleted_at
         ) SELECT ?, ?, object_key, filename, media_type, size_bytes, content_sha256,
@@ -887,7 +991,7 @@ export class D1InboxTripAdapter implements TripProposalAdapter {
       const nextItems = applyAgendaDiff(JSON.parse(trip.payload) as unknown[], command);
       const action = `Approved Inbox proposal ${command.proposalId}`;
       const decidedAt = new Date().toISOString();
-      const results = await db.batch([
+      const statements = [
         db.prepare(`UPDATE inbox_proposals
           SET status = 'approved', decided_by = ?, decided_at = ?, applied_trip_version = ?
           WHERE id = ? AND revision = ? AND status = 'pending'
@@ -941,11 +1045,33 @@ export class D1InboxTripAdapter implements TripProposalAdapter {
             SELECT 1 FROM trip_state WHERE id = 'family-trip' AND version = ?
           ) AND NOT EXISTS (SELECT 1 FROM trip_history WHERE action = ?)`)
           .bind(nextVersion, action, command.approvedBy, nextVersion, action),
-      ]);
+      ];
+      if (command.diff.operation === "create-event-and-attach") {
+        statements.push(
+          db.prepare(`INSERT INTO trip_attachments (
+            id, trip_item_id, object_key, display_name, media_type, size, sha256,
+            label, viewer_approved, uploaded_by, uploaded_at, deleted_at
+          ) SELECT ?, ?, object_key, filename, media_type, size_bytes, content_sha256,
+            'reservation', 0, ?, CURRENT_TIMESTAMP, NULL
+            FROM inbox_documents WHERE id = ?
+              AND EXISTS (SELECT 1 FROM inbox_proposal_applications
+                WHERE proposal_id = ? AND proposal_revision = ?)`)
+            .bind(
+              command.documentId,
+              command.diff.event.id,
+              command.approvedBy,
+              command.documentId,
+              command.proposalId,
+              command.revision,
+            ),
+        );
+      }
+      const results = await db.batch(statements);
       if (
         results[0]?.meta?.changes &&
         results[1]?.meta?.changes &&
-        results[2]?.meta?.changes
+        results[2]?.meta?.changes &&
+        (command.diff.operation !== "create-event-and-attach" || results[4]?.meta?.changes)
       ) {
         return { kind: "applied", version: nextVersion };
       }

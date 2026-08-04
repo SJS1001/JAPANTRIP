@@ -49,8 +49,8 @@ globalThis.__inboxRouteHarness = {
       }
       return {
         id,
-        filename: "osaka-hotel.txt",
-        mediaType: "text/plain",
+        filename: "osaka-hotel.pdf",
+        mediaType: "application/pdf",
         text: "Reservation for Osaka Hotel",
       };
     },
@@ -65,6 +65,16 @@ globalThis.__inboxRouteHarness = {
         outcome,
         createdAt: "2026-08-04T12:01:00.000Z",
       };
+    },
+    async getManualReview(id) {
+      this.manualReads = (this.manualReads ?? 0) + 1;
+      return id === this.manualReview?.id ? this.manualReview : null;
+    },
+    async saveManualProposal(sourceReviewId, documentId, outcome) {
+      this.manualSaves = (this.manualSaves ?? 0) + 1;
+      this.lastManualSave = { sourceReviewId, documentId, outcome };
+      this.manualReview = null;
+      return this.saveOutcome(documentId, outcome);
     },
     async saveExtractedText(documentId, text) {
       this.extractedTextWrites = (this.extractedTextWrites ?? 0) + 1;
@@ -193,6 +203,7 @@ const tripStoreBoundary = `data:text/javascript,${encodeURIComponent(`
 const attachmentStoreBoundary = `data:text/javascript,${encodeURIComponent(`
   export const attachmentModule = () => globalThis.__inboxRouteHarness.attachment;
 `)}`;
+const requestLimitBoundary = "data:text/javascript,export async function consumeRequestLimit(){return {allowed:true,remaining:9,retryAfter:0}}";
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
@@ -210,6 +221,9 @@ registerHooks({
     }
     if (specifier === "@/db/attachment-store") {
       return { url: attachmentStoreBoundary, shortCircuit: true };
+    }
+    if (specifier === "@/db/request-rate-limit-store") {
+      return { url: requestLimitBoundary, shortCircuit: true };
     }
     if (specifier.startsWith("@/")) {
       return {
@@ -234,6 +248,7 @@ registerHooks({
 
 const collectionRoute = await import("../app/api/inbox/route.ts");
 const analyzeRoute = await import("../app/api/inbox/[id]/analyze/route.ts");
+const manualDraftRoute = await import("../app/api/inbox/reviews/[id]/draft/route.ts");
 const approveRoute = await import("../app/api/inbox/proposals/[id]/approve/route.ts");
 const rejectRoute = await import("../app/api/inbox/proposals/[id]/reject/route.ts");
 const attachmentItemRoute = await import("../app/api/attachments/[id]/route.ts");
@@ -243,11 +258,14 @@ async function cookieFor(role) {
   return `japan_trip_family_access=${encodeURIComponent(token)}`;
 }
 
-async function request(url, { method = "GET", role, body } = {}) {
+async function request(url, { method = "GET", role, body, headers = {} } = {}) {
   return new Request(url, {
     method,
     body,
-    headers: role ? { cookie: await cookieFor(role) } : undefined,
+    headers: {
+      ...headers,
+      ...(role ? { cookie: await cookieFor(role) } : {}),
+    },
   });
 }
 
@@ -309,6 +327,7 @@ test("editor stages one private document without changing the itinerary", async 
     await request("https://trip.test/api/inbox", {
       method: "POST",
       role: "editor",
+      headers: { "x-openai-analysis-consent": "yes" },
       body: form,
     }),
   );
@@ -354,6 +373,30 @@ test("Inbox rejects a file whose claimed type does not match its bytes", async (
   assert.equal(harness.store.uploadCalls, 0);
 });
 
+test("Inbox rejects an oversized streamed multipart body without trusting Content-Length", async () => {
+  const harness = globalThis.__inboxRouteHarness;
+  harness.store.uploadCalls = 0;
+  let chunks = 0;
+  const body = new ReadableStream({
+    pull(controller) {
+      if (chunks++ < 11) controller.enqueue(new Uint8Array(1024 * 1024));
+      else controller.close();
+    },
+  });
+  const response = await collectionRoute.POST(new Request("https://trip.test/api/inbox", {
+    method: "POST",
+    headers: {
+      cookie: await cookieFor("editor"),
+      "content-type": "multipart/form-data; boundary=bounded-test",
+    },
+    body,
+    duplex: "half",
+  }));
+  assert.equal(response.status, 413);
+  assert.match((await response.json()).error, /too large/i);
+  assert.equal(harness.store.uploadCalls, 0);
+});
+
 test("analysis stores an evidenced draft and performs zero itinerary writes", async () => {
   const harness = globalThis.__inboxRouteHarness;
   harness.store.analysisReads = 0;
@@ -376,6 +419,7 @@ test("analysis stores an evidenced draft and performs zero itinerary writes", as
     await request(`https://trip.test/api/inbox/${DOCUMENT_ID}/analyze`, {
       method: "POST",
       role: "editor",
+      headers: { "x-openai-analysis-consent": "yes" },
     }),
     itemContext(DOCUMENT_ID),
   );
@@ -393,6 +437,20 @@ test("analysis stores an evidenced draft and performs zero itinerary writes", as
   assert.doesNotMatch(JSON.stringify(harness.store.lastOutcome), /SECRET-123/);
 });
 
+test("analysis refuses staged files without explicit OpenAI consent", async () => {
+  const harness = globalThis.__inboxRouteHarness;
+  harness.model.calls = 0;
+  const response = await analyzeRoute.POST(
+    await request(`https://trip.test/api/inbox/${DOCUMENT_ID}/analyze`, {
+      method: "POST",
+      role: "editor",
+    }),
+    itemContext(DOCUMENT_ID),
+  );
+  assert.equal(response.status, 428);
+  assert.equal(harness.model.calls, 0);
+});
+
 test("analysis extracts text from a staged binary document before drafting", async () => {
   const harness = globalThis.__inboxRouteHarness;
   harness.store.useBinaryDocument = true;
@@ -404,6 +462,7 @@ test("analysis extracts text from a staged binary document before drafting", asy
       await request(`https://trip.test/api/inbox/${DOCUMENT_ID}/analyze`, {
         method: "POST",
         role: "editor",
+        headers: { "x-openai-analysis-consent": "yes" },
       }),
       itemContext(DOCUMENT_ID),
     );
@@ -429,12 +488,129 @@ async function stageDraftProposal() {
     await request(`https://trip.test/api/inbox/${DOCUMENT_ID}/analyze`, {
       method: "POST",
       role: "editor",
+      headers: { "x-openai-analysis-consent": "yes" },
     }),
     itemContext(DOCUMENT_ID),
   );
   assert.equal(response.status, 201);
   return (await response.json()).review.outcome;
 }
+
+test("question completion prepares a separate exact proposal before any approval", async () => {
+  const harness = globalThis.__inboxRouteHarness;
+  harness.trip.calls = 0;
+  harness.tripSnapshot.writes = 0;
+  harness.store.savedOutcomes = 0;
+  harness.store.manualReview = {
+    id: "question-review-1",
+    documentId: DOCUMENT_ID,
+    outcome: {
+      schemaVersion: 1,
+      kind: "question",
+      documentId: DOCUMENT_ID,
+      baseTripVersion: 7,
+      candidateEventIds: ["osaka-hotel"],
+      evidence: [{ quote: "Reservation for Osaka Hotel" }],
+      question: "Where should this document be filed?",
+    },
+  };
+
+  const viewer = await manualDraftRoute.POST(
+    await request("https://trip.test/api/inbox/reviews/question-review-1/draft", {
+      method: "POST",
+      role: "viewer",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ operation: "attach-document", eventId: "osaka-hotel" }),
+    }),
+    itemContext("question-review-1"),
+  );
+  assert.equal(viewer.status, 403);
+
+  const response = await manualDraftRoute.POST(
+    await request("https://trip.test/api/inbox/reviews/question-review-1/draft", {
+      method: "POST",
+      role: "editor",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ operation: "attach-document", eventId: "osaka-hotel" }),
+    }),
+    itemContext("question-review-1"),
+  );
+  assert.equal(response.status, 201);
+  const review = (await response.json()).review;
+  assert.equal(review.status, "draft");
+  assert.deepEqual(review.outcome.diff, {
+    operation: "attach-document",
+    eventId: "osaka-hotel",
+    documentId: DOCUMENT_ID,
+  });
+  assert.equal(harness.trip.calls, 0);
+  assert.equal(harness.tripSnapshot.writes, 0);
+  assert.equal(harness.store.lastManualSave.sourceReviewId, "question-review-1");
+});
+
+test("manual new-event approval carries one atomic create-and-attach command", async () => {
+  const harness = globalThis.__inboxRouteHarness;
+  harness.trip.calls = 0;
+  harness.trip.result = "apply";
+  harness.trip.version = 7;
+  harness.trip.applied.clear();
+  harness.store.proposalStatus = "draft";
+  harness.store.manualReview = {
+    id: "unclassified-review-1",
+    documentId: DOCUMENT_ID,
+    outcome: {
+      schemaVersion: 1,
+      kind: "unclassified",
+      documentId: DOCUMENT_ID,
+      baseTripVersion: 7,
+      candidateEventIds: [],
+      evidence: [{ quote: "Reservation for Osaka Hotel" }],
+      reason: "No confident match.",
+    },
+  };
+  const drafted = await manualDraftRoute.POST(
+    await request("https://trip.test/api/inbox/reviews/unclassified-review-1/draft", {
+      method: "POST",
+      role: "editor",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        operation: "create-event-and-attach",
+        event: {
+          id: "new-osaka-booking",
+          date: "2026-08-11",
+          title: "New Osaka booking",
+          category: "hotel",
+          location: "Namba",
+        },
+      }),
+    }),
+    itemContext("unclassified-review-1"),
+  );
+  assert.equal(drafted.status, 201);
+  const proposal = (await drafted.json()).review.outcome;
+  assert.equal(harness.trip.calls, 0);
+
+  const approved = await approveRoute.POST(
+    await request(`https://trip.test/api/inbox/proposals/${proposal.proposalId}/approve`, {
+      method: "POST",
+      role: "editor",
+    }),
+    itemContext(proposal.proposalId),
+  );
+  assert.equal(approved.status, 200);
+  assert.equal(harness.trip.calls, 1);
+  assert.deepEqual(harness.trip.lastCommand.diff, {
+    operation: "create-event-and-attach",
+    documentId: DOCUMENT_ID,
+    event: {
+      id: "new-osaka-booking",
+      date: "2026-08-11",
+      title: "New Osaka booking",
+      category: "hotel",
+      location: "Namba",
+    },
+  });
+});
 
 test("only explicit editor approval invokes the atomic adapter with the stored draft", async () => {
   const harness = globalThis.__inboxRouteHarness;

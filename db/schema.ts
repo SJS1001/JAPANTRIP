@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const tripState = sqliteTable("trip_state", {
   id: text("id").primaryKey(),
@@ -41,6 +41,28 @@ export const weatherRefreshLock = sqliteTable("weather_refresh_lock", {
   lastRequestAt: integer("last_request_at").notNull().default(0),
 });
 
+export const requestRateLimits = sqliteTable(
+  "request_rate_limits",
+  {
+    scope: text("scope").notNull(),
+    fingerprint: text("fingerprint").notNull(),
+    attempts: integer("attempts").notNull().default(0),
+    windowStarted: integer("window_started").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.scope, table.fingerprint] }),
+    index("request_rate_limits_updated_idx").on(table.updatedAt),
+  ],
+);
+
+export const familySettings = sqliteTable("family_settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedBy: text("updated_by").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
 export const emergencyContacts = sqliteTable("emergency_contacts", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -54,6 +76,53 @@ export const emergencyContacts = sqliteTable("emergency_contacts", {
   updatedAt: text("updated_at").notNull(),
   deletedAt: text("deleted_at"),
 });
+
+export const developmentNotes = sqliteTable(
+  "development_notes",
+  {
+    id: text("id").primaryKey(),
+    body: text("body").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [index("development_notes_updated_idx").on(table.deletedAt, table.updatedAt)],
+);
+
+export const developmentNoteScreenshots = sqliteTable(
+  "development_note_screenshots",
+  {
+    id: text("id").primaryKey(),
+    noteId: text("note_id").notNull().references(() => developmentNotes.id, { onDelete: "cascade" }),
+    objectKey: text("object_key").notNull().unique(),
+    displayName: text("display_name").notNull(),
+    mediaType: text("media_type").notNull(),
+    size: integer("size").notNull(),
+    uploadedAt: text("uploaded_at").notNull(),
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [index("development_note_screenshots_note_idx").on(table.noteId, table.deletedAt, table.uploadedAt)],
+);
+
+export const familyRatings = sqliteTable(
+  "family_ratings",
+  {
+    id: text("id").primaryKey(),
+    targetId: text("target_id").notNull(),
+    targetKind: text("target_kind").notNull(),
+    memberName: text("member_name").notNull(),
+    memberKey: text("member_key").notNull(),
+    stars: integer("stars").notNull(),
+    comment: text("comment"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [
+    uniqueIndex("family_ratings_target_member_idx").on(table.targetId, table.memberKey),
+    index("family_ratings_target_idx").on(table.targetId, table.deletedAt, table.memberName),
+  ],
+);
 
 export const tripAttachments = sqliteTable(
   "trip_attachments",

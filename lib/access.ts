@@ -32,11 +32,10 @@ function accessCodes(): FamilyAccessCodes {
 
 function sessionSecret() {
   const configured = accessEnvironment();
-  const value =
-    configured.FAMILY_SESSION_SECRET ||
-    configured.FAMILY_EDITOR_ACCESS_CODE ||
-    configured.FAMILY_ACCESS_CODE;
-  if (!value) throw new Error("Family access is not configured.");
+  const value = configured.FAMILY_SESSION_SECRET;
+  if (!value || value.length < 32) {
+    throw new Error("FAMILY_SESSION_SECRET must be configured with at least 32 characters.");
+  }
   return `japan-trip-session-v1|${value}`;
 }
 

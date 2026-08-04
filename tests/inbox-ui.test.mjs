@@ -26,6 +26,16 @@ test("Inbox page exposes staged uploads and explicit draft review actions", asyn
   assert.match(manager, /\/reject/);
   assert.match(manager, />Approve change</);
   assert.match(manager, />Reject</);
+  assert.match(manager, /Attach to existing event/);
+  assert.match(manager, /Draft a new event/);
+  assert.match(manager, /create-event-and-attach/);
+  assert.match(manager, /Prepare exact draft/);
+  assert.match(manager, /approval is always a separate step/i);
+  assert.match(manager, /setManualDraft\(null\)/);
+  assert.equal(
+    (manager.match(/"x-openai-analysis-consent": "yes"/g) ?? []).length,
+    2,
+  );
   assert.match(manager, /Editor access is required/);
   assert.doesNotMatch(manager, /autoApprove|automatically approve/i);
 });

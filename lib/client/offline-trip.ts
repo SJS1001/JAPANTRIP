@@ -100,6 +100,7 @@ export type OfflineTripClearOptions = {
 
 export interface OfflineTrip<Item extends OfflineTripItem = OfflineTripItem> {
   load(): Promise<OfflineTripSnapshot<Item> | null>;
+  pending(): Promise<OfflineTripMutation<Item>[]>;
   save(snapshot: OfflineTripSnapshot<Item>): Promise<void>;
   enqueue(input: OfflineTripMutationInput<Item>): Promise<OfflineTripMutation<Item>>;
   sync(send: OfflineTripSyncSender<Item>): Promise<OfflineTripStatus<Item>>;
@@ -177,6 +178,7 @@ export function createOfflineTrip<Item extends OfflineTripItem = OfflineTripItem
 
   return {
     load: () => adapter.readSnapshot(),
+    pending: () => adapter.readMutations(),
     save: (snapshot: OfflineTripSnapshot<Item>) => adapter.writeSnapshot(snapshot),
     async enqueue(input: OfflineTripMutationInput<Item>) {
       if (role !== "editor") throw new OfflineTripPermissionError();

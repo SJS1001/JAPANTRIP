@@ -1,5 +1,5 @@
-const SHELL_CACHE = "japan-trip-shell-v1";
-const ASSET_CACHE = "japan-trip-public-assets-v1";
+const SHELL_CACHE = "japan-trip-shell-v2";
+const ASSET_CACHE = "japan-trip-public-assets-v2";
 const SHELL_URLS = ["/", "/offline", "/emergency", "/favicon.svg", "/japan-watercolor-pokemon.jpg"];
 const PUBLIC_NAVIGATIONS = new Set(["/", "/offline", "/emergency"]);
 
@@ -41,6 +41,7 @@ self.addEventListener("fetch", (event) => {
 
 function isPublicAsset(pathname) {
   return pathname.startsWith("/_next/static/")
+    || pathname.startsWith("/assets/")
     || pathname.startsWith("/images/attractions/")
     || pathname === "/favicon.svg"
     || pathname === "/og.png"

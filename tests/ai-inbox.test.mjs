@@ -18,7 +18,7 @@ registerHooks({
   },
 });
 
-const { analyze } = await import("../lib/ai/inbox-analyzer.ts");
+const { analyze, draftManualProposal } = await import("../lib/ai/inbox-analyzer.ts");
 const { approve, reject } = await import("../lib/ai/proposal-approval.ts");
 
 const document = {
@@ -252,7 +252,7 @@ test("editor approval atomically applies the reviewed exact diff once", async ()
   });
 });
 
-test("a new reservation is returned only as a closed create-event proposal", async () => {
+test("a new reservation is returned only as a closed create-and-attach proposal", async () => {
   const newDocument = {
     ...document,
     id: "doc-dinner-1",
@@ -266,7 +266,8 @@ test("a new reservation is returned only as a closed create-event proposal", asy
         candidateEventIds: [],
         evidence: [{ quote: "Dinner at Namba Table on 2026-08-11 at 18:30" }],
         diff: {
-          operation: "create-event",
+          operation: "create-event-and-attach",
+          documentId: newDocument.id,
           event: {
             id: "namba-table-dinner",
             date: "2026-08-11",
@@ -282,7 +283,8 @@ test("a new reservation is returned only as a closed create-event proposal", asy
 
   assert.equal(result.kind, "proposal");
   assert.deepEqual(result.diff, {
-    operation: "create-event",
+    operation: "create-event-and-attach",
+    documentId: "doc-dinner-1",
     event: {
       id: "namba-table-dinner",
       date: "2026-08-11",
@@ -290,6 +292,77 @@ test("a new reservation is returned only as a closed create-event proposal", asy
       title: "Namba Table dinner",
       category: "meal",
       location: "Namba Table",
+    },
+  });
+});
+
+test("manual question completion creates an immutable draft and never applies it", async () => {
+  const source = await analyze(document, candidates, {
+    async propose() {
+      return {
+        kind: "question",
+        candidateEventIds: ["osaka-hotel"],
+        evidence: [{ quote: "Reservation for Osaka Hotel" }],
+        question: "Where should this document be filed?",
+      };
+    },
+  });
+  let writes = 0;
+  const draft = await draftManualProposal(
+    source,
+    { operation: "attach-document", eventId: "osaka-hotel" },
+    candidates,
+  );
+  assert.equal(writes, 0);
+  assert.equal(draft.kind, "proposal");
+  assert.deepEqual(draft.diff, {
+    operation: "attach-document",
+    eventId: "osaka-hotel",
+    documentId: document.id,
+  });
+  assert.equal(Object.isFrozen(draft), true);
+  assert.equal(Object.isFrozen(draft.diff), true);
+
+  await approve(draft, { id: "parent", role: "editor" }, {
+    async applyProposalAtomically(command) {
+      writes += 1;
+      assert.deepEqual(command.diff, draft.diff);
+      return { kind: "applied", version: 7 };
+    },
+  });
+  assert.equal(writes, 1);
+});
+
+test("manual new event drafts always include their source document", async () => {
+  const source = await analyze(document, candidates, {
+    async propose() {
+      return {
+        kind: "unclassified",
+        candidateEventIds: [],
+        evidence: [{ quote: "Check-in is 15:00" }],
+        reason: "No confident match.",
+      };
+    },
+  });
+  const draft = await draftManualProposal(source, {
+    operation: "create-event-and-attach",
+    event: {
+      id: "new-osaka-booking",
+      date: "2026-08-11",
+      title: "New Osaka booking",
+      category: "hotel",
+      location: "Namba",
+    },
+  }, candidates);
+  assert.deepEqual(draft.diff, {
+    operation: "create-event-and-attach",
+    documentId: document.id,
+    event: {
+      id: "new-osaka-booking",
+      date: "2026-08-11",
+      title: "New Osaka booking",
+      category: "hotel",
+      location: "Namba",
     },
   });
 });

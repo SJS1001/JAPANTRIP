@@ -16,10 +16,14 @@ import {
   type InboxDocument,
   type InboxEvidence,
   type InboxEventChanges,
+  type InboxManualDraftInput,
+  type InboxProposal,
   type InboxProposalDiff,
 } from "./inbox-schemas";
+import { validateTripItems } from "../trip-schema.ts";
 
 const eventChangeKeys = ["date", "title", "category", "time", "location", "notes"] as const;
+const attachableMediaTypes = new Set(["application/pdf", "image/jpeg", "image/png", "image/webp"]);
 
 function validateDocument(document: InboxDocument) {
   if (!document.id?.trim()) throw new InboxValidationError("A document ID is required.");
@@ -80,6 +84,13 @@ function parseCreatedEvent(value: unknown, candidates: InboxCandidateEvent[]): I
   if (candidates.some(({ id }) => id === value.id)) {
     throw new InboxValidationError("A create proposal cannot reuse an existing event ID.");
   }
+  try {
+    validateTripItems([{ ...value }]);
+  } catch (error) {
+    throw new InboxValidationError(
+      error instanceof Error ? error.message : "The created event is not valid.",
+    );
+  }
   return { ...value } as InboxCandidateEvent;
 }
 
@@ -107,9 +118,16 @@ function parseDiff(value: unknown, documentId: string, candidates: InboxCandidat
       documentId,
     };
   }
-  if (value.operation === "create-event") {
-    assertClosedKeys(value, ["operation", "event"], "Create diff");
-    return { operation: "create-event", event: parseCreatedEvent(value.event, candidates) };
+  if (value.operation === "create-event-and-attach") {
+    assertClosedKeys(value, ["operation", "event", "documentId"], "Create and attach diff");
+    if (value.documentId !== documentId) {
+      throw new InboxValidationError("A proposal can attach only its source document.");
+    }
+    return {
+      operation: "create-event-and-attach",
+      event: parseCreatedEvent(value.event, candidates),
+      documentId,
+    };
   }
   throw new InboxValidationError("The proposed operation is not supported.");
 }
@@ -130,6 +148,10 @@ export async function analyze(
       filename: document.filename,
       trust: "untrusted-document-content",
       text: document.text,
+      ...(document.mediaType ? {
+        mediaType: document.mediaType,
+        attachmentAllowed: attachableMediaTypes.has(document.mediaType),
+      } : {}),
     },
     candidates: projectCandidateEvents(candidates),
     allowedCandidateEventIds: candidates.map(({ id }) => id),
@@ -185,22 +207,90 @@ export async function analyze(
   const { candidateEventIds, evidence } = common();
   const diff = parseDiff(raw.diff, document.id, candidates);
   if (
+    (diff.operation === "attach-document" || diff.operation === "create-event-and-attach") &&
+    document.mediaType &&
+    !attachableMediaTypes.has(document.mediaType)
+  ) {
+    return immutable({
+      ...common(),
+      kind: "question" as const,
+      question: "This file type cannot be attached to an event yet. Should an editor create or update an itinerary event using the extracted details?",
+    });
+  }
+  if (
     (diff.operation === "update-event" || diff.operation === "attach-document") &&
     !candidateEventIds.includes(diff.eventId)
   ) {
     throw new InboxValidationError("The proposal target must appear in candidateEventIds.");
   }
-  const identity = {
-    schemaVersion: 1 as const,
-    kind: "proposal" as const,
+  return buildProposal({
     documentId: document.id,
     baseTripVersion: document.tripVersion,
     candidateEventIds,
     evidence,
     diff,
+  });
+}
+
+async function buildProposal(input: {
+  documentId: string;
+  baseTripVersion: number;
+  candidateEventIds: string[];
+  evidence: InboxEvidence[];
+  diff: InboxProposalDiff;
+}): Promise<InboxProposal> {
+  const identity = {
+    schemaVersion: 1 as const,
+    kind: "proposal" as const,
+    documentId: input.documentId,
+    baseTripVersion: input.baseTripVersion,
+    candidateEventIds: input.candidateEventIds,
+    evidence: input.evidence,
+    diff: input.diff,
     revision: 1 as const,
   };
   const proposalId = `inbox_${await sha256(identity)}`;
   const unsigned = { ...identity, proposalId };
   return immutable({ ...unsigned, integrity: await sha256(unsigned) });
+}
+
+/**
+ * Converts a question/unclassified review into a second, immutable proposal.
+ * This function creates only a review draft; approval remains a separate action.
+ */
+export async function draftManualProposal(
+  source: InboxAnalysisOutcome,
+  input: InboxManualDraftInput,
+  candidates: InboxCandidateEvent[],
+): Promise<InboxProposal> {
+  if (source.kind !== "question" && source.kind !== "unclassified") {
+    throw new InboxValidationError("Only a question or unclassified review can be filed manually.");
+  }
+  if (!source.documentId?.trim() || !Number.isSafeInteger(source.baseTripVersion)) {
+    throw new InboxValidationError("The source review is not valid.");
+  }
+  const projected = projectCandidateEvents(candidates);
+  let diff: InboxProposalDiff;
+  let candidateEventIds: string[];
+  if (input.operation === "attach-document") {
+    const eventId = requireCandidate(input.eventId, projected);
+    diff = { operation: "attach-document", eventId, documentId: source.documentId };
+    candidateEventIds = [eventId];
+  } else if (input.operation === "create-event-and-attach") {
+    diff = {
+      operation: "create-event-and-attach",
+      event: parseCreatedEvent(input.event, projected),
+      documentId: source.documentId,
+    };
+    candidateEventIds = [];
+  } else {
+    throw new InboxValidationError("The manual filing operation is not supported.");
+  }
+  return buildProposal({
+    documentId: source.documentId,
+    baseTripVersion: source.baseTripVersion,
+    candidateEventIds,
+    evidence: source.evidence,
+    diff,
+  });
 }

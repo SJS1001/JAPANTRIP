@@ -6,6 +6,7 @@ export type InboxDocument = {
   text: string;
   role: InboxRole;
   tripVersion: number;
+  mediaType?: string;
 };
 
 export type InboxCandidateEvent = {
@@ -26,8 +27,16 @@ export type InboxEventChanges = Partial<
 
 export type InboxProposalDiff =
   | { operation: "update-event"; eventId: string; changes: InboxEventChanges }
-  | { operation: "create-event"; event: InboxCandidateEvent }
+  | {
+      operation: "create-event-and-attach";
+      event: InboxCandidateEvent;
+      documentId: string;
+    }
   | { operation: "attach-document"; eventId: string; documentId: string };
+
+export type InboxManualDraftInput =
+  | { operation: "attach-document"; eventId: string }
+  | { operation: "create-event-and-attach"; event: InboxCandidateEvent };
 
 export type InboxProposal = {
   schemaVersion: 1;
@@ -85,6 +94,8 @@ export type InboxAnalyzerModelInput = {
     filename: string;
     trust: "untrusted-document-content";
     text: string;
+    mediaType?: string;
+    attachmentAllowed?: boolean;
   };
   candidates: InboxCandidateEvent[];
   allowedCandidateEventIds: string[];
